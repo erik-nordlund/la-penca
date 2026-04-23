@@ -27,9 +27,8 @@ public class Prediction {
     @JoinColumn(name = "match_id")
     private Match match;
 
-    private Integer predictedHomeScore;
-
-    private Integer predictedAwayScore;
+    @Enumerated(EnumType.STRING)
+    private MatchOutcome predictedOutcome;
 
     private int pointsAwarded;
 }
