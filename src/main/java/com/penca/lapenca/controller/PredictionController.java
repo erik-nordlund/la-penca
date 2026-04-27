@@ -134,4 +134,14 @@ public class PredictionController {
                                            @RequestParam String code) {
         return predictionService.buildFinal(username, code);
     }
+    @GetMapping("/knockout/bracket")
+    public KnockoutBracketDto getBracket(@RequestParam String username,
+                                         @RequestParam String code) {
+        return predictionService.getFullBracket(username, code);
+    }
+    @GetMapping("/predictions")
+    public List<Prediction> getPredictions(@RequestParam String username,
+                                           @RequestParam String code) {
+        return predictionService.getPredictions(username, code);
+    }
 }

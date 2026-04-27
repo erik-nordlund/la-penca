@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Knockout - La Penca</title>
+    <style>
+        body { font-family: Arial; background:#111; color:white; padding:40px; }
+        .navbar {
+            background: #1f1f1f;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+            margin: -40px -40px 40px -40px;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+        }
+
+        .links a:hover {
+            color: #7CFC98;
+        }
+        .round { margin-bottom:40px; }
+        .match { background:#222; padding:15px; border-radius:8px; margin:10px 0; max-width:600px; }
+        button { display:block; width:100%; padding:10px; margin-top:8px; border:none; border-radius:6px; cursor:pointer; background:#0d6efd; color:white; }
+        button.selected { background:#22c55e; }
+        .slot { color:#aaa; font-size:13px; margin-bottom:8px; }
+        .champion { font-size:28px; margin-top:30px; color:#7CFC98; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">🏆 La Penca</div>
+    <div class="links">
+        <a href="/party.html">Party</a>
+        <a href="/group.html">Groups</a>
+        <a href="/third-place.html">Third place</a>
+        <a href="/knockout.html">Knockout</a>
+        <a href="/bracket.html">Bracket</a>
+        <a href="#">Leaderboard</a>
+    </div>
+</nav>
+
+<h1>Knockout Predictions</h1>
+
+<div id="content"></div>
+
+<script>
+    const username = localStorage.getItem("username");
+    const code = localStorage.getItem("partyCode");
+
+    const rounds = [
+        { name: "ROUND_OF_32", title: "Round of 32", url: "/round-of-32", next: "ROUND_OF_16" },
+        { name: "ROUND_OF_16", title: "Round of 16", url: "/round-of-16", next: "QUARTER_FINAL" },
+        { name: "QUARTER_FINAL", title: "Quarter Finals", url: "/quarter-finals", next: "SEMI_FINAL" },
+        { name: "SEMI_FINAL", title: "Semi Finals", url: "/semi-finals", next: "FINAL" },
+        { name: "FINAL", title: "Final", url: "/final", next: null }
+    ];
+
+    let currentRoundIndex = 0;
+    const selectedByRound = {};
+
+    loadRound();
+
+    function loadRound() {
+        const round = rounds[currentRoundIndex];
+
+        fetch(`${round.url}?username=${username}&code=${code}`)
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error("Could not load " + round.title);
+                }
+                return res.json();
+            })
+            .then(matches => {
+                renderRound(round, matches);
+            })
+            .catch(err => {
+                document.getElementById("content").innerHTML +=
+                    `<p style="color:red;">${err.message}</p>`;
+            });
+    }
+
+    function renderRound(round, matches) {
+        selectedByRound[round.name] = {};
+
+        let html = `<div class="round" id="${round.name}">
+            <h2>${round.title}</h2>
+        `;
+
+        matches.forEach((match, index) => {
+            const matchNumber = index + 1;
+
+            html += `
+                <div class="match" id="${round.name}-${matchNumber}">
+                    <div class="slot">${match.slot}</div>
+
+                    <button onclick="pickWinner('${round.name}', ${matchNumber}, '${escapeText(match.slot)}', '${escapeText(match.homeTeam)}', this)">
+                        ${match.homeTeam}
+                    </button>
+
+                    <button onclick="pickWinner('${round.name}', ${matchNumber}, '${escapeText(match.slot)}', '${escapeText(match.awayTeam)}', this)">
+                        ${match.awayTeam}
+                    </button>
+                </div>
+            `;
+        });
+
+        html += `</div>`;
+
+        document.getElementById("content").innerHTML += html;
+    }
+
+    function pickWinner(roundName, matchNumber, slot, winner, button) {
+        fetch(`/knockout/save?username=${username}&code=${code}&round=${roundName}&matchNumber=${matchNumber}&slot=${encodeURIComponent(slot)}&winner=${encodeURIComponent(winner)}`)
+            .then(res => res.json())
+            .then(saved => {
+                selectedByRound[roundName][matchNumber] = winner;
+
+                const matchDiv = document.getElementById(`${roundName}-${matchNumber}`);
+                matchDiv.querySelectorAll("button").forEach(btn => btn.classList.remove("selected"));
+                button.classList.add("selected");
+
+                checkIfRoundComplete(roundName);
+            });
+    }
+
+    function checkIfRoundComplete(roundName) {
+        const round = rounds[currentRoundIndex];
+        const matchDivs = document.querySelectorAll(`#${roundName} .match`);
+
+        if (Object.keys(selectedByRound[roundName]).length !== matchDivs.length) {
+            return;
+        }
+
+        if (round.next === null) {
+            const champion = Object.values(selectedByRound[roundName])[0];
+            document.getElementById("content").innerHTML +=
+                `<div class="champion">🏆 Champion: ${champion}</div>`;
+            return;
+        }
+
+        currentRoundIndex++;
+        loadRound();
+    }
+
+    function escapeText(text) {
+        return String(text).replace(/'/g, "\\'");
+    }
+</script>
+
+</body>
+</html>

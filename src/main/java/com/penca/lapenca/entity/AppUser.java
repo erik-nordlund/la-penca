@@ -1,5 +1,6 @@
 package com.penca.lapenca.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,8 +18,10 @@ public class AppUser {
 
     private String username;
 
+    @JsonIgnore
     private String email;
 
+    @JsonIgnore
     private String password;
 
     private String role;

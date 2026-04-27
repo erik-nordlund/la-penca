@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>La Penca</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #111;
+            color: white;
+            padding: 40px;
+        }
+
+        .box {
+            background: #222;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 400px;
+            margin-bottom: 20px;
+        }
+
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            box-sizing: border-box;
+        }
+
+        button {
+            cursor: pointer;
+            background: #0d6efd;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .message {
+            margin-top: 10px;
+            color: #7CFC98;
+        }
+    </style>
+</head>
+<body>
+
+<h1>La Penca</h1>
+
+<div class="box">
+    <h2>Skapa konto</h2>
+    <input id="createUsername" placeholder="Username">
+    <button onclick="createUser()">Skapa konto</button>
+    <div id="createMessage" class="message"></div>
+</div>
+
+<div class="box">
+    <h2>Login</h2>
+    <input id="loginUsername" placeholder="Username">
+    <button onclick="login()">Login</button>
+    <div id="loginMessage" class="message"></div>
+</div>
+
+<script>
+    function createUser() {
+        const username = document.getElementById("createUsername").value;
+
+        fetch(`/user/create?username=${username}`)
+            .then(res => res.json())
+            .then(user => {
+                localStorage.setItem("username", user.username);
+
+                window.location.href = "/party.html";
+            });
+    }
+
+    function login() {
+        const username = document.getElementById("loginUsername").value;
+
+        localStorage.setItem("username", username);
+
+        window.location.href = "/party.html";
+    }
+</script>
+
+</body>
+</html>

@@ -565,4 +565,41 @@ public class PredictionService {
 
         return saved;
     }
+    public KnockoutBracketDto getFullBracket(String username, String code) {
+
+        List<KnockoutMatchDto> r32 = buildRoundOf32(username, code);
+        List<KnockoutMatchDto> r16 = buildRoundOf16(username, code);
+        List<KnockoutMatchDto> qf = buildQuarterFinals(username, code);
+        List<KnockoutMatchDto> sf = buildSemiFinals(username, code);
+        List<KnockoutMatchDto> finalMatch = buildFinal(username, code);
+
+        AppUser user = appUserRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Party party = partyRepository.findByCode(code)
+                .orElseThrow(() -> new RuntimeException("Party not found"));
+
+        String champion = knockoutPredictionRepository
+                .findByUserAndPartyAndRoundNameAndMatchNumber(user, party, "FINAL", 1)
+                .map(prediction -> prediction.getPredictedWinner().getName())
+                .orElse(null);
+
+        return new KnockoutBracketDto(
+                r32,
+                r16,
+                qf,
+                sf,
+                finalMatch,
+                champion
+        );
+    }
+    public List<Prediction> getPredictions(String username, String code) {
+        AppUser user = appUserRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Party party = partyRepository.findByCode(code)
+                .orElseThrow(() -> new RuntimeException("Party not found"));
+
+        return predictionRepository.findByUserAndParty(user, party);
+    }
 }

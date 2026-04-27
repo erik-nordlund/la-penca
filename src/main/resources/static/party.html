@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Party - La Penca</title>
+    <style>
+        body { font-family: Arial; background:#111; color:white; padding:40px; }
+        .navbar {
+            background: #1f1f1f;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+            margin: -40px -40px 40px -40px;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+        }
+
+        .links a:hover {
+            color: #7CFC98;
+        }
+        .box { background:#222; padding:20px; border-radius:10px; max-width:400px; margin-bottom:20px; }
+        input, button { width:100%; padding:10px; margin-top:10px; box-sizing:border-box; }
+        button { background:#0d6efd; color:white; border:none; border-radius:5px; cursor:pointer; }
+        .message { margin-top:10px; color:#7CFC98; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">🏆 La Penca</div>
+    <div class="links">
+        <a href="/party.html">Party</a>
+        <a href="/group.html">Groups</a>
+        <a href="/third-place.html">Third place</a>
+        <a href="/knockout.html">Knockout</a>
+        <a href="/bracket.html">Bracket</a>
+        <a href="#">Leaderboard</a>
+    </div>
+</nav>
+
+<h1>Party</h1>
+<p>Inloggad som: <span id="username"></span></p>
+
+<div class="box">
+    <h2>Skapa party</h2>
+    <button onclick="createParty()">Skapa party</button>
+    <div id="createMessage" class="message"></div>
+</div>
+
+<div class="box">
+    <h2>Joina party</h2>
+    <input id="partyCode" placeholder="Party code">
+    <button onclick="joinParty()">Joina</button>
+    <div id="joinMessage" class="message"></div>
+</div>
+
+<script>
+    const username = localStorage.getItem("username");
+    document.getElementById("username").innerText = username || "Ingen user";
+
+    function createParty() {
+        fetch("/party/create")
+            .then(res => res.json())
+            .then(party => {
+                localStorage.setItem("partyCode", party.code);
+
+                window.location.href = "/group.html";
+            });
+    }
+
+    function joinParty() {
+        const code = document.getElementById("partyCode").value;
+
+        fetch(`/party/join?username=${username}&code=${code}`)
+            .then(res => res.json())
+            .then(member => {
+                localStorage.setItem("partyCode", code);
+
+                window.location.href = "/group.html";
+            });
+    }
+</script>
+
+</body>
+</html>

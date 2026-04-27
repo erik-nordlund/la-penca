@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Group Predictions - La Penca</title>
+    <style>
+        body { font-family: Arial; background:#111; color:white; padding:40px; }
+        .navbar {
+            background: #1f1f1f;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+            margin: -40px -40px 40px -40px;
+        }
+        .logo { font-size: 22px; font-weight: bold; }
+        .links a { color: white; text-decoration: none; margin-left: 20px; }
+        .links a:hover { color: #7CFC98; }
+
+        .group { margin-bottom:35px; }
+        .match { background:#222; padding:15px; border-radius:8px; margin:10px 0; max-width:650px; }
+        button { padding:8px 14px; margin:5px; cursor:pointer; border:none; border-radius:5px; }
+        .selected { background:#22c55e; color:white; }
+        .normal { background:#0d6efd; color:white; }
+        .topbar { margin-bottom:20px; }
+        .saved-text { color:#7CFC98; margin-left:8px; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">🏆 La Penca</div>
+    <div class="links">
+        <a href="/party.html">Party</a>
+        <a href="/group.html">Groups</a>
+        <a href="/third-place.html">Third place</a>
+        <a href="/knockout.html">Knockout</a>
+        <a href="/bracket.html">Bracket</a>
+        <a href="#">Leaderboard</a>
+    </div>
+</nav>
+
+<h1>Group Stage Predictions</h1>
+
+<div class="topbar">
+    <p>User: <span id="username"></span></p>
+    <p>Party: <span id="partyCode"></span></p>
+</div>
+
+<div id="matches"></div>
+
+<br>
+<button class="normal" onclick="goToBracket()">Gå vidare till tredjeplatser</button>
+
+<script>
+    const username = localStorage.getItem("username");
+    const code = localStorage.getItem("partyCode");
+
+    document.getElementById("username").innerText = username || "Ingen user";
+    document.getElementById("partyCode").innerText = code || "Inget party";
+
+    const selected = {};
+    let savedPredictions = {};
+
+    Promise.all([
+        fetch(`/predictions?username=${username}&code=${code}`).then(res => res.json()),
+        fetch("/matches").then(res => res.json())
+    ])
+        .then(([predictions, matches]) => {
+            predictions.forEach(p => {
+                savedPredictions[p.match.id] = p.predictedOutcome;
+                selected[p.match.id] = p.predictedOutcome;
+            });
+
+            const groupMatches = matches.filter(m => m.stage === "GROUP");
+
+            const byGroup = {};
+            groupMatches.forEach(match => {
+                const groupName = match.homeTeam.groupName;
+                if (!byGroup[groupName]) byGroup[groupName] = [];
+                byGroup[groupName].push(match);
+            });
+
+            const container = document.getElementById("matches");
+
+            Object.keys(byGroup).sort().forEach(group => {
+                let html = `<div class="group"><h2>Group ${group}</h2>`;
+
+                byGroup[group].forEach(match => {
+                    const saved = savedPredictions[match.id];
+
+                    html += `
+                        <div class="match" id="match-${match.id}">
+                            <strong>${match.homeTeam.name}</strong> vs <strong>${match.awayTeam.name}</strong>
+                            <br>
+
+                            <button class="${saved === 'HOME_WIN' ? 'selected' : 'normal'}"
+                                    onclick="savePrediction(${match.id}, 'HOME_WIN', this)">
+                                1
+                            </button>
+
+                            <button class="${saved === 'DRAW' ? 'selected' : 'normal'}"
+                                    onclick="savePrediction(${match.id}, 'DRAW', this)">
+                                X
+                            </button>
+
+                            <button class="${saved === 'AWAY_WIN' ? 'selected' : 'normal'}"
+                                    onclick="savePrediction(${match.id}, 'AWAY_WIN', this)">
+                                2
+                            </button>
+
+                            <span id="saved-${match.id}" class="saved-text">
+                                ${saved ? ' Sparad!' : ''}
+                            </span>
+                        </div>
+                    `;
+                });
+
+                html += `</div>`;
+                container.innerHTML += html;
+            });
+        });
+
+    function savePrediction(matchId, outcome, button) {
+        fetch(`/prediction/save?username=${username}&code=${code}&matchId=${matchId}&outcome=${outcome}`)
+            .then(res => res.json())
+            .then(prediction => {
+                selected[matchId] = outcome;
+
+                const matchDiv = document.getElementById(`match-${matchId}`);
+                matchDiv.querySelectorAll("button").forEach(btn => {
+                    btn.className = "normal";
+                });
+
+                button.className = "selected";
+                document.getElementById(`saved-${matchId}`).innerText = " Sparad!";
+            });
+    }
+
+    function goToBracket() {
+        window.location.href = "/third-place.html";
+    }
+</script>
+
+</body>
+</html>

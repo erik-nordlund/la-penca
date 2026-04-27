@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>World Cup Bracket</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #111;
+            color: white;
+            padding: 20px;
+        }
+
+        .navbar {
+            background: #1f1f1f;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+            margin: -20px -20px 40px -20px;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+        }
+
+        .links a:hover {
+            color: #7CFC98;
+        }
+
+        h2 {
+            margin-top: 40px;
+        }
+
+        .match {
+            background: #222;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+
+        .team {
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">🏆 La Penca</div>
+    <div class="links">
+        <a href="/party.html">Party</a>
+        <a href="/group.html">Groups</a>
+        <a href="/third-place.html">Third place</a>
+        <a href="/knockout.html">Knockout</a>
+        <a href="/bracket.html">Bracket</a>
+        <a href="#">Leaderboard</a>
+    </div>
+</nav>
+
+<h1>🏆 My Bracket</h1>
+
+<div id="content"></div>
+
+<script>
+    const username = localStorage.getItem("username");
+    const code = localStorage.getItem("partyCode");
+
+    fetch(`/knockout/bracket?username=${username}&code=${code}`)
+        .then(res => res.json())
+        .then(data => {
+            const content = document.getElementById("content");
+
+            function renderRound(title, matches) {
+                let html = `<h2>${title}</h2>`;
+                matches.forEach(m => {
+                    html += `
+                        <div class="match">
+                            <div class="team">${m.homeTeam}</div>
+                            <div class="team">${m.awayTeam}</div>
+                        </div>
+                    `;
+                });
+                return html;
+            }
+
+            content.innerHTML =
+                renderRound("Round of 32", data.roundOf32) +
+                renderRound("Round of 16", data.roundOf16) +
+                renderRound("Quarter Finals", data.quarterFinals) +
+                renderRound("Semi Finals", data.semiFinals) +
+                renderRound("Final", data.finalMatch) +
+                `<h2>Champion: ${data.champion}</h2>`;
+        });
+</script>
+
+</body>
+</html>
