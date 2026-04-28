@@ -1,9 +1,7 @@
 package com.penca.lapenca.controller;
 
 import com.penca.lapenca.dto.*;
-import com.penca.lapenca.entity.KnockoutPrediction;
-import com.penca.lapenca.entity.MatchOutcome;
-import com.penca.lapenca.entity.Prediction;
+import com.penca.lapenca.entity.*;
 import com.penca.lapenca.service.PredictionService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -143,5 +141,33 @@ public class PredictionController {
     public List<Prediction> getPredictions(@RequestParam String username,
                                            @RequestParam String code) {
         return predictionService.getPredictions(username, code);
+    }
+    @GetMapping("/knockout/predictions")
+    public List<KnockoutPrediction> getKnockoutPredictions(@RequestParam String username,
+                                                           @RequestParam String code) {
+        return predictionService.getKnockoutPredictions(username, code);
+    }
+    @GetMapping("/third-place-teams/saved")
+    public List<ThirdPlaceTeamDto> getSavedThirdPlaceTeams(
+            @RequestParam String username,
+            @RequestParam String code
+    ) {
+        return predictionService.getSavedThirdPlaceTeams(username, code);
+    }
+    @GetMapping("/score")
+    public int getScore(@RequestParam String username,
+                        @RequestParam String code) {
+        return predictionService.calculateUserScore(username, code);
+    }
+    @GetMapping("/actual/qualified/add")
+    public ActualQualifiedTeam addActualQualifiedTeam(@RequestParam String team,
+                                                      @RequestParam String stage) {
+        return predictionService.addActualQualifiedTeam(team, stage);
+    }
+    @GetMapping("/actual/match-result")
+    public Match setActualMatchResult(@RequestParam Long matchId,
+                                      @RequestParam int homeScore,
+                                      @RequestParam int awayScore) {
+        return predictionService.setActualMatchResult(matchId, homeScore, awayScore);
     }
 }

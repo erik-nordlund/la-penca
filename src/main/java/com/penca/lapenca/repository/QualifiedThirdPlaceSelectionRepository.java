@@ -10,7 +10,17 @@ import java.util.List;
 import java.util.Optional;
 
 public interface QualifiedThirdPlaceSelectionRepository extends JpaRepository<QualifiedThirdPlaceSelection, Long> {
-    List<QualifiedThirdPlaceSelection> findByUserAndParty(AppUser user, Party party);
-    Optional<QualifiedThirdPlaceSelection> findByUserAndPartyAndTeam(AppUser user, Party party, Team team);
-    void deleteByUserAndParty(AppUser user, Party party);
+    List<QualifiedThirdPlaceSelection> findByUserAndParty(
+            AppUser user,
+            Party party
+    );
+    Optional<QualifiedThirdPlaceSelection> findByUserAndPartyAndTeam(
+            AppUser user,
+            Party party,
+            Team team
+    );
+    void deleteByUserAndParty(
+            AppUser user,
+            Party party
+    );
 }

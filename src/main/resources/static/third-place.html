@@ -14,10 +14,7 @@
             margin: -40px -40px 40px -40px;
         }
 
-        .logo {
-            font-size: 22px;
-            font-weight: bold;
-        }
+        .logo { font-size: 22px; font-weight: bold; }
 
         .links a {
             color: white;
@@ -25,12 +22,29 @@
             margin-left: 20px;
         }
 
-        .links a:hover {
-            color: #7CFC98;
+        .links a:hover { color: #7CFC98; }
+
+        .team {
+            background:#222;
+            padding:12px;
+            border-radius:8px;
+            margin:8px 0;
+            max-width:500px;
+            cursor:pointer;
         }
-        .team { background:#222; padding:12px; border-radius:8px; margin:8px 0; max-width:500px; cursor:pointer; }
+
         .selected { background:#22c55e; }
-        button { padding:12px; margin-top:20px; background:#0d6efd; color:white; border:none; border-radius:6px; cursor:pointer; }
+
+        button {
+            padding:12px;
+            margin-top:20px;
+            background:#0d6efd;
+            color:white;
+            border:none;
+            border-radius:6px;
+            cursor:pointer;
+        }
+
         .message { margin-top:15px; color:#7CFC98; }
     </style>
 </head>
@@ -65,9 +79,16 @@
     const automaticTeams = [];
     let remainingSlots = 0;
 
-    fetch(`/third-place-selection?username=${username}&code=${code}`)
-        .then(res => res.json())
-        .then(data => {
+    let savedTeams = [];
+
+    Promise.all([
+        fetch(`/third-place-selection?username=${username}&code=${code}`).then(res => res.json()),
+        fetch(`/third-place-teams/saved?username=${username}&code=${code}`).then(res => res.json())
+    ])
+        .then(([data, saved]) => {
+
+            savedTeams = saved.map(t => t.teamName);
+
             remainingSlots = data.remainingSlots;
             document.getElementById("slots").innerText = remainingSlots;
 
@@ -78,33 +99,69 @@
 
                 data.qualifiedAutomatically.forEach(team => {
                     automaticTeams.push(team.teamName);
-                    automatic.innerHTML += `<div class="team selected">${team.teamName} (${team.groupName})</div>`;
+                    automatic.innerHTML += `
+                    <div class="team selected">
+                        ${team.teamName} (${team.groupName})
+                    </div>
+                `;
                 });
             }
 
             const teams = document.getElementById("teams");
+
+            // 🔥 Om redan sparat → hoppa direkt
+            if (savedTeams.length > 0) {
+                teams.innerHTML = "<h2>Dina val</h2>";
+
+                savedTeams.forEach(team => {
+                    selectedTeams.push(team);
+
+                    teams.innerHTML += `
+                    <div class="team selected">
+                        ${team}
+                    </div>
+                `;
+                });
+
+                document.getElementById("message").innerText =
+                    "Dina val är redan sparade.";
+
+                return;
+            }
 
             if (data.tiedTeams.length === remainingSlots) {
                 teams.innerHTML = "<h2>Går också vidare</h2>";
 
                 data.tiedTeams.forEach(team => {
                     selectedTeams.push(team.teamName);
-                    teams.innerHTML += `<div class="team selected">${team.teamName} (${team.groupName}) - ${team.points} pts</div>`;
+
+                    teams.innerHTML += `
+                    <div class="team selected">
+                        ${team.teamName} (${team.groupName}) - ${team.points} pts
+                    </div>
+                `;
                 });
 
                 document.getElementById("message").innerText =
                     "Alla kvarvarande lag går vidare automatiskt.";
+
                 return;
             }
 
             teams.innerHTML = "<h2>Välj bland lika lag</h2>";
 
             data.tiedTeams.forEach(team => {
+
+                const isSaved = savedTeams.includes(team.teamName);
+
+                if (isSaved) selectedTeams.push(team.teamName);
+
                 teams.innerHTML += `
-                    <div class="team" onclick="toggleTeam(this, '${team.teamName}', ${remainingSlots})">
-                        ${team.teamName} (${team.groupName}) - ${team.points} pts
-                    </div>
-                `;
+                <div class="team ${isSaved ? 'selected' : ''}"
+                     onclick="toggleTeam(this, '${team.teamName}', ${remainingSlots})">
+                    ${team.teamName} (${team.groupName}) - ${team.points} pts
+                </div>
+            `;
             });
         });
 

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard - La Penca</title>
+    <style>
+        body { font-family: Arial; background:#111; color:white; padding:40px; }
+
+        .navbar {
+            background: #1f1f1f;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+            margin: -40px -40px 40px -40px;
+        }
+
+        .logo { font-size: 22px; font-weight: bold; }
+
+        .links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+        }
+
+        .links a:hover { color: #7CFC98; }
+
+        .card {
+            background:#222;
+            padding:20px;
+            border-radius:10px;
+            max-width:500px;
+            margin-bottom:20px;
+        }
+
+        button {
+            width:100%;
+            padding:12px;
+            margin-top:10px;
+            background:#0d6efd;
+            color:white;
+            border:none;
+            border-radius:6px;
+            cursor:pointer;
+        }
+
+        .danger { background:#dc3545; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">🏆 La Penca</div>
+    <div class="links">
+        <a href="/dashboard.html">Dashboard</a>
+        <a href="/party.html">Party</a>
+        <a href="/group.html">Groups</a>
+        <a href="/third-place.html">Third place</a>
+        <a href="/knockout.html">Knockout</a>
+        <a href="/bracket.html">Bracket</a>
+        <a href="#">Leaderboard</a>
+    </div>
+</nav>
+
+<h1>Dashboard</h1>
+
+<div class="card">
+    <h2>Din info</h2>
+    <p>User: <strong id="username"></strong></p>
+    <p>Party: <strong id="partyCode"></strong></p>
+</div>
+
+<div class="card">
+    <h2>Predictions</h2>
+    <button onclick="go('/group.html')">Group predictions</button>
+    <button onclick="go('/third-place.html')">Third place selection</button>
+    <button onclick="go('/knockout.html')">Knockout predictions</button>
+    <button onclick="go('/bracket.html')">View full bracket</button>
+</div>
+
+<div class="card">
+    <h2>Party</h2>
+    <button onclick="go('/party.html')">Create / Join party</button>
+</div>
+
+<div class="card">
+    <h2>Account</h2>
+    <button class="danger" onclick="logout()">Logga ut</button>
+</div>
+
+<script>
+    const username = localStorage.getItem("username");
+    const code = localStorage.getItem("partyCode");
+
+    document.getElementById("username").innerText = username || "Ingen user";
+    document.getElementById("partyCode").innerText = code || "Inget party valt";
+
+    function go(url) {
+        window.location.href = url;
+    }
+
+    function logout() {
+        localStorage.removeItem("username");
+        localStorage.removeItem("partyCode");
+        window.location.href = "/index.html";
+    }
+</script>
+
+</body>
+</html>

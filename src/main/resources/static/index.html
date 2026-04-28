@@ -37,6 +37,11 @@
             margin-top: 10px;
             color: #7CFC98;
         }
+
+        .error {
+            margin-top: 10px;
+            color: #ff6b6b;
+        }
     </style>
 </head>
 <body>
@@ -59,23 +64,52 @@
 
 <script>
     function createUser() {
-        const username = document.getElementById("createUsername").value;
+        const username = document.getElementById("createUsername").value.trim();
 
-        fetch(`/user/create?username=${username}`)
+        if (!username) {
+            document.getElementById("createMessage").innerText = "Skriv ett username.";
+            return;
+        }
+
+        fetch(`/user/create?username=${encodeURIComponent(username)}`)
             .then(res => res.json())
             .then(user => {
                 localStorage.setItem("username", user.username);
+                localStorage.removeItem("partyCode");
 
                 window.location.href = "/party.html";
+            })
+            .catch(() => {
+                document.getElementById("createMessage").className = "error";
+                document.getElementById("createMessage").innerText = "Kunde inte skapa konto.";
             });
     }
 
     function login() {
-        const username = document.getElementById("loginUsername").value;
+        const username = document.getElementById("loginUsername").value.trim();
+
+        if (!username) {
+            document.getElementById("loginMessage").innerText = "Skriv ett username.";
+            return;
+        }
 
         localStorage.setItem("username", username);
 
-        window.location.href = "/party.html";
+        fetch(`/user/party?username=${encodeURIComponent(username)}`)
+            .then(res => res.json())
+            .then(party => {
+                if (party && party.code) {
+                    localStorage.setItem("partyCode", party.code);
+                    window.location.href = "/dashboard.html";
+                } else {
+                    localStorage.removeItem("partyCode");
+                    window.location.href = "/party.html";
+                }
+            })
+            .catch(() => {
+                document.getElementById("loginMessage").className = "error";
+                document.getElementById("loginMessage").innerText = "Kunde inte logga in.";
+            });
     }
 </script>
 

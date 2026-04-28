@@ -13,21 +13,10 @@
             border-bottom: 1px solid #333;
             margin: -40px -40px 40px -40px;
         }
+        .logo { font-size: 22px; font-weight: bold; }
+        .links a { color: white; text-decoration: none; margin-left: 20px; }
+        .links a:hover { color: #7CFC98; }
 
-        .logo {
-            font-size: 22px;
-            font-weight: bold;
-        }
-
-        .links a {
-            color: white;
-            text-decoration: none;
-            margin-left: 20px;
-        }
-
-        .links a:hover {
-            color: #7CFC98;
-        }
         .round { margin-bottom:40px; }
         .match { background:#222; padding:15px; border-radius:8px; margin:10px 0; max-width:600px; }
         button { display:block; width:100%; padding:10px; margin-top:8px; border:none; border-radius:6px; cursor:pointer; background:#0d6efd; color:white; }
@@ -68,8 +57,28 @@
 
     let currentRoundIndex = 0;
     const selectedByRound = {};
+    const savedKnockoutPredictions = {};
 
-    loadRound();
+    loadSavedThenStart();
+
+    function loadSavedThenStart() {
+        fetch(`/knockout/predictions?username=${username}&code=${code}`)
+            .then(res => res.json())
+            .then(predictions => {
+                predictions.forEach(p => {
+                    if (!savedKnockoutPredictions[p.roundName]) {
+                        savedKnockoutPredictions[p.roundName] = {};
+                    }
+
+                    savedKnockoutPredictions[p.roundName][p.matchNumber] = {
+                        winner: p.predictedWinner.name,
+                        slot: p.slot
+                    };
+                });
+
+                loadRound();
+            });
+    }
 
     function loadRound() {
         const round = rounds[currentRoundIndex];
@@ -83,6 +92,24 @@
             })
             .then(matches => {
                 renderRound(round, matches);
+
+                const savedForRound = savedKnockoutPredictions[round.name] || {};
+                const expectedMatches = matches.length;
+                const savedCount = Object.keys(savedForRound).length;
+
+                if (savedCount === expectedMatches) {
+                    Object.keys(savedForRound).forEach(matchNumber => {
+                        selectedByRound[round.name][matchNumber] = savedForRound[matchNumber].winner;
+                    });
+
+                    if (round.next === null) {
+                        showChampion(savedForRound[1].winner);
+                        return;
+                    }
+
+                    currentRoundIndex++;
+                    loadRound();
+                }
             })
             .catch(err => {
                 document.getElementById("content").innerHTML +=
@@ -97,18 +124,23 @@
             <h2>${round.title}</h2>
         `;
 
+        const savedForRound = savedKnockoutPredictions[round.name] || {};
+
         matches.forEach((match, index) => {
             const matchNumber = index + 1;
+            const savedWinner = savedForRound[matchNumber]?.winner;
 
             html += `
                 <div class="match" id="${round.name}-${matchNumber}">
                     <div class="slot">${match.slot}</div>
 
-                    <button onclick="pickWinner('${round.name}', ${matchNumber}, '${escapeText(match.slot)}', '${escapeText(match.homeTeam)}', this)">
+                    <button class="${savedWinner === match.homeTeam ? 'selected' : ''}"
+                            onclick="pickWinner('${round.name}', ${matchNumber}, '${escapeText(match.slot)}', '${escapeText(match.homeTeam)}', this)">
                         ${match.homeTeam}
                     </button>
 
-                    <button onclick="pickWinner('${round.name}', ${matchNumber}, '${escapeText(match.slot)}', '${escapeText(match.awayTeam)}', this)">
+                    <button class="${savedWinner === match.awayTeam ? 'selected' : ''}"
+                            onclick="pickWinner('${round.name}', ${matchNumber}, '${escapeText(match.slot)}', '${escapeText(match.awayTeam)}', this)">
                         ${match.awayTeam}
                     </button>
                 </div>
@@ -125,6 +157,15 @@
             .then(res => res.json())
             .then(saved => {
                 selectedByRound[roundName][matchNumber] = winner;
+
+                if (!savedKnockoutPredictions[roundName]) {
+                    savedKnockoutPredictions[roundName] = {};
+                }
+
+                savedKnockoutPredictions[roundName][matchNumber] = {
+                    winner: winner,
+                    slot: slot
+                };
 
                 const matchDiv = document.getElementById(`${roundName}-${matchNumber}`);
                 matchDiv.querySelectorAll("button").forEach(btn => btn.classList.remove("selected"));
@@ -144,13 +185,19 @@
 
         if (round.next === null) {
             const champion = Object.values(selectedByRound[roundName])[0];
-            document.getElementById("content").innerHTML +=
-                `<div class="champion">🏆 Champion: ${champion}</div>`;
+            showChampion(champion);
             return;
         }
 
         currentRoundIndex++;
         loadRound();
+    }
+
+    function showChampion(champion) {
+        if (document.getElementById("champion")) return;
+
+        document.getElementById("content").innerHTML +=
+            `<div id="champion" class="champion">🏆 Champion: ${champion}</div>`;
     }
 
     function escapeText(text) {

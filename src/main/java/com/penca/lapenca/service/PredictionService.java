@@ -23,6 +23,7 @@ public class PredictionService {
     private final QualifiedThirdPlaceSelectionRepository qualifiedThirdPlaceSelectionRepository;
     private final TeamRepository teamRepository;
     private final KnockoutPredictionRepository knockoutPredictionRepository;
+    private final ActualQualifiedTeamRepository actualQualifiedTeamRepository;
 
 
     public PredictionService(PredictionRepository predictionRepository,
@@ -30,7 +31,8 @@ public class PredictionService {
                              PartyRepository partyRepository,
                              MatchRepository matchRepository,
                              QualifiedThirdPlaceSelectionRepository qualifiedThirdPlaceSelectionRepository,
-                             TeamRepository teamRepository, KnockoutPredictionRepository knockoutPredictionRepository) {
+                             TeamRepository teamRepository, KnockoutPredictionRepository knockoutPredictionRepository,
+                             ActualQualifiedTeamRepository actualQualifiedTeamRepository) {
         this.predictionRepository = predictionRepository;
         this.appUserRepository = appUserRepository;
         this.partyRepository = partyRepository;
@@ -38,6 +40,7 @@ public class PredictionService {
         this.qualifiedThirdPlaceSelectionRepository = qualifiedThirdPlaceSelectionRepository;
         this.teamRepository = teamRepository;
         this.knockoutPredictionRepository = knockoutPredictionRepository;
+        this.actualQualifiedTeamRepository = actualQualifiedTeamRepository;
     }
 
     public Prediction savePrediction(String username,
@@ -601,5 +604,151 @@ public class PredictionService {
                 .orElseThrow(() -> new RuntimeException("Party not found"));
 
         return predictionRepository.findByUserAndParty(user, party);
+    }
+    public List<KnockoutPrediction> getKnockoutPredictions(String username, String code) {
+        AppUser user = appUserRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Party party = partyRepository.findByCode(code)
+                .orElseThrow(() -> new RuntimeException("Party not found"));
+
+        return knockoutPredictionRepository.findByUserAndParty(user, party);
+    }
+    public List<ThirdPlaceTeamDto> getSavedThirdPlaceTeams(String username, String code) {
+
+        AppUser user = appUserRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Party party = partyRepository.findByCode(code)
+                .orElseThrow(() -> new RuntimeException("Party not found"));
+
+        return qualifiedThirdPlaceSelectionRepository
+                .findByUserAndParty(user, party)
+                .stream()
+                .map(selection -> new ThirdPlaceTeamDto(
+                        selection.getTeam().getGroupName(),
+                        selection.getTeam().getName(),
+                        0
+                ))
+                .toList();
+    }
+    public int calculateUserScore(String username, String code) {
+
+        AppUser user = appUserRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Party party = partyRepository.findByCode(code)
+                .orElseThrow(() -> new RuntimeException("Party not found"));
+
+        int totalScore = 0;
+
+        List<Prediction> groupPredictions = predictionRepository.findByUserAndParty(user, party);
+
+        for (Prediction prediction : groupPredictions) {
+            Match match = prediction.getMatch();
+
+            if (!"GROUP".equals(match.getStage())) {
+                continue;
+            }
+
+            if (!match.isPlayed() || match.getHomeScore() == null || match.getAwayScore() == null) {
+                continue;
+            }
+
+            MatchOutcome actualOutcome;
+
+            if (match.getHomeScore() > match.getAwayScore()) {
+                actualOutcome = MatchOutcome.HOME_WIN;
+            } else if (match.getHomeScore() < match.getAwayScore()) {
+                actualOutcome = MatchOutcome.AWAY_WIN;
+            } else {
+                actualOutcome = MatchOutcome.DRAW;
+            }
+
+            if (prediction.getPredictedOutcome() == actualOutcome) {
+                totalScore += 1;
+            }
+        }
+
+        totalScore += countCorrectRoundOf32Teams(username, code) * 1;
+
+        totalScore += countCorrectKnockoutTeams(user, party, "ROUND_OF_32", "ROUND_OF_16") * 2;
+        totalScore += countCorrectKnockoutTeams(user, party, "ROUND_OF_16", "QUARTER_FINAL") * 3;
+        totalScore += countCorrectKnockoutTeams(user, party, "QUARTER_FINAL", "SEMI_FINAL") * 4;
+        totalScore += countCorrectKnockoutTeams(user, party, "SEMI_FINAL", "FINAL") * 5;
+        totalScore += countCorrectKnockoutTeams(user, party, "FINAL", "CHAMPION") * 6;
+
+        return totalScore;
+    }
+    private int countCorrectRoundOf32Teams(String username, String code) {
+
+        List<String> predictedTeams = buildRoundOf32(username, code)
+                .stream()
+                .flatMap(match -> List.of(match.getHomeTeam(), match.getAwayTeam()).stream())
+                .toList();
+
+        List<String> actualTeams = actualQualifiedTeamRepository.findByStage("ROUND_OF_32")
+                .stream()
+                .map(actual -> actual.getTeam().getName())
+                .toList();
+
+        int count = 0;
+
+        for (String predictedTeam : predictedTeams) {
+            if (actualTeams.contains(predictedTeam)) {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    private int countCorrectKnockoutTeams(AppUser user,
+                                          Party party,
+                                          String predictionRound,
+                                          String actualStage) {
+
+        List<String> predictedTeams = knockoutPredictionRepository
+                .findByUserAndPartyAndRoundName(user, party, predictionRound)
+                .stream()
+                .map(prediction -> prediction.getPredictedWinner().getName())
+                .toList();
+
+        List<String> actualTeams = actualQualifiedTeamRepository
+                .findByStage(actualStage)
+                .stream()
+                .map(actual -> actual.getTeam().getName())
+                .toList();
+
+        int count = 0;
+
+        for (String predictedTeam : predictedTeams) {
+            if (actualTeams.contains(predictedTeam)) {
+                count++;
+            }
+        }
+
+        return count;
+    }
+    public ActualQualifiedTeam addActualQualifiedTeam(String teamName, String stage) {
+        Team team = teamRepository.findByName(teamName)
+                .orElseThrow(() -> new RuntimeException("Team not found"));
+
+        ActualQualifiedTeam actual = ActualQualifiedTeam.builder()
+                .team(team)
+                .stage(stage)
+                .build();
+
+        return actualQualifiedTeamRepository.save(actual);
+    }
+    public Match setActualMatchResult(Long matchId, int homeScore, int awayScore) {
+        Match match = matchRepository.findById(matchId)
+                .orElseThrow(() -> new RuntimeException("Match not found"));
+
+        match.setHomeScore(homeScore);
+        match.setAwayScore(awayScore);
+        match.setPlayed(true);
+
+        return matchRepository.save(match);
     }
 }

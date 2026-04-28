@@ -22,4 +22,13 @@ public interface KnockoutPredictionRepository extends JpaRepository<KnockoutPred
             Party party,
             String roundName
     );
+    List<KnockoutPrediction> findByUserAndParty(
+            AppUser user,
+            Party party
+    );
+    List<KnockoutPrediction> findByUserAndPartyAndRoundName(
+            AppUser user,
+            Party party,
+            String roundName
+    );
 }
