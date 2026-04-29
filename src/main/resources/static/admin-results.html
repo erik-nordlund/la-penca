@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Results - La Penca</title>
+    <style>
+        body { font-family: Arial; background:#111; color:white; padding:40px; }
+        .navbar {
+            background:#1f1f1f; padding:15px 25px; display:flex;
+            justify-content:space-between; align-items:center;
+            border-bottom:1px solid #333; margin:-40px -40px 40px -40px;
+        }
+        .logo { font-size:22px; font-weight:bold; }
+        .links a { color:white; text-decoration:none; margin-left:20px; }
+        .links a:hover { color:#7CFC98; }
+
+        .card {
+            background:#222; padding:20px; border-radius:10px;
+            max-width:600px; margin-bottom:20px;
+        }
+
+        input, select, button {
+            width:100%; padding:10px; margin-top:10px; box-sizing:border-box;
+        }
+
+        button {
+            background:#0d6efd; color:white; border:none; border-radius:6px; cursor:pointer;
+        }
+
+        .message { margin-top:12px; color:#7CFC98; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">🏆 La Penca</div>
+    <div class="links">
+        <a href="/dashboard.html">Dashboard</a>
+        <a href="/group.html">Groups</a>
+        <a href="/knockout.html">Knockout</a>
+        <a href="/bracket.html">Bracket</a>
+        <a href="/leaderboard.html">Leaderboard</a>
+        <a href="/admin-results.html">Admin</a>
+    </div>
+</nav>
+
+<h1>Admin Results</h1>
+
+<div class="card">
+    <h2>Sätt gruppspelsresultat</h2>
+    <input id="matchId" placeholder="Match ID, t.ex. 7">
+    <input id="homeScore" placeholder="Home score, t.ex. 2">
+    <input id="awayScore" placeholder="Away score, t.ex. 0">
+    <button onclick="setMatchResult()">Spara matchresultat</button>
+    <div id="matchMessage" class="message"></div>
+</div>
+
+<div class="card">
+    <h2>Lägg till actual qualified team</h2>
+    <input id="teamName" placeholder="Team name, t.ex. Spain">
+
+    <select id="stage">
+        <option value="ROUND_OF_32">ROUND_OF_32</option>
+        <option value="ROUND_OF_16">ROUND_OF_16</option>
+        <option value="QUARTER_FINAL">QUARTER_FINAL</option>
+        <option value="SEMI_FINAL">SEMI_FINAL</option>
+        <option value="FINAL">FINAL</option>
+        <option value="CHAMPION">CHAMPION</option>
+        <option value="RUNNER_UP">RUNNER_UP</option>
+        <option value="THIRD_PLACE">THIRD_PLACE</option>
+        <option value="FOURTH_PLACE">FOURTH_PLACE</option>
+    </select>
+
+    <button onclick="addActualTeam()">Lägg till</button>
+    <div id="teamMessage" class="message"></div>
+</div>
+
+<div class="card">
+    <h2>Reset actual data</h2>
+    <p>Tar bort alla actual qualified teams och nollställer alla matchresultat.</p>
+    <button style="background:#dc3545;" onclick="resetActualData()">Reset actual data</button>
+    <div id="resetMessage" class="message"></div>
+</div>
+
+<script>
+    function setMatchResult() {
+        const matchId = document.getElementById("matchId").value;
+        const homeScore = document.getElementById("homeScore").value;
+        const awayScore = document.getElementById("awayScore").value;
+
+        fetch(`/actual/match-result?matchId=${matchId}&homeScore=${homeScore}&awayScore=${awayScore}`)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("matchMessage").innerText =
+                    `Sparat: ${data.homeTeam.name} ${data.homeScore} - ${data.awayScore} ${data.awayTeam.name}`;
+            });
+    }
+
+    function addActualTeam() {
+        const teamName = document.getElementById("teamName").value;
+        const stage = document.getElementById("stage").value;
+
+        fetch(`/actual/qualified/add?team=${encodeURIComponent(teamName)}&stage=${stage}`)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("teamMessage").innerText =
+                    `Sparat: ${data.team.name} som ${data.stage}`;
+            });
+    }
+    function resetActualData() {
+        if (!confirm("Är du säker? Detta tar bort all actual data.")) {
+            return;
+        }
+
+        fetch("/actual/reset")
+            .then(res => res.text())
+            .then(message => {
+                document.getElementById("resetMessage").innerText = message;
+            });
+    }
+</script>
+
+</body>
+</html>

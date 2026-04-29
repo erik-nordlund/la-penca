@@ -24,6 +24,7 @@ public class PredictionService {
     private final TeamRepository teamRepository;
     private final KnockoutPredictionRepository knockoutPredictionRepository;
     private final ActualQualifiedTeamRepository actualQualifiedTeamRepository;
+    private final PartyMemberRepository partyMemberRepository;
 
 
     public PredictionService(PredictionRepository predictionRepository,
@@ -32,7 +33,8 @@ public class PredictionService {
                              MatchRepository matchRepository,
                              QualifiedThirdPlaceSelectionRepository qualifiedThirdPlaceSelectionRepository,
                              TeamRepository teamRepository, KnockoutPredictionRepository knockoutPredictionRepository,
-                             ActualQualifiedTeamRepository actualQualifiedTeamRepository) {
+                             ActualQualifiedTeamRepository actualQualifiedTeamRepository,
+                             PartyMemberRepository partyMemberRepository) {
         this.predictionRepository = predictionRepository;
         this.appUserRepository = appUserRepository;
         this.partyRepository = partyRepository;
@@ -41,6 +43,7 @@ public class PredictionService {
         this.teamRepository = teamRepository;
         this.knockoutPredictionRepository = knockoutPredictionRepository;
         this.actualQualifiedTeamRepository = actualQualifiedTeamRepository;
+        this.partyMemberRepository = partyMemberRepository;
     }
 
     public Prediction savePrediction(String username,
@@ -536,6 +539,48 @@ public class PredictionService {
     public List<KnockoutMatchDto> buildFinal(String username, String code) {
         return buildNextRound(username, code, "SEMI_FINAL", "SF", 2);
     }
+    public List<KnockoutMatchDto> buildThirdPlaceMatch(String username, String code) {
+
+        AppUser user = appUserRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Party party = partyRepository.findByCode(code)
+                .orElseThrow(() -> new RuntimeException("Party not found"));
+
+        List<KnockoutMatchDto> semiFinalMatches = buildSemiFinals(username, code);
+
+        List<KnockoutPrediction> semiFinalPredictions =
+                knockoutPredictionRepository.findByUserAndPartyAndRoundNameOrderByMatchNumberAsc(
+                        user,
+                        party,
+                        "SEMI_FINAL"
+                );
+
+        if (semiFinalPredictions.size() != 2) {
+            throw new RuntimeException("You must pick winners for both semi finals first");
+        }
+
+        List<String> bronzeTeams = new ArrayList<>();
+
+        for (int i = 0; i < semiFinalMatches.size(); i++) {
+            KnockoutMatchDto semiMatch = semiFinalMatches.get(i);
+            KnockoutPrediction prediction = semiFinalPredictions.get(i);
+
+            String winner = prediction.getPredictedWinner().getName();
+
+            String loser = semiMatch.getHomeTeam().equals(winner)
+                    ? semiMatch.getAwayTeam()
+                    : semiMatch.getHomeTeam();
+
+            bronzeTeams.add(loser);
+        }
+
+        return List.of(new KnockoutMatchDto(
+                "Loser SF-1 vs Loser SF-2",
+                bronzeTeams.get(0),
+                bronzeTeams.get(1)
+        ));
+    }
     public List<KnockoutPrediction> autoPickRound(String username, String code, String roundName) {
         List<KnockoutMatchDto> matches;
 
@@ -545,6 +590,8 @@ public class PredictionService {
             matches = buildQuarterFinals(username, code);
         } else if (roundName.equals("SEMI_FINAL")) {
             matches = buildSemiFinals(username, code);
+        } else if (roundName.equals("THIRD_PLACE")) {
+            matches = buildThirdPlaceMatch(username, code);
         } else if (roundName.equals("FINAL")) {
             matches = buildFinal(username, code);
         } else {
@@ -677,6 +724,7 @@ public class PredictionService {
         totalScore += countCorrectKnockoutTeams(user, party, "QUARTER_FINAL", "SEMI_FINAL") * 4;
         totalScore += countCorrectKnockoutTeams(user, party, "SEMI_FINAL", "FINAL") * 5;
         totalScore += countCorrectKnockoutTeams(user, party, "FINAL", "CHAMPION") * 6;
+        totalScore += calculatePlacementScore(username, code, user, party);
 
         return totalScore;
     }
@@ -750,5 +798,107 @@ public class PredictionService {
         match.setPlayed(true);
 
         return matchRepository.save(match);
+    }
+    public List<LeaderboardRowDto> getLeaderboard(String code) {
+
+        Party party = partyRepository.findByCode(code)
+                .orElseThrow(() -> new RuntimeException("Party not found"));
+
+        List<PartyMember> members = partyMemberRepository.findByParty(party);
+
+        return members.stream()
+                .map(member -> {
+                    String username = member.getUser().getUsername();
+                    int score = calculateUserScore(username, code);
+
+                    return new LeaderboardRowDto(username, score);
+                })
+                .sorted((a, b) -> Integer.compare(b.getScore(), a.getScore()))
+                .toList();
+    }
+    private int calculatePlacementScore(String username, String code, AppUser user, Party party) {
+
+        int score = 0;
+
+        List<KnockoutPrediction> finalPredictions =
+                knockoutPredictionRepository.findByUserAndPartyAndRoundName(user, party, "FINAL");
+
+        if (!finalPredictions.isEmpty()) {
+            KnockoutPrediction finalPrediction = finalPredictions.get(0);
+            String predictedChampion = finalPrediction.getPredictedWinner().getName();
+
+            List<KnockoutMatchDto> finalMatch = buildFinal(username, code);
+
+            if (!finalMatch.isEmpty()) {
+                KnockoutMatchDto match = finalMatch.get(0);
+
+                String predictedRunnerUp = match.getHomeTeam().equals(predictedChampion)
+                        ? match.getAwayTeam()
+                        : match.getHomeTeam();
+
+                List<String> actualRunnerUp = actualQualifiedTeamRepository.findByStage("RUNNER_UP")
+                        .stream()
+                        .map(actual -> actual.getTeam().getName())
+                        .toList();
+
+                if (actualRunnerUp.contains(predictedRunnerUp)) {
+                    score += 5;
+                }
+            }
+        }
+
+        List<KnockoutPrediction> thirdPlacePredictions =
+                knockoutPredictionRepository.findByUserAndPartyAndRoundName(user, party, "THIRD_PLACE");
+
+        if (!thirdPlacePredictions.isEmpty()) {
+            KnockoutPrediction thirdPlacePrediction = thirdPlacePredictions.get(0);
+            String predictedThirdPlace = thirdPlacePrediction.getPredictedWinner().getName();
+
+            List<String> actualThirdPlace = actualQualifiedTeamRepository.findByStage("THIRD_PLACE")
+                    .stream()
+                    .map(actual -> actual.getTeam().getName())
+                    .toList();
+
+            if (actualThirdPlace.contains(predictedThirdPlace)) {
+                score += 4;
+            }
+
+            List<KnockoutMatchDto> thirdPlaceMatch = buildThirdPlaceMatch(username, code);
+
+            if (!thirdPlaceMatch.isEmpty()) {
+                KnockoutMatchDto match = thirdPlaceMatch.get(0);
+
+                String predictedFourthPlace = match.getHomeTeam().equals(predictedThirdPlace)
+                        ? match.getAwayTeam()
+                        : match.getHomeTeam();
+
+                List<String> actualFourthPlace = actualQualifiedTeamRepository.findByStage("FOURTH_PLACE")
+                        .stream()
+                        .map(actual -> actual.getTeam().getName())
+                        .toList();
+
+                if (actualFourthPlace.contains(predictedFourthPlace)) {
+                    score += 3;
+                }
+            }
+        }
+
+        return score;
+    }
+    public String resetActualData() {
+
+        actualQualifiedTeamRepository.deleteAll();
+
+        List<Match> matches = matchRepository.findAll();
+
+        for (Match match : matches) {
+            match.setHomeScore(null);
+            match.setAwayScore(null);
+            match.setPlayed(false);
+        }
+
+        matchRepository.saveAll(matches);
+
+        return "Actual data reset";
     }
 }

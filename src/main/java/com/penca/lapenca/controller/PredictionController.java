@@ -170,4 +170,17 @@ public class PredictionController {
                                       @RequestParam int awayScore) {
         return predictionService.setActualMatchResult(matchId, homeScore, awayScore);
     }
+    @GetMapping("/leaderboard")
+    public List<LeaderboardRowDto> getLeaderboard(@RequestParam String code) {
+        return predictionService.getLeaderboard(code);
+    }
+    @GetMapping("/third-place-match")
+    public List<KnockoutMatchDto> getThirdPlaceMatch(@RequestParam String username,
+                                                     @RequestParam String code) {
+        return predictionService.buildThirdPlaceMatch(username, code);
+    }
+    @GetMapping("/actual/reset")
+    public String resetActualData() {
+        return predictionService.resetActualData();
+    }
 }

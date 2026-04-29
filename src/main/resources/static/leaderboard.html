@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Leaderboard - La Penca</title>
+    <style>
+        body { font-family: Arial; background:#111; color:white; padding:40px; }
+        .navbar {
+            background:#1f1f1f; padding:15px 25px; display:flex;
+            justify-content:space-between; align-items:center;
+            border-bottom:1px solid #333; margin:-40px -40px 40px -40px;
+        }
+        .logo { font-size:22px; font-weight:bold; }
+        .links a { color:white; text-decoration:none; margin-left:20px; }
+        .links a:hover { color:#7CFC98; }
+
+        .card {
+            background:#222; padding:20px; border-radius:10px;
+            max-width:600px; margin-bottom:20px;
+        }
+        .row {
+            display:flex; justify-content:space-between; align-items:center;
+            padding:14px; border-bottom:1px solid #333;
+            font-size:18px;
+        }
+        .row:last-child { border-bottom:none; }
+        .rank { color:#7CFC98; font-weight:bold; width:50px; }
+        .score { font-weight:bold; }
+        .message { color:#aaa; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">🏆 La Penca</div>
+    <div class="links">
+        <a href="/dashboard.html">Dashboard</a>
+        <a href="/party.html">Party</a>
+        <a href="/group.html">Groups</a>
+        <a href="/third-place.html">Third place</a>
+        <a href="/knockout.html">Knockout</a>
+        <a href="/bracket.html">Bracket</a>
+        <a href="/leaderboard.html">Leaderboard</a>
+        <a href="/admin-results.html">Admin</a>
+    </div>
+</nav>
+
+<h1>Leaderboard</h1>
+<p>Party: <strong id="partyCode"></strong></p>
+
+<div class="card" id="leaderboard">
+    <p class="message">Laddar leaderboard...</p>
+</div>
+
+<script>
+    const username = localStorage.getItem("username");
+    const code = localStorage.getItem("partyCode");
+
+    if (!username) {
+        window.location.href = "/index.html";
+    }
+
+    document.getElementById("partyCode").innerText = code || "Inget party valt";
+
+    if (!code) {
+        document.getElementById("leaderboard").innerHTML =
+            `<p class="message">Du måste skapa eller joina ett party först.</p>`;
+    } else {
+        fetch(`/leaderboard?code=${encodeURIComponent(code)}`)
+            .then(res => res.json())
+            .then(rows => {
+                const container = document.getElementById("leaderboard");
+
+                if (rows.length === 0) {
+                    container.innerHTML = `<p class="message">Inga spelare i detta party ännu.</p>`;
+                    return;
+                }
+
+                container.innerHTML = "";
+
+                rows.forEach((row, index) => {
+                    container.innerHTML += `
+                        <div class="row">
+                            <span class="rank">#${index + 1}</span>
+                            <span>${row.username}</span>
+                            <span class="score">${row.score} pts</span>
+                        </div>
+                    `;
+                });
+            });
+    }
+</script>
+
+</body>
+</html>
