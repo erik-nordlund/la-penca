@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Knockout Board - La Penca</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: white;
+      overflow: auto;
+    }
+
+    .navbar {
+      background: #1f1f1f;
+      padding: 15px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #333;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .links a {
+      color: white;
+      text-decoration: none;
+      margin-left: 18px;
+    }
+
+    .links a:hover {
+      color: #7CFC98;
+    }
+
+    .page {
+      padding: 20px;
+    }
+
+    .bracket-wrap {
+      position: relative;
+      min-width: 1700px;
+      height: 980px;
+    }
+
+    #lines {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .bracket {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: 720px 300px 720px;
+      gap: 30px;
+      height: 100%;
+    }
+
+    .side {
+      display: grid;
+      grid-template-columns: repeat(4, 165px);
+      gap: 20px;
+      height: 100%;
+    }
+
+    .right {
+      grid-template-columns: repeat(4, 165px);
+    }
+
+    .round {
+      display: grid;
+      grid-template-rows: repeat(16, 56px);
+      gap: 0;
+      position: relative;
+    }
+
+    .round-title {
+      position: absolute;
+      top: -28px;
+      width: 100%;
+      text-align: center;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .match {
+      background: #222;
+      border: 1px solid #3a3a3a;
+      border-radius: 10px;
+      padding: 7px;
+      min-height: 76px;
+      box-sizing: border-box;
+      align-self: center;
+    }
+
+    .slot {
+      color: #aaa;
+      font-size: 11px;
+      margin-bottom: 5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .team {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: none;
+      border-radius: 7px;
+      background: #0d6efd;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .team.selected {
+      background: #22c55e;
+    }
+
+    .team.placeholder {
+      background: #333;
+      color: #888;
+      cursor: not-allowed;
+    }
+
+    .team:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    .center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 22px;
+    }
+
+    .trophy {
+      font-size: 70px;
+      opacity: 0.85;
+    }
+
+    .champion {
+      color: #7CFC98;
+      font-size: 24px;
+      font-weight: bold;
+      text-align: center;
+      min-height: 32px;
+    }
+
+    .center-box {
+      width: 230px;
+    }
+
+    .center-label {
+      text-align: center;
+      color: #aaa;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .line {
+      stroke: #444;
+      stroke-width: 2;
+      fill: none;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="logo">🏆 La Penca</div>
+  <div class="links">
+    <a href="/dashboard.html">Dashboard</a>
+    <a href="/group.html">Groups</a>
+    <a href="/third-place.html">Third place</a>
+    <a href="/knockout-board.html">Knockout</a>
+    <a href="/bracket.html">Bracket</a>
+    <a href="/leaderboard.html">Leaderboard</a>
+  </div>
+</nav>
+
+<div class="page">
+  <h1>Knockout Board</h1>
+
+  <div class="bracket-wrap" id="bracketWrap">
+    <svg id="lines"></svg>
+
+    <div class="bracket">
+      <div class="side left" id="leftSide"></div>
+
+      <div class="center">
+        <div class="trophy">🏆</div>
+        <div id="champion" class="champion"></div>
+
+        <div class="center-box">
+          <div class="center-label">Final</div>
+          <div id="finalBox"></div>
+        </div>
+
+        <div class="center-box">
+          <div class="center-label">Third place</div>
+          <div id="thirdPlaceBox"></div>
+        </div>
+      </div>
+
+      <div class="side right" id="rightSide"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const username = localStorage.getItem("username");
+  const code = localStorage.getItem("partyCode");
+
+  if (!username) {
+    window.location.href = "/index.html";
+  }
+
+  let r32Matches = [];
+  let saved = {};
+
+  const roundOrder = [
+    "ROUND_OF_32",
+    "ROUND_OF_16",
+    "QUARTER_FINAL",
+    "SEMI_FINAL",
+    "THIRD_PLACE",
+    "FINAL"
+  ];
+
+  init();
+
+  function init() {
+    Promise.all([
+      fetch(`/round-of-32?username=${username}&code=${code}`).then(res => res.json()),
+      fetch(`/knockout/predictions?username=${username}&code=${code}`).then(res => res.json())
+    ])
+            .then(([roundOf32, predictions]) => {
+              r32Matches = roundOf32;
+
+              predictions.forEach(p => {
+                if (!saved[p.roundName]) {
+                  saved[p.roundName] = {};
+                }
+
+                saved[p.roundName][p.matchNumber] = p.predictedWinner.name;
+              });
+
+              renderBracket();
+            });
+  }
+
+  function renderBracket() {
+    const all = buildAllRounds();
+
+    renderSide("leftSide", [
+      { title: "R32", name: "ROUND_OF_32", matches: all.r32.slice(0, 8), start: 1, rows: [1,3,5,7,9,11,13,15] },
+      { title: "R16", name: "ROUND_OF_16", matches: all.r16.slice(0, 4), start: 1, rows: [2,6,10,14] },
+      { title: "QF", name: "QUARTER_FINAL", matches: all.qf.slice(0, 2), start: 1, rows: [4,12] },
+      { title: "SF", name: "SEMI_FINAL", matches: all.sf.slice(0, 1), start: 1, rows: [8] }
+    ]);
+
+    renderSide("rightSide", [
+      { title: "SF", name: "SEMI_FINAL", matches: all.sf.slice(1, 2), start: 2, rows: [8] },
+      { title: "QF", name: "QUARTER_FINAL", matches: all.qf.slice(2, 4), start: 3, rows: [4,12] },
+      { title: "R16", name: "ROUND_OF_16", matches: all.r16.slice(4, 8), start: 5, rows: [2,6,10,14] },
+      { title: "R32", name: "ROUND_OF_32", matches: all.r32.slice(8, 16), start: 9, rows: [1,3,5,7,9,11,13,15] }
+    ]);
+
+    renderCenterMatch("finalBox", "FINAL", all.finalMatch, 1);
+    renderCenterMatch("thirdPlaceBox", "THIRD_PLACE", all.thirdPlace, 1);
+
+    const champion = saved["FINAL"]?.[1];
+    document.getElementById("champion").innerText = champion ? `Champion: ${champion}` : "";
+
+    setTimeout(drawLines, 50);
+  }
+
+  function buildAllRounds() {
+    const r32 = r32Matches;
+
+    const r16 = buildFromPrevious("ROUND_OF_32", "Winner R32", r32, 16);
+    const qf = buildFromPrevious("ROUND_OF_16", "Winner R16", r16, 8);
+    const sf = buildFromPrevious("QUARTER_FINAL", "Winner QF", qf, 4);
+    const finalMatch = buildFromPrevious("SEMI_FINAL", "Winner SF", sf, 2);
+    const thirdPlace = buildThirdPlace(sf);
+
+    return { r32, r16, qf, sf, finalMatch, thirdPlace };
+  }
+
+  function buildFromPrevious(previousRound, label, previousMatches, expected) {
+    const matches = [];
+
+    for (let i = 0; i < expected; i += 2) {
+      const firstMatchNumber = i + 1;
+      const secondMatchNumber = i + 2;
+
+      const home = saved[previousRound]?.[firstMatchNumber] || null;
+      const away = saved[previousRound]?.[secondMatchNumber] || null;
+
+      matches.push({
+        slot: `${label}-${firstMatchNumber} vs ${label}-${secondMatchNumber}`,
+        homeTeam: home,
+        awayTeam: away
+      });
+    }
+
+    return matches;
+  }
+
+  function buildThirdPlace(semiMatches) {
+    if (semiMatches.length < 2) {
+      return [];
+    }
+
+    const loser1 = getLoser("SEMI_FINAL", 1, semiMatches[0]);
+    const loser2 = getLoser("SEMI_FINAL", 2, semiMatches[1]);
+
+    return [{
+      slot: "Loser SF-1 vs Loser SF-2",
+      homeTeam: loser1,
+      awayTeam: loser2
+    }];
+  }
+
+  function getLoser(roundName, matchNumber, match) {
+    const winner = saved[roundName]?.[matchNumber];
+
+    if (!winner || !match.homeTeam || !match.awayTeam) {
+      return null;
+    }
+
+    return match.homeTeam === winner ? match.awayTeam : match.homeTeam;
+  }
+
+  function renderSide(elementId, columns) {
+    const side = document.getElementById(elementId);
+    side.innerHTML = "";
+
+    columns.forEach(column => {
+      const roundDiv = document.createElement("div");
+      roundDiv.className = "round";
+
+      const title = document.createElement("div");
+      title.className = "round-title";
+      title.innerText = column.title;
+      roundDiv.appendChild(title);
+
+      column.matches.forEach((match, index) => {
+        const matchNumber = column.start + index;
+        const card = createMatchCard(column.name, matchNumber, match);
+        card.style.gridRow = `${column.rows[index]} / span 2`;
+        roundDiv.appendChild(card);
+      });
+
+      side.appendChild(roundDiv);
+    });
+  }
+
+  function renderCenterMatch(elementId, roundName, matches, matchNumber) {
+    const box = document.getElementById(elementId);
+    box.innerHTML = "";
+
+    if (!matches || matches.length === 0) {
+      box.appendChild(createMatchCard(roundName, matchNumber, {
+        slot: "Waiting...",
+        homeTeam: null,
+        awayTeam: null
+      }));
+      return;
+    }
+
+    box.appendChild(createMatchCard(roundName, matchNumber, matches[0]));
+  }
+
+  function createMatchCard(roundName, matchNumber, match) {
+    const card = document.createElement("div");
+    card.className = "match";
+    card.id = `${roundName}-${matchNumber}`;
+
+    const slot = document.createElement("div");
+    slot.className = "slot";
+    slot.innerText = match.slot;
+    card.appendChild(slot);
+
+    card.appendChild(createTeamButton(roundName, matchNumber, match.slot, match.homeTeam, match));
+    card.appendChild(createTeamButton(roundName, matchNumber, match.slot, match.awayTeam, match));
+
+    return card;
+  }
+
+  function createTeamButton(roundName, matchNumber, slot, teamName, match) {
+    const btn = document.createElement("button");
+    btn.className = "team";
+
+    if (!teamName) {
+      btn.classList.add("placeholder");
+      btn.innerText = "Waiting...";
+      btn.disabled = true;
+      return btn;
+    }
+
+    btn.innerText = teamName;
+
+    const selectedWinner = saved[roundName]?.[matchNumber];
+
+    if (selectedWinner === teamName) {
+      btn.classList.add("selected");
+    }
+
+    if (!match.homeTeam || !match.awayTeam) {
+      btn.disabled = true;
+    }
+
+    btn.onclick = () => saveWinner(roundName, matchNumber, slot, teamName);
+
+    return btn;
+  }
+
+  function saveWinner(roundName, matchNumber, slot, winner) {
+    fetch(`/knockout/save?username=${username}&code=${code}&round=${roundName}&matchNumber=${matchNumber}&slot=${encodeURIComponent(slot)}&winner=${encodeURIComponent(winner)}`)
+            .then(res => res.json())
+            .then(() => {
+              clearLocalFutureRounds(roundName);
+
+              if (!saved[roundName]) {
+                saved[roundName] = {};
+              }
+
+              saved[roundName][matchNumber] = winner;
+
+              renderBracket();
+            });
+  }
+
+  function clearLocalFutureRounds(roundName) {
+    const index = roundOrder.indexOf(roundName);
+
+    for (let i = index + 1; i < roundOrder.length; i++) {
+      delete saved[roundOrder[i]];
+    }
+
+    if (roundName === "SEMI_FINAL") {
+      delete saved["THIRD_PLACE"];
+      delete saved["FINAL"];
+    }
+  }
+
+  function drawLines() {
+    const svg = document.getElementById("lines");
+    svg.innerHTML = "";
+
+    const connections = [
+      ["ROUND_OF_32-1", "ROUND_OF_16-1"],
+      ["ROUND_OF_32-2", "ROUND_OF_16-1"],
+      ["ROUND_OF_32-3", "ROUND_OF_16-2"],
+      ["ROUND_OF_32-4", "ROUND_OF_16-2"],
+      ["ROUND_OF_32-5", "ROUND_OF_16-3"],
+      ["ROUND_OF_32-6", "ROUND_OF_16-3"],
+      ["ROUND_OF_32-7", "ROUND_OF_16-4"],
+      ["ROUND_OF_32-8", "ROUND_OF_16-4"],
+
+      ["ROUND_OF_16-1", "QUARTER_FINAL-1"],
+      ["ROUND_OF_16-2", "QUARTER_FINAL-1"],
+      ["ROUND_OF_16-3", "QUARTER_FINAL-2"],
+      ["ROUND_OF_16-4", "QUARTER_FINAL-2"],
+
+      ["QUARTER_FINAL-1", "SEMI_FINAL-1"],
+      ["QUARTER_FINAL-2", "SEMI_FINAL-1"],
+
+      ["SEMI_FINAL-1", "FINAL-1"],
+
+      ["ROUND_OF_32-9", "ROUND_OF_16-5"],
+      ["ROUND_OF_32-10", "ROUND_OF_16-5"],
+      ["ROUND_OF_32-11", "ROUND_OF_16-6"],
+      ["ROUND_OF_32-12", "ROUND_OF_16-6"],
+      ["ROUND_OF_32-13", "ROUND_OF_16-7"],
+      ["ROUND_OF_32-14", "ROUND_OF_16-7"],
+      ["ROUND_OF_32-15", "ROUND_OF_16-8"],
+      ["ROUND_OF_32-16", "ROUND_OF_16-8"],
+
+      ["ROUND_OF_16-5", "QUARTER_FINAL-3"],
+      ["ROUND_OF_16-6", "QUARTER_FINAL-3"],
+      ["ROUND_OF_16-7", "QUARTER_FINAL-4"],
+      ["ROUND_OF_16-8", "QUARTER_FINAL-4"],
+
+      ["QUARTER_FINAL-3", "SEMI_FINAL-2"],
+      ["QUARTER_FINAL-4", "SEMI_FINAL-2"],
+
+      ["SEMI_FINAL-2", "FINAL-1"]
+    ];
+
+    connections.forEach(([fromId, toId]) => drawConnection(fromId, toId));
+  }
+
+  function drawConnection(fromId, toId) {
+    const from = document.getElementById(fromId);
+    const to = document.getElementById(toId);
+    const wrap = document.getElementById("bracketWrap");
+
+    if (!from || !to || !wrap) return;
+
+    const fromRect = from.getBoundingClientRect();
+    const toRect = to.getBoundingClientRect();
+    const wrapRect = wrap.getBoundingClientRect();
+
+    const fromCenterX = fromRect.left + fromRect.width / 2 - wrapRect.left;
+    const fromCenterY = fromRect.top + fromRect.height / 2 - wrapRect.top;
+    const toCenterX = toRect.left + toRect.width / 2 - wrapRect.left;
+    const toCenterY = toRect.top + toRect.height / 2 - wrapRect.top;
+
+    let startX, endX;
+
+    if (fromCenterX < toCenterX) {
+      startX = fromRect.right - wrapRect.left;
+      endX = toRect.left - wrapRect.left;
+    } else {
+      startX = fromRect.left - wrapRect.left;
+      endX = toRect.right - wrapRect.left;
+    }
+
+    const startY = fromCenterY;
+    const endY = toCenterY;
+    const midX = startX + (endX - startX) / 2;
+
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+
+    path.setAttribute("d", `M ${startX} ${startY} H ${midX} V ${endY} H ${endX}`);
+    path.setAttribute("class", "line");
+
+    document.getElementById("lines").appendChild(path);
+  }
+
+  window.addEventListener("resize", drawLines);
+</script>
+
+</body>
+</html>

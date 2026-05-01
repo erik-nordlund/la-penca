@@ -31,4 +31,13 @@ public interface KnockoutPredictionRepository extends JpaRepository<KnockoutPred
             Party party,
             String roundName
     );
+    void deleteByUserAndPartyAndRoundName(
+            AppUser user,
+            Party party,
+            String roundName
+    );
+    void deleteByUserAndParty(
+            AppUser user,
+            Party party
+    );
 }

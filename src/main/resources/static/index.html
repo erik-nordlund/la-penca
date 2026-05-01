@@ -1,87 +1,327 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>La Penca</title>
     <style>
-        body {
-            font-family: Arial;
-            background: #111;
-            color: white;
-            padding: 40px;
-        }
-
-        .box {
-            background: #222;
-            padding: 20px;
-            border-radius: 10px;
-            max-width: 400px;
-            margin-bottom: 20px;
-        }
-
-        input, button {
-            width: 100%;
-            padding: 10px;
-            margin-top: 10px;
+        * {
             box-sizing: border-box;
         }
 
-        button {
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background:
+                    radial-gradient(circle at top left, rgba(34,197,94,0.18), transparent 35%),
+                    radial-gradient(circle at bottom right, rgba(13,110,253,0.18), transparent 35%),
+                    #0f0f0f;
+            color: white;
+        }
+
+        .page {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 50px;
+            align-items: center;
+            padding: 60px 80px;
+        }
+
+        .hero {
+            max-width: 650px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(34,197,94,0.14);
+            color: #7CFC98;
+            border: 1px solid rgba(124,252,152,0.35);
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 22px;
+        }
+
+        h1 {
+            font-size: 64px;
+            line-height: 1;
+            margin: 0 0 18px;
+        }
+
+        .subtitle {
+            font-size: 20px;
+            color: #cfcfcf;
+            line-height: 1.5;
+            margin-bottom: 30px;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+            margin-top: 30px;
+        }
+
+        .feature {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 16px;
+        }
+
+        .feature strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .feature span {
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        .panel {
+            width: 100%;
+            max-width: 440px;
+            justify-self: end;
+            background: rgba(31,31,31,0.92);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 24px;
+            padding: 26px;
+            box-shadow: 0 20px 70px rgba(0,0,0,0.45);
+        }
+
+        .tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: #151515;
+            border-radius: 14px;
+            padding: 5px;
+            margin-bottom: 24px;
+        }
+
+        .tab {
+            border: none;
+            border-radius: 10px;
+            background: transparent;
+            color: #aaa;
+            padding: 12px;
+            font-weight: bold;
             cursor: pointer;
+        }
+
+        .tab.active {
             background: #0d6efd;
             color: white;
+        }
+
+        .form {
+            display: none;
+        }
+
+        .form.active {
+            display: block;
+        }
+
+        h2 {
+            margin: 0 0 8px;
+            font-size: 26px;
+        }
+
+        .hint {
+            color: #aaa;
+            margin-bottom: 22px;
+            line-height: 1.4;
+        }
+
+        label {
+            display: block;
+            color: #cfcfcf;
+            font-size: 13px;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 15px;
+            border-radius: 12px;
+            border: 1px solid #3a3a3a;
+            background: #111;
+            color: white;
+            outline: none;
+            font-size: 15px;
+        }
+
+        input:focus {
+            border-color: #0d6efd;
+        }
+
+        .primary-btn {
+            width: 100%;
+            margin-top: 16px;
+            padding: 14px;
             border: none;
-            border-radius: 5px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #0d6efd, #22c55e);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .primary-btn:hover {
+            filter: brightness(1.08);
         }
 
         .message {
-            margin-top: 10px;
+            margin-top: 14px;
             color: #7CFC98;
+            min-height: 20px;
+            font-size: 14px;
         }
 
         .error {
-            margin-top: 10px;
+            margin-top: 14px;
             color: #ff6b6b;
+            min-height: 20px;
+            font-size: 14px;
+        }
+
+        .footer-note {
+            margin-top: 22px;
+            color: #777;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        @media (max-width: 900px) {
+            .page {
+                grid-template-columns: 1fr;
+                padding: 35px 20px;
+            }
+
+            h1 {
+                font-size: 46px;
+            }
+
+            .panel {
+                justify-self: stretch;
+                max-width: none;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
 
-<h1>La Penca</h1>
+<div class="page">
+    <section class="hero">
+        <div class="badge">🏆 World Cup Prediction Game</div>
+        <h1>La Penca</h1>
+        <p class="subtitle">
+            Create your own World Cup predictions, compete with your family,
+            follow the knockout bracket and climb the leaderboard.
+        </p>
 
-<div class="box">
-    <h2>Skapa konto</h2>
-    <input id="createUsername" placeholder="Username">
-    <button onclick="createUser()">Skapa konto</button>
-    <div id="createMessage" class="message"></div>
-</div>
+        <div class="features">
+            <div class="feature">
+                <strong>⚽ Group predictions</strong>
+                <span>Predict every group match and build your table.</span>
+            </div>
+            <div class="feature">
+                <strong>🏆 Knockout bracket</strong>
+                <span>Pick winners from Round of 32 to the final.</span>
+            </div>
+            <div class="feature">
+                <strong>🥉 Third place</strong>
+                <span>Select qualified third-place teams.</span>
+            </div>
+            <div class="feature">
+                <strong>📊 Leaderboard</strong>
+                <span>Track points inside your private party.</span>
+            </div>
+        </div>
+    </section>
 
-<div class="box">
-    <h2>Login</h2>
-    <input id="loginUsername" placeholder="Username">
-    <button onclick="login()">Login</button>
-    <div id="loginMessage" class="message"></div>
+    <section class="panel">
+        <div class="tabs">
+            <button id="loginTab" class="tab active" onclick="showTab('login')">Login</button>
+            <button id="createTab" class="tab" onclick="showTab('create')">Create</button>
+        </div>
+
+        <div id="loginForm" class="form active">
+            <h2>Welcome back</h2>
+            <div class="hint">Enter your username to continue your predictions.</div>
+
+            <label>Username</label>
+            <input id="loginUsername" placeholder="Example: erik" onkeydown="handleEnter(event, login)">
+
+            <button class="primary-btn" onclick="login()">Continue</button>
+            <div id="loginMessage" class="message"></div>
+        </div>
+
+        <div id="createForm" class="form">
+            <h2>Create account</h2>
+            <div class="hint">Choose a username and start your La Penca journey.</div>
+
+            <label>Username</label>
+            <input id="createUsername" placeholder="Choose username" onkeydown="handleEnter(event, createUser)">
+
+            <button class="primary-btn" onclick="createUser()">Create account</button>
+            <div id="createMessage" class="message"></div>
+        </div>
+
+        <div class="footer-note">
+            No password yet — simple local username login for the first version.
+        </div>
+    </section>
 </div>
 
 <script>
+    function showTab(tab) {
+        document.getElementById("loginTab").classList.toggle("active", tab === "login");
+        document.getElementById("createTab").classList.toggle("active", tab === "create");
+
+        document.getElementById("loginForm").classList.toggle("active", tab === "login");
+        document.getElementById("createForm").classList.toggle("active", tab === "create");
+    }
+
+    function handleEnter(event, action) {
+        if (event.key === "Enter") {
+            action();
+        }
+    }
+
+    function setMessage(id, text, isError = false) {
+        const el = document.getElementById(id);
+        el.className = isError ? "error" : "message";
+        el.innerText = text;
+    }
+
     function createUser() {
         const username = document.getElementById("createUsername").value.trim();
 
         if (!username) {
-            document.getElementById("createMessage").innerText = "Skriv ett username.";
+            setMessage("createMessage", "Write a username first.", true);
             return;
         }
+
+        setMessage("createMessage", "Creating account...");
 
         fetch(`/user/create?username=${encodeURIComponent(username)}`)
             .then(res => res.json())
             .then(user => {
                 localStorage.setItem("username", user.username);
                 localStorage.removeItem("partyCode");
-
                 window.location.href = "/party.html";
             })
             .catch(() => {
-                document.getElementById("createMessage").className = "error";
-                document.getElementById("createMessage").innerText = "Kunde inte skapa konto.";
+                setMessage("createMessage", "Could not create account.", true);
             });
     }
 
@@ -89,10 +329,11 @@
         const username = document.getElementById("loginUsername").value.trim();
 
         if (!username) {
-            document.getElementById("loginMessage").innerText = "Skriv ett username.";
+            setMessage("loginMessage", "Write a username first.", true);
             return;
         }
 
+        setMessage("loginMessage", "Logging in...");
         localStorage.setItem("username", username);
 
         fetch(`/user/party?username=${encodeURIComponent(username)}`)
@@ -107,8 +348,7 @@
                 }
             })
             .catch(() => {
-                document.getElementById("loginMessage").className = "error";
-                document.getElementById("loginMessage").innerText = "Kunde inte logga in.";
+                setMessage("loginMessage", "Could not log in.", true);
             });
     }
 </script>

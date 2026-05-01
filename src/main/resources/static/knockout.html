@@ -158,16 +158,10 @@
         fetch(`/knockout/save?username=${username}&code=${code}&round=${roundName}&matchNumber=${matchNumber}&slot=${encodeURIComponent(slot)}&winner=${encodeURIComponent(winner)}`)
             .then(res => res.json())
             .then(saved => {
+
+                clearRoundsAfter(roundName);
+
                 selectedByRound[roundName][matchNumber] = winner;
-
-                if (!savedKnockoutPredictions[roundName]) {
-                    savedKnockoutPredictions[roundName] = {};
-                }
-
-                savedKnockoutPredictions[roundName][matchNumber] = {
-                    winner: winner,
-                    slot: slot
-                };
 
                 const matchDiv = document.getElementById(`${roundName}-${matchNumber}`);
                 matchDiv.querySelectorAll("button").forEach(btn => btn.classList.remove("selected"));
@@ -176,9 +170,31 @@
                 checkIfRoundComplete(roundName);
             });
     }
+    function clearRoundsAfter(roundName) {
+        const index = rounds.findIndex(r => r.name === roundName);
+
+        for (let i = index + 1; i < rounds.length; i++) {
+            const roundElement = document.getElementById(rounds[i].name);
+            if (roundElement) {
+                roundElement.remove();
+            }
+
+            delete selectedByRound[rounds[i].name];
+            delete savedKnockoutPredictions[rounds[i].name];
+        }
+
+        const champion = document.getElementById("champion");
+        if (champion) {
+            champion.remove();
+        }
+
+        currentRoundIndex = index;
+    }
 
     function checkIfRoundComplete(roundName) {
-        const round = rounds[currentRoundIndex];
+        const roundIndex = rounds.findIndex(r => r.name === roundName);
+        const round = rounds[roundIndex];
+
         const matchDivs = document.querySelectorAll(`#${roundName} .match`);
 
         if (Object.keys(selectedByRound[roundName]).length !== matchDivs.length) {
@@ -191,7 +207,7 @@
             return;
         }
 
-        currentRoundIndex++;
+        currentRoundIndex = roundIndex + 1;
         loadRound();
     }
 

@@ -3,6 +3,7 @@ package com.penca.lapenca.service;
 import com.penca.lapenca.dto.*;
 import com.penca.lapenca.entity.*;
 import com.penca.lapenca.repository.*;
+import jakarta.transaction.Transactional;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import tools.jackson.core.type.TypeReference;
@@ -46,6 +47,7 @@ public class PredictionService {
         this.partyMemberRepository = partyMemberRepository;
     }
 
+    @Transactional
     public Prediction savePrediction(String username,
                                      String partyCode,
                                      Long matchId,
@@ -71,7 +73,13 @@ public class PredictionService {
                                 .build()
                 );
 
+        boolean changed = prediction.getPredictedOutcome() != predictedOutcome;
+
         prediction.setPredictedOutcome(predictedOutcome);
+
+        if (changed) {
+            clearBracketAfterGroupChange(user, party);
+        }
 
         return predictionRepository.save(prediction);
     }
@@ -401,6 +409,7 @@ public class PredictionService {
 
         return matches;
     }
+    @Transactional
     public KnockoutPrediction saveKnockoutPrediction(String username,
                                                      String code,
                                                      String roundName,
@@ -427,6 +436,8 @@ public class PredictionService {
                                 .slot(slot)
                                 .build()
                 );
+
+        clearFutureRounds(user, party, roundName);
 
         prediction.setSlot(slot);
         prediction.setPredictedWinner(winner);
@@ -900,5 +911,34 @@ public class PredictionService {
         matchRepository.saveAll(matches);
 
         return "Actual data reset";
+    }
+    private void clearFutureRounds(AppUser user, Party party, String roundName) {
+
+        List<String> roundsToDelete = new ArrayList<>();
+
+        switch (roundName) {
+            case "ROUND_OF_32" -> roundsToDelete = List.of(
+                    "ROUND_OF_16", "QUARTER_FINAL", "SEMI_FINAL", "THIRD_PLACE", "FINAL"
+            );
+            case "ROUND_OF_16" -> roundsToDelete = List.of(
+                    "QUARTER_FINAL", "SEMI_FINAL", "THIRD_PLACE", "FINAL"
+            );
+            case "QUARTER_FINAL" -> roundsToDelete = List.of(
+                    "SEMI_FINAL", "THIRD_PLACE", "FINAL"
+            );
+            case "SEMI_FINAL" -> roundsToDelete = List.of(
+                    "THIRD_PLACE", "FINAL"
+            );
+            case "THIRD_PLACE" -> roundsToDelete = List.of();
+            case "FINAL" -> roundsToDelete = List.of();
+        }
+
+        for (String round : roundsToDelete) {
+            knockoutPredictionRepository.deleteByUserAndPartyAndRoundName(user, party, round);
+        }
+    }
+    private void clearBracketAfterGroupChange(AppUser user, Party party) {
+        qualifiedThirdPlaceSelectionRepository.deleteByUserAndParty(user, party);
+        knockoutPredictionRepository.deleteByUserAndParty(user, party);
     }
 }
