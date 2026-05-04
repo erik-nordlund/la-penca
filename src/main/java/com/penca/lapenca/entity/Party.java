@@ -21,4 +21,6 @@ public class Party {
     private String code;
 
     private LocalDateTime createdAt;
+
+    private LocalDateTime predictionDeadline;
 }

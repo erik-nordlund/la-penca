@@ -1,5 +1,6 @@
 package com.penca.lapenca.controller;
 
+import com.penca.lapenca.dto.PartyMemberDto;
 import com.penca.lapenca.entity.AppUser;
 import com.penca.lapenca.entity.Party;
 import com.penca.lapenca.entity.PartyMember;
@@ -10,6 +11,9 @@ import com.penca.lapenca.service.PartyService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 public class PartyController {
@@ -47,5 +51,27 @@ public class PartyController {
         return partyMemberRepository.findFirstByUser(user)
                 .map(PartyMember::getParty)
                 .orElse(null);
+    }
+    @GetMapping("/party/deadline/set")
+    public Party setPredictionDeadline(@RequestParam String code,
+                                       @RequestParam String deadline) {
+        return partyService.setPredictionDeadline(
+                code,
+                LocalDateTime.parse(deadline)
+        );
+    }
+    @GetMapping("/party/lock-status")
+    public boolean getLockStatus(@RequestParam String code) {
+        return partyService.isPredictionLocked(code);
+    }
+    @GetMapping("/party/members")
+    public List<PartyMemberDto> getPartyMembers(@RequestParam String code) {
+        Party party = partyService.findByCode(code)
+                .orElseThrow(() -> new RuntimeException("Party not found"));
+
+        return partyMemberRepository.findByParty(party)
+                .stream()
+                .map(member -> new PartyMemberDto(member.getUser().getUsername()))
+                .toList();
     }
 }

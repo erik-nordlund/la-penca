@@ -12,4 +12,6 @@ public interface PartyMemberRepository extends JpaRepository<PartyMember, Long> 
 
     Optional<PartyMember> findFirstByUser(AppUser user);
     List<PartyMember> findByParty(Party party);
+
+    boolean existsByUserAndParty(AppUser user, Party party);
 }

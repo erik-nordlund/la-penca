@@ -21,7 +21,17 @@ public class PartyService{
         Party party = Party.builder()
                 .code(generatePartyCode())
                 .createdAt(LocalDateTime.now())
+                .predictionDeadline(LocalDateTime.of(2026, 6, 11, 18, 0))
                 .build();
+
+        return partyRepository.save(party);
+    }
+
+    public Party setPredictionDeadline(String code, LocalDateTime deadline) {
+        Party party = partyRepository.findByCode(code)
+                .orElseThrow(() -> new RuntimeException("Party not found"));
+
+        party.setPredictionDeadline(deadline);
 
         return partyRepository.save(party);
     }
@@ -40,5 +50,12 @@ public class PartyService{
         }
 
         return code.toString();
+    }
+    public boolean isPredictionLocked(String code) {
+        Party party = partyRepository.findByCode(code)
+                .orElseThrow(() -> new RuntimeException("Party not found"));
+
+        return party.getPredictionDeadline() != null
+                && LocalDateTime.now().isAfter(party.getPredictionDeadline());
     }
 }

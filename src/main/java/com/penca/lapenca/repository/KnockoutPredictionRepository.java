@@ -40,4 +40,10 @@ public interface KnockoutPredictionRepository extends JpaRepository<KnockoutPred
             AppUser user,
             Party party
     );
+    void deleteByUserAndPartyAndRoundNameAndMatchNumber(
+            AppUser user,
+            Party party,
+            String roundName,
+            int matchNumber
+    );
 }

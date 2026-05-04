@@ -4,29 +4,354 @@
     <meta charset="UTF-8">
     <title>Leaderboard - La Penca</title>
     <style>
-        body { font-family: Arial; background:#111; color:white; padding:40px; }
-        .navbar {
-            background:#1f1f1f; padding:15px 25px; display:flex;
-            justify-content:space-between; align-items:center;
-            border-bottom:1px solid #333; margin:-40px -40px 40px -40px;
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background:
+                    radial-gradient(circle at top left, rgba(34,197,94,0.14), transparent 35%),
+                    radial-gradient(circle at bottom right, rgba(13,110,253,0.14), transparent 35%),
+                    #0f0f0f;
+            color: white;
         }
-        .logo { font-size:22px; font-weight:bold; }
-        .links a { color:white; text-decoration:none; margin-left:20px; }
-        .links a:hover { color:#7CFC98; }
+
+        .navbar {
+            background: rgba(31,31,31,0.92);
+            padding: 16px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .logo { font-size: 22px; font-weight: bold; }
+
+        .links a {
+            color: #d7d7d7;
+            text-decoration: none;
+            margin-left: 18px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .links a:hover,
+        .links a.active {
+            color: #7CFC98;
+        }
+
+        .page {
+            padding: 42px 60px 70px;
+        }
+
+        .hero {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 24px;
+            margin-bottom: 26px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(34,197,94,0.14);
+            color: #7CFC98;
+            border: 1px solid rgba(124,252,152,0.35);
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 18px;
+        }
+
+        h1 {
+            font-size: 52px;
+            margin: 0 0 12px;
+            line-height: 1;
+        }
+
+        .subtitle {
+            color: #cfcfcf;
+            font-size: 18px;
+            margin: 0;
+            line-height: 1.45;
+        }
+
+        .info {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .pill {
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 999px;
+            padding: 9px 14px;
+            color: #ddd;
+            font-size: 14px;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 24px;
+            align-items: start;
+        }
 
         .card {
-            background:#222; padding:20px; border-radius:10px;
-            max-width:600px; margin-bottom:20px;
+            background: rgba(31,31,31,0.94);
+            border: 1px solid rgba(255,255,255,0.13);
+            border-radius: 22px;
+            padding: 22px;
+            box-shadow: 0 14px 45px rgba(0,0,0,0.28);
         }
-        .row {
-            display:flex; justify-content:space-between; align-items:center;
-            padding:14px; border-bottom:1px solid #333;
-            font-size:18px;
+
+        .card + .card {
+            margin-top: 20px;
         }
-        .row:last-child { border-bottom:none; }
-        .rank { color:#7CFC98; font-weight:bold; width:50px; }
-        .score { font-weight:bold; }
-        .message { color:#aaa; }
+
+        .card-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        h2 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .muted {
+            color: #aaa;
+            line-height: 1.45;
+        }
+
+        .leaderboard-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .leader-row {
+            display: grid;
+            grid-template-columns: 70px 1fr auto auto;
+            gap: 16px;
+            align-items: center;
+            background: rgba(255,255,255,0.055);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 18px;
+            padding: 16px;
+        }
+
+        .leader-row.me {
+            border-color: rgba(124,252,152,0.5);
+            background: rgba(34,197,94,0.12);
+        }
+
+        .rank {
+            font-size: 24px;
+            font-weight: bold;
+            color: #7CFC98;
+        }
+
+        .player-name {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .player-sub {
+            color: #aaa;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .score {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .score span {
+            display: block;
+            color: #aaa;
+            font-size: 12px;
+            margin-top: 3px;
+        }
+
+        .podium {
+            display: grid;
+            gap: 12px;
+        }
+
+        .podium-card {
+            background: rgba(255,255,255,0.055);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 18px;
+            padding: 16px;
+        }
+
+        .podium-rank {
+            font-size: 26px;
+            margin-bottom: 8px;
+        }
+
+        .podium-name {
+            font-weight: bold;
+            font-size: 17px;
+        }
+
+        .podium-score {
+            color: #7CFC98;
+            font-weight: bold;
+            margin-top: 6px;
+        }
+
+        .status-pill {
+            border-radius: 999px;
+            padding: 7px 11px;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+            background: rgba(255,255,255,0.08);
+            color: #aaa;
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+
+        .status-ok {
+            background: rgba(34,197,94,0.14);
+            color: #7CFC98;
+            border: 1px solid rgba(124,252,152,0.3);
+        }
+
+        .primary-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            background: linear-gradient(135deg, #0d6efd, #22c55e);
+            color: white;
+            margin-top: 14px;
+        }
+        .details-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.18);
+            background: #151515;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .breakdown-row {
+            display: grid;
+            grid-template-columns: 1fr 60px;
+            gap: 24px;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .breakdown-row span:last-child,
+        .breakdown-row strong:last-child {
+            text-align: right;
+        }
+
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.72);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-backdrop.show {
+            display: flex;
+        }
+
+        .modal {
+            width: 100%;
+            max-width: 560px;
+            background: #1f1f1f;
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 22px;
+            padding: 26px;
+            color: white;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .close-btn {
+            border: none;
+            background: transparent;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        button:hover { filter: brightness(1.08); }
+
+        .empty-state {
+            background: rgba(255,255,255,0.045);
+            border: 1px dashed rgba(255,255,255,0.16);
+            border-radius: 16px;
+            padding: 22px;
+            color: #aaa;
+            text-align: center;
+        }
+
+        @media (max-width: 950px) {
+            .page {
+                padding: 30px 18px 60px;
+            }
+
+            .hero {
+                display: block;
+            }
+
+            .info {
+                justify-content: flex-start;
+                margin-top: 18px;
+            }
+
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 40px;
+            }
+
+            .links {
+                display: none;
+            }
+
+            .leader-row {
+                grid-template-columns: 50px 1fr;
+            }
+
+            .score {
+                grid-column: 1 / -1;
+                text-align: left;
+            }
+        }
     </style>
 </head>
 <body>
@@ -38,19 +363,93 @@
         <a href="/party.html">Party</a>
         <a href="/group.html">Groups</a>
         <a href="/third-place.html">Third place</a>
-        <a href="/knockout.html">Knockout</a>
+        <a href="/knockout-board.html">Knockout</a>
         <a href="/bracket.html">Bracket</a>
-        <a href="/leaderboard.html">Leaderboard</a>
+        <a href="/leaderboard.html" class="active">Leaderboard</a>
         <a href="/admin-results.html">Admin</a>
     </div>
 </nav>
 
-<h1>Leaderboard</h1>
-<p>Party: <strong id="partyCode"></strong></p>
+<div id="breakdownModal" class="modal-backdrop">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="modalTitle">Score breakdown</h2>
+            <button class="close-btn" onclick="closeModal()">×</button>
+        </div>
 
-<div class="card" id="leaderboard">
-    <p class="message">Laddar leaderboard...</p>
+        <div id="breakdownContent"></div>
+    </div>
 </div>
+
+<div id="predictionModal" class="modal-backdrop">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="predictionModalTitle">View predictions</h2>
+            <button class="close-btn" onclick="closePredictionModal()">×</button>
+        </div>
+
+        <div style="display:grid; gap:12px; margin-top:18px;">
+            <button class="primary-btn" onclick="goToPredictionPage('group')">Group predictions</button>
+            <button class="primary-btn" onclick="goToPredictionPage('third')">Third place</button>
+            <button class="primary-btn" onclick="goToPredictionPage('knockout')">Knockout bracket</button>
+        </div>
+    </div>
+</div>
+
+<main class="page">
+    <section class="hero">
+        <div>
+            <div class="badge">📊 Leaderboard</div>
+            <h1>Party standings</h1>
+            <p class="subtitle">
+                See who is leading your World Cup prediction competition.
+            </p>
+        </div>
+
+        <div class="info">
+            <div class="pill">👤 <strong id="username">...</strong></div>
+            <div class="pill">👥 Party <strong id="partyCode">...</strong></div>
+        </div>
+    </section>
+
+    <section class="layout">
+        <div class="card">
+            <div class="card-title">
+                <h2>Leaderboard</h2>
+                <span id="playerCount" class="status-pill">Loading...</span>
+            </div>
+
+            <div id="leaderboard" class="leaderboard-list">
+                <div class="empty-state">Loading leaderboard...</div>
+            </div>
+        </div>
+
+        <aside>
+            <div class="card">
+                <div class="card-title">
+                    <h2>Podium</h2>
+                    <span class="status-pill status-ok">Top 3</span>
+                </div>
+
+                <div id="podium" class="podium">
+                    <div class="empty-state">Waiting for scores...</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <h2>Your position</h2>
+                </div>
+
+                <div id="myPosition" class="muted">
+                    Loading your position...
+                </div>
+
+                <button class="primary-btn" onclick="goToDashboard()">Back to dashboard</button>
+            </div>
+        </aside>
+    </section>
+</main>
 
 <script>
     const username = localStorage.getItem("username");
@@ -60,34 +459,197 @@
         window.location.href = "/index.html";
     }
 
-    document.getElementById("partyCode").innerText = code || "Inget party valt";
+    document.getElementById("username").innerText = username || "No user";
+    document.getElementById("partyCode").innerText = code || "No party";
 
     if (!code) {
         document.getElementById("leaderboard").innerHTML =
-            `<p class="message">Du måste skapa eller joina ett party först.</p>`;
+            `<div class="empty-state">You need to create or join a party first.</div>`;
+        document.getElementById("playerCount").innerText = "No party";
+        document.getElementById("myPosition").innerText = "No active party selected.";
     } else {
         fetch(`/leaderboard?code=${encodeURIComponent(code)}`)
             .then(res => res.json())
             .then(rows => {
-                const container = document.getElementById("leaderboard");
-
-                if (rows.length === 0) {
-                    container.innerHTML = `<p class="message">Inga spelare i detta party ännu.</p>`;
-                    return;
-                }
-
-                container.innerHTML = "";
-
-                rows.forEach((row, index) => {
-                    container.innerHTML += `
-                        <div class="row">
-                            <span class="rank">#${index + 1}</span>
-                            <span>${row.username}</span>
-                            <span class="score">${row.score} pts</span>
-                        </div>
-                    `;
-                });
+                renderLeaderboard(rows);
+                renderPodium(rows);
+                renderMyPosition(rows);
+            })
+            .catch(() => {
+                document.getElementById("leaderboard").innerHTML =
+                    `<div class="empty-state">Could not load leaderboard.</div>`;
+                document.getElementById("playerCount").innerText = "Error";
             });
+    }
+
+    function renderLeaderboard(rows) {
+        const container = document.getElementById("leaderboard");
+        const count = document.getElementById("playerCount");
+
+        if (!rows || rows.length === 0) {
+            container.innerHTML = `<div class="empty-state">No players in this party yet.</div>`;
+            count.innerText = "0 players";
+            return;
+        }
+
+        count.innerText = `${rows.length} player${rows.length === 1 ? "" : "s"}`;
+        container.innerHTML = "";
+
+        rows.forEach((row, index) => {
+            const isMe = row.username === username;
+            const medal = getMedal(index);
+
+            container.innerHTML += `
+            <div class="leader-row ${isMe ? "me" : ""}">
+                <div class="rank">${medal || "#" + (index + 1)}</div>
+
+                <div>
+                    <div class="player-name">${row.username} ${isMe ? "(You)" : ""}</div>
+                    <div class="player-sub">${getRankText(index)}</div>
+                </div>
+
+                <div class="score">
+                    ${row.score}
+                    <span>points</span>
+                </div>
+
+                <div style="display:flex; gap:6px;">
+    <button class="details-btn"
+        onclick="loadBreakdown('${row.username}')">📊</button>
+
+    <button class="details-btn"
+    onclick="openPredictionModal('${row.username}')">👀</button>
+</div>
+            </div>
+        `;
+        });
+    }
+
+    function loadBreakdown(user) {
+        fetch(`/score-breakdown?username=${encodeURIComponent(user)}&code=${encodeURIComponent(code)}`)
+            .then(res => res.json())
+            .then(data => {
+                showBreakdown(user, data);
+            });
+    }
+
+    function showBreakdown(user, data) {
+        document.getElementById("modalTitle").innerText = `${user} - Score breakdown`;
+
+        document.getElementById("breakdownContent").innerHTML = `
+        <div class="breakdown-row"><span>Group stage</span><span>${data.groupPoints}</span></div>
+        <div class="breakdown-row"><span>Round of 32</span><span>${data.roundOf32Points}</span></div>
+        <div class="breakdown-row"><span>Round of 16</span><span>${data.roundOf16Points}</span></div>
+        <div class="breakdown-row"><span>Quarter finals</span><span>${data.quarterFinalPoints}</span></div>
+        <div class="breakdown-row"><span>Semi finals</span><span>${data.semiFinalPoints}</span></div>
+        <div class="breakdown-row"><span>Final + Champion</span><span>${data.finalPoints}</span></div>
+        <div class="breakdown-row"><span>Placements</span><span>${data.placementPoints}</span></div>
+
+        <hr>
+
+        <div class="breakdown-row"><strong>Total</strong><strong>${data.totalPoints}</strong></div>
+    `;
+
+        document.getElementById("breakdownModal").classList.add("show");
+    }
+
+    function closeModal() {
+        document.getElementById("breakdownModal").classList.remove("show");
+    }
+
+    function renderPodium(rows) {
+        const podium = document.getElementById("podium");
+
+        if (!rows || rows.length === 0) {
+            podium.innerHTML = `<div class="empty-state">No podium yet.</div>`;
+            return;
+        }
+
+        podium.innerHTML = "";
+
+        rows.slice(0, 3).forEach((row, index) => {
+            podium.innerHTML += `
+                <div class="podium-card">
+                    <div class="podium-rank">${getMedal(index)}</div>
+                    <div class="podium-name">${row.username}</div>
+                    <div class="podium-score">${row.score} points</div>
+                </div>
+            `;
+        });
+    }
+
+    function renderMyPosition(rows) {
+        const el = document.getElementById("myPosition");
+
+        if (!rows || rows.length === 0) {
+            el.innerText = "You are not ranked yet.";
+            return;
+        }
+
+        const index = rows.findIndex(row => row.username === username);
+
+        if (index === -1) {
+            el.innerText = "You are not in this leaderboard yet.";
+            return;
+        }
+
+        el.innerHTML = `
+            You are currently ranked <strong>#${index + 1}</strong>
+            with <strong>${rows[index].score}</strong> points.
+        `;
+    }
+
+    function getMedal(index) {
+        if (index === 0) return "🥇";
+        if (index === 1) return "🥈";
+        if (index === 2) return "🥉";
+        return null;
+    }
+
+    function getRankText(index) {
+        if (index === 0) return "Current leader";
+        if (index === 1) return "Chasing first place";
+        if (index === 2) return "On the podium";
+        return "Still in the race";
+    }
+
+    function goToDashboard() {
+        window.location.href = "/dashboard.html";
+    }
+    function viewPredictions(user) {
+        window.location.href =
+            `/knockout-board.html?viewUser=${encodeURIComponent(user)}`;
+    }
+    let selectedViewUser = null;
+
+    function openPredictionModal(user) {
+        selectedViewUser = user;
+        document.getElementById("predictionModalTitle").innerText =
+            `View ${user}'s predictions`;
+        document.getElementById("predictionModal").classList.add("show");
+    }
+
+    function closePredictionModal() {
+        document.getElementById("predictionModal").classList.remove("show");
+        selectedViewUser = null;
+    }
+
+    function goToPredictionPage(page) {
+        if (!selectedViewUser) return;
+
+        const encodedUser = encodeURIComponent(selectedViewUser);
+
+        if (page === "group") {
+            window.location.href = `/group.html?viewUser=${encodedUser}`;
+        }
+
+        if (page === "third") {
+            window.location.href = `/third-place.html?viewUser=${encodedUser}`;
+        }
+
+        if (page === "knockout") {
+            window.location.href = `/knockout-board.html?viewUser=${encodedUser}`;
+        }
     }
 </script>
 

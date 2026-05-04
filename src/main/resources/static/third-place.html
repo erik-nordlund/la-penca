@@ -1,51 +1,350 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>Third Place Selection - La Penca</title>
     <style>
-        body { font-family: Arial; background:#111; color:white; padding:40px; }
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background:
+                    radial-gradient(circle at top left, rgba(34,197,94,0.14), transparent 35%),
+                    radial-gradient(circle at bottom right, rgba(13,110,253,0.14), transparent 35%),
+                    #0f0f0f;
+            color: white;
+        }
+
         .navbar {
-            background: #1f1f1f;
-            padding: 15px 25px;
+            background: rgba(31,31,31,0.92);
+            padding: 16px 28px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #333;
-            margin: -40px -40px 40px -40px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
         .logo { font-size: 22px; font-weight: bold; }
 
         .links a {
-            color: white;
+            color: #d7d7d7;
             text-decoration: none;
-            margin-left: 20px;
+            margin-left: 18px;
+            font-weight: bold;
+            font-size: 14px;
         }
 
-        .links a:hover { color: #7CFC98; }
-
-        .team {
-            background:#222;
-            padding:12px;
-            border-radius:8px;
-            margin:8px 0;
-            max-width:500px;
-            cursor:pointer;
+        .links a:hover,
+        .links a.active {
+            color: #7CFC98;
         }
 
-        .selected { background:#22c55e; }
-
-        button {
-            padding:12px;
-            margin-top:20px;
-            background:#0d6efd;
-            color:white;
-            border:none;
-            border-radius:6px;
-            cursor:pointer;
+        .page {
+            padding: 42px 60px 70px;
         }
 
-        .message { margin-top:15px; color:#7CFC98; }
+        .hero {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 24px;
+            margin-bottom: 26px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(34,197,94,0.14);
+            color: #7CFC98;
+            border: 1px solid rgba(124,252,152,0.35);
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 18px;
+        }
+
+        h1 {
+            font-size: 48px;
+            margin: 0 0 12px;
+            line-height: 1;
+        }
+
+        .subtitle {
+            color: #cfcfcf;
+            font-size: 18px;
+            margin: 0;
+            line-height: 1.45;
+        }
+
+        .info {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .pill {
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 999px;
+            padding: 9px 14px;
+            color: #ddd;
+            font-size: 14px;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 22px;
+            background: rgba(31,31,31,0.86);
+            border: 1px solid rgba(255,255,255,0.11);
+            border-radius: 18px;
+            padding: 16px;
+        }
+
+        .progress strong {
+            color: #7CFC98;
+        }
+
+        .muted {
+            color: #aaa;
+            line-height: 1.45;
+        }
+
+        .primary-btn,
+        .secondary-btn {
+            padding: 13px 17px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+        }
+
+        .primary-btn {
+            background: linear-gradient(135deg, #0d6efd, #22c55e);
+            color: white;
+        }
+
+        .secondary-btn {
+            background: #151515;
+            border: 1px solid rgba(255,255,255,0.16);
+            color: white;
+        }
+
+        button:hover { filter: brightness(1.08); }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 0.9fr 1.1fr;
+            gap: 22px;
+            align-items: start;
+        }
+
+        .card {
+            background: rgba(31,31,31,0.94);
+            border: 1px solid rgba(255,255,255,0.13);
+            border-radius: 22px;
+            padding: 22px;
+            box-shadow: 0 14px 45px rgba(0,0,0,0.28);
+        }
+
+        .card + .card {
+            margin-top: 20px;
+        }
+
+        .card-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        h2 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .status-pill {
+            border-radius: 999px;
+            padding: 7px 11px;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .status-ok {
+            background: rgba(34,197,94,0.14);
+            color: #7CFC98;
+            border: 1px solid rgba(124,252,152,0.3);
+        }
+
+        .status-pending {
+            background: rgba(255,255,255,0.08);
+            color: #aaa;
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+
+        .teams-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .team-card {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 12px;
+            align-items: center;
+            background: rgba(255,255,255,0.055);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 14px 15px;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+
+        .team-card:hover {
+            transform: translateY(-1px);
+            border-color: rgba(124,252,152,0.3);
+        }
+
+        .team-card.selected {
+            background: rgba(34,197,94,0.18);
+            border-color: rgba(124,252,152,0.5);
+        }
+
+        .team-card.automatic {
+            cursor: default;
+            background: rgba(34,197,94,0.16);
+            border-color: rgba(124,252,152,0.35);
+        }
+
+        .team-name {
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        .team-meta {
+            color: #aaa;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .check {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #151515;
+            color: #777;
+            font-weight: bold;
+            border: 1px solid rgba(255,255,255,0.14);
+        }
+
+        .selected .check,
+        .automatic .check {
+            background: #22c55e;
+            color: white;
+            border-color: #22c55e;
+        }
+
+        .selection-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(260px, 1fr));
+            gap: 12px;
+        }
+
+        .message {
+            margin-top: 14px;
+            min-height: 20px;
+            color: #7CFC98;
+            font-size: 14px;
+        }
+
+        .error {
+            margin-top: 14px;
+            min-height: 20px;
+            color: #ff6b6b;
+            font-size: 14px;
+        }
+
+        .empty-state {
+            background: rgba(255,255,255,0.045);
+            border: 1px dashed rgba(255,255,255,0.16);
+            border-radius: 16px;
+            padding: 20px;
+            color: #aaa;
+            text-align: center;
+        }
+        .badge.locked {
+            background: rgba(255,107,107,0.12);
+            color: #ff8b8b;
+            border-color: rgba(255,107,107,0.35);
+        }
+
+        button:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            filter: none;
+        }
+        .team-card.locked {
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+
+        .team-card.locked:hover {
+            transform: none;
+            border-color: rgba(255,255,255,0.1);
+        }
+
+        @media (max-width: 1050px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .selection-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .links {
+                display: none;
+            }
+        }
+
+        @media (max-width: 750px) {
+            .page {
+                padding: 30px 18px 60px;
+            }
+
+            .hero,
+            .toolbar {
+                display: block;
+            }
+
+            .info {
+                justify-content: flex-start;
+                margin-top: 18px;
+            }
+
+            h1 {
+                font-size: 38px;
+            }
+
+            .toolbar-actions {
+                margin-top: 14px;
+                display: grid;
+                gap: 10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -53,152 +352,362 @@
 <nav class="navbar">
     <div class="logo">🏆 La Penca</div>
     <div class="links">
+        <a href="/dashboard.html">Dashboard</a>
         <a href="/party.html">Party</a>
         <a href="/group.html">Groups</a>
-        <a href="/third-place.html">Third place</a>
-        <a href="/knockout.html">Knockout</a>
+        <a href="/third-place.html" class="active">Third place</a>
+        <a href="/knockout-board.html">Knockout</a>
         <a href="/bracket.html">Bracket</a>
         <a href="/leaderboard.html">Leaderboard</a>
         <a href="/admin-results.html">Admin</a>
     </div>
 </nav>
 
-<h1>Välj bästa tredjeplatser</h1>
-<p>Välj exakt <span id="slots"></span> lag som ska gå vidare.</p>
+<main class="page">
+    <section class="hero">
+        <div>
+            <div id="lockBadge" class="badge">🥉 Third-place teams</div>
+            <h1>Select best third-place teams</h1>
+            <p id="lockText" class="subtitle">
+                Some third-place teams qualify automatically. If teams are tied, choose exactly the remaining number of teams.
+            </p>
+        </div>
 
-<div id="automatic"></div>
-<div id="teams"></div>
+        <div class="info">
+            <div class="pill">👤 <strong id="username">...</strong></div>
+            <div class="pill">👥 Party <strong id="partyCode">...</strong></div>
+        </div>
+    </section>
 
-<button onclick="saveSelection()">Spara och gå vidare</button>
-<div id="message" class="message"></div>
+    <section class="toolbar">
+        <div class="progress">
+            Selection: <strong id="selectedCount">0</strong>/<span id="requiredCount">0</span>
+            chosen from tied teams
+            <div id="message" class="message"></div>
+        </div>
+
+        <div class="toolbar-actions">
+            <button class="secondary-btn" onclick="goBack()">Back to groups</button>
+            <button id="saveButton" class="primary-btn" onclick="saveOrContinue()">Save and continue</button>
+        </div>
+    </section>
+
+    <section class="layout">
+        <div>
+            <div class="card">
+                <div class="card-title">
+                    <h2>Automatically qualified</h2>
+                    <span id="automaticCount" class="status-pill status-ok">0 teams</span>
+                </div>
+
+                <p class="muted">
+                    These teams are already through because they are above the tie line.
+                </p>
+
+                <div id="automatic" class="teams-list"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <h2>Final qualified list</h2>
+                    <span id="finalCount" class="status-pill status-pending">0/8</span>
+                </div>
+
+                <p class="muted">
+                    This is the list that will be saved and used to build your knockout bracket.
+                </p>
+
+                <div id="finalList" class="teams-list"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">
+                <h2>Choose between tied teams</h2>
+                <span id="choiceStatus" class="status-pill status-pending">Waiting</span>
+            </div>
+
+            <p class="muted" id="choiceText">
+                Loading tied teams...
+            </p>
+
+            <div id="teams" class="selection-grid"></div>
+        </div>
+    </section>
+</main>
 
 <script>
-    const username = localStorage.getItem("username");
+    const loggedInUser = localStorage.getItem("username");
     const code = localStorage.getItem("partyCode");
+
+    const params = new URLSearchParams(window.location.search);
+    const viewUser = params.get("viewUser");
+
+    const username = viewUser || loggedInUser;
+    const viewingOtherUser = !!viewUser && viewUser !== loggedInUser;
+
+    if (!loggedInUser) {
+        window.location.href = "/index.html";
+    }
+
+    if (!code) {
+        window.location.href = "/party.html";
+    }
+
+    document.getElementById("username").innerText = username || "No user";
+    document.getElementById("partyCode").innerText = code || "No party";
 
     const selectedTeams = [];
     const automaticTeams = [];
     let remainingSlots = 0;
-
     let savedTeams = [];
+    let predictionsLocked = false;
 
     Promise.all([
-        fetch(`/third-place-selection?username=${username}&code=${code}`).then(res => res.json()),
-        fetch(`/third-place-teams/saved?username=${username}&code=${code}`).then(res => res.json())
+        fetch(`/party/lock-status?code=${encodeURIComponent(code)}`).then(res => res.json()),
+        fetch(`/third-place-selection?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`).then(res => res.json()),
+        fetch(`/third-place-teams/saved?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`).then(res => res.json())
     ])
-        .then(([data, saved]) => {
+        .then(([locked, data, saved]) => {
+            predictionsLocked = locked || viewingOtherUser;
+            renderLockStatus();
 
             savedTeams = saved.map(t => t.teamName);
-
             remainingSlots = data.remainingSlots;
-            document.getElementById("slots").innerText = remainingSlots;
 
-            const automatic = document.getElementById("automatic");
+            renderAutomatic(data.qualifiedAutomatically);
+            renderChoices(data.tiedTeams);
+            updateProgress();
+            updateFinalList();
 
-            if (data.qualifiedAutomatically.length > 0) {
-                automatic.innerHTML = "<h2>Klara automatiskt</h2>";
-
-                data.qualifiedAutomatically.forEach(team => {
-                    automaticTeams.push(team.teamName);
-                    automatic.innerHTML += `
-                    <div class="team selected">
-                        ${team.teamName} (${team.groupName})
-                    </div>
-                `;
-                });
-            }
-
-            const teams = document.getElementById("teams");
-
-            // 🔥 Om redan sparat → hoppa direkt
             if (savedTeams.length > 0) {
-                teams.innerHTML = "<h2>Dina val</h2>";
-
-                savedTeams.forEach(team => {
-                    selectedTeams.push(team);
-
-                    teams.innerHTML += `
-                    <div class="team selected">
-                        ${team}
-                    </div>
-                `;
-                });
-
-                document.getElementById("message").innerText =
-                    "Dina val är redan sparade.";
-
-                return;
+                document.getElementById("message").innerText = "Your saved selection has been loaded.";
             }
-
-            if (data.tiedTeams.length === remainingSlots) {
-                teams.innerHTML = "<h2>Går också vidare</h2>";
-
-                data.tiedTeams.forEach(team => {
-                    selectedTeams.push(team.teamName);
-
-                    teams.innerHTML += `
-                    <div class="team selected">
-                        ${team.teamName} (${team.groupName}) - ${team.points} pts
-                    </div>
-                `;
-                });
-
-                document.getElementById("message").innerText =
-                    "Alla kvarvarande lag går vidare automatiskt.";
-
-                return;
-            }
-
-            teams.innerHTML = "<h2>Välj bland lika lag</h2>";
-
-            data.tiedTeams.forEach(team => {
-
-                const isSaved = savedTeams.includes(team.teamName);
-
-                if (isSaved) selectedTeams.push(team.teamName);
-
-                teams.innerHTML += `
-                <div class="team ${isSaved ? 'selected' : ''}"
-                     onclick="toggleTeam(this, '${team.teamName}', ${remainingSlots})">
-                    ${team.teamName} (${team.groupName}) - ${team.points} pts
-                </div>
-            `;
-            });
         });
 
-    function toggleTeam(element, teamName, maxSlots) {
+    function renderAutomatic(teams) {
+        const automatic = document.getElementById("automatic");
+        automatic.innerHTML = "";
+
+        if (!teams || teams.length === 0) {
+            automatic.innerHTML = `<div class="empty-state">No teams qualify automatically yet.</div>`;
+            return;
+        }
+
+        teams.forEach(team => {
+            automaticTeams.push(team.teamName);
+
+            automatic.appendChild(createTeamCard(team, true, false));
+        });
+
+        document.getElementById("automaticCount").innerText = `${automaticTeams.length} teams`;
+    }
+
+    function renderChoices(tiedTeams) {
+        const teams = document.getElementById("teams");
+        teams.innerHTML = "";
+
+        document.getElementById("requiredCount").innerText = remainingSlots;
+
+        if (!tiedTeams || tiedTeams.length === 0) {
+            teams.innerHTML = `<div class="empty-state">No tied teams to choose from.</div>`;
+            document.getElementById("choiceText").innerText = "Everything is already decided automatically.";
+            document.getElementById("choiceStatus").innerText = "Done";
+            document.getElementById("choiceStatus").className = "status-pill status-ok";
+            return;
+        }
+
+        if (savedTeams.length > 0) {
+            savedTeams.forEach(teamName => {
+                if (!automaticTeams.includes(teamName) && !selectedTeams.includes(teamName)) {
+                    selectedTeams.push(teamName);
+                }
+            });
+        } else if (tiedTeams.length === remainingSlots) {
+            tiedTeams.forEach(team => selectedTeams.push(team.teamName));
+            document.getElementById("message").innerText = "All tied teams qualify automatically.";
+        }
+
+        document.getElementById("choiceText").innerText =
+            `Choose ${remainingSlots} team(s) from this group of tied teams.`;
+
+        tiedTeams.forEach(team => {
+            const isSelected = selectedTeams.includes(team.teamName);
+            teams.appendChild(createTeamCard(team, false, isSelected));
+        });
+    }
+
+    function createTeamCard(team, automatic, selected) {
+        const card = document.createElement("div");
+        card.className = `team-card ${automatic ? "automatic" : ""} ${selected ? "selected" : ""} ${predictionsLocked && !automatic ? "locked" : ""}`;
+
+        card.innerHTML = `
+            <div>
+                <div class="team-name">${team.teamName}</div>
+                <div class="team-meta">Group ${team.groupName} • ${team.points ?? 0} pts</div>
+            </div>
+            <div class="check">✓</div>
+        `;
+
+        if (!automatic) {
+            card.onclick = () => toggleTeam(card, team.teamName);
+        }
+
+        return card;
+    }
+
+    function toggleTeam(element, teamName) {
+        if (predictionsLocked) {
+            setMessage("Predictions are locked for this party.", true);
+            return;
+        }
         const index = selectedTeams.indexOf(teamName);
 
         if (index >= 0) {
             selectedTeams.splice(index, 1);
             element.classList.remove("selected");
+            updateProgress();
+            updateFinalList();
             return;
         }
 
-        if (selectedTeams.length >= maxSlots) {
-            alert("Du kan bara välja " + maxSlots + " lag.");
+        if (selectedTeams.length >= remainingSlots) {
+            setMessage(`You can only choose ${remainingSlots} team(s).`, true);
             return;
         }
 
         selectedTeams.push(teamName);
         element.classList.add("selected");
+
+        updateProgress();
+        updateFinalList();
+        setMessage("");
+    }
+
+    function updateProgress() {
+        document.getElementById("selectedCount").innerText = selectedTeams.length;
+        document.getElementById("requiredCount").innerText = remainingSlots;
+
+        const totalQualified = automaticTeams.length + selectedTeams.length;
+        document.getElementById("finalCount").innerText = `${totalQualified}/8`;
+
+        const choiceStatus = document.getElementById("choiceStatus");
+
+        if (selectedTeams.length === remainingSlots) {
+            choiceStatus.innerText = "Ready";
+            choiceStatus.className = "status-pill status-ok";
+        } else {
+            choiceStatus.innerText = "Choose teams";
+            choiceStatus.className = "status-pill status-pending";
+        }
+    }
+
+    function updateFinalList() {
+        const finalList = document.getElementById("finalList");
+        finalList.innerHTML = "";
+
+        const all = automaticTeams.concat(selectedTeams);
+
+        if (all.length === 0) {
+            finalList.innerHTML = `<div class="empty-state">No qualified teams selected yet.</div>`;
+            return;
+        }
+
+        all.forEach(teamName => {
+            const div = document.createElement("div");
+            div.className = "team-card automatic";
+            div.innerHTML = `
+                <div>
+                    <div class="team-name">${teamName}</div>
+                    <div class="team-meta">Qualified for Round of 32</div>
+                </div>
+                <div class="check">✓</div>
+            `;
+            finalList.appendChild(div);
+        });
     }
 
     function saveSelection() {
+        if (predictionsLocked) {
+            setMessage("Predictions are locked for this party.", true);
+            return;
+        }
         if (selectedTeams.length !== remainingSlots) {
-            alert("Du måste välja exakt " + remainingSlots + " lag.");
+            setMessage(`You must choose exactly ${remainingSlots} team(s).`, true);
             return;
         }
 
         const allQualifiedTeams = automaticTeams.concat(selectedTeams);
-
         const teamsParam = allQualifiedTeams.map(encodeURIComponent).join(",");
 
-        fetch(`/third-place-selection/save?username=${username}&code=${code}&teams=${teamsParam}`)
-            .then(res => res.json())
-            .then(data => {
-                window.location.href = "/knockout.html";
+        setMessage("Saving selection...");
+
+        fetch(`/third-place-selection/save?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}&teams=${teamsParam}`)
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error("Save failed");
+                }
+                return res.json();
+            })
+            .then(() => {
+                window.location.href = "/knockout-board.html";
+            })
+            .catch(() => {
+                setMessage("Could not save selection.", true);
             });
+    }
+
+    function setMessage(text, isError = false) {
+        const el = document.getElementById("message");
+        el.className = isError ? "error" : "message";
+        el.innerText = text;
+    }
+
+    function goBack() {
+        if (viewingOtherUser) {
+            window.location.href = `/group.html?viewUser=${encodeURIComponent(username)}`;
+            return;
+        }
+
+        window.location.href = "/group.html";
+    }
+    function renderLockStatus() {
+        if (viewingOtherUser) {
+            document.getElementById("lockBadge").innerText = `👀 ${username}'s predictions`;
+            document.getElementById("lockText").innerText =
+                `You are viewing ${username}'s third-place selections.`;
+
+            document.getElementById("saveButton").disabled = false;
+            document.getElementById("saveButton").innerText = "Continue to knockout";
+            setMessage("View-only mode. You cannot change another player's predictions.", true);
+            return;
+        }
+
+        if (predictionsLocked) {
+            document.getElementById("lockBadge").innerText = "🔒 Predictions locked";
+            document.getElementById("lockBadge").classList.add("locked");
+            document.getElementById("lockText").innerText =
+                "Deadline passed. You can view your selections, but you cannot change them.";
+
+            document.getElementById("saveButton").disabled = true;
+            setMessage("Predictions are locked for this party.", true);
+        }
+    }
+    function goToKnockout() {
+        if (viewingOtherUser) {
+            window.location.href = `/knockout-board.html?viewUser=${encodeURIComponent(username)}`;
+            return;
+        }
+
+        window.location.href = "/knockout-board.html";
+    }
+    function saveOrContinue() {
+        if (viewingOtherUser) {
+            goToKnockout();
+            return;
+        }
+
+        saveSelection();
     }
 </script>
 

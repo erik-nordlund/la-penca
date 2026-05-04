@@ -6,7 +6,9 @@ import com.penca.lapenca.entity.PartyMember;
 import com.penca.lapenca.repository.AppUserRepository;
 import com.penca.lapenca.repository.PartyMemberRepository;
 import com.penca.lapenca.repository.PartyRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class PartyMemberService {
@@ -24,11 +26,26 @@ public class PartyMemberService {
     }
 
     public PartyMember joinParty(String username, String partyCode) {
+        username = username.trim();
+        partyCode = partyCode.trim().toUpperCase();
+
+        if (username.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username cannot be empty");
+        }
+
+        if (partyCode.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Party code cannot be empty");
+        }
+
         AppUser user = appUserRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         Party party = partyRepository.findByCode(partyCode)
-                .orElseThrow(() -> new RuntimeException("Party not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Party not found"));
+
+        if (partyMemberRepository.existsByUserAndParty(user, party)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "User already joined this party");
+        }
 
         PartyMember partyMember = PartyMember.builder()
                 .user(user)

@@ -305,23 +305,32 @@
 
     function createUser() {
         const username = document.getElementById("createUsername").value.trim();
+        const message = document.getElementById("createMessage");
+
+        message.className = "message";
+        message.innerText = "";
 
         if (!username) {
-            setMessage("createMessage", "Write a username first.", true);
+            message.className = "error";
+            message.innerText = "Skriv ett username.";
             return;
         }
 
-        setMessage("createMessage", "Creating account...");
-
         fetch(`/user/create?username=${encodeURIComponent(username)}`)
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error("Username finns redan.");
+                }
+                return res.json();
+            })
             .then(user => {
                 localStorage.setItem("username", user.username);
                 localStorage.removeItem("partyCode");
                 window.location.href = "/party.html";
             })
-            .catch(() => {
-                setMessage("createMessage", "Could not create account.", true);
+            .catch(err => {
+                message.className = "error";
+                message.innerText = err.message;
             });
     }
 

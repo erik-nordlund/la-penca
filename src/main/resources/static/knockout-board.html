@@ -21,10 +21,7 @@
       border-bottom: 1px solid #333;
     }
 
-    .logo {
-      font-size: 22px;
-      font-weight: bold;
-    }
+    .logo { font-size: 22px; font-weight: bold; }
 
     .links a {
       color: white;
@@ -32,12 +29,40 @@
       margin-left: 18px;
     }
 
-    .links a:hover {
-      color: #7CFC98;
+    .links a:hover { color: #7CFC98; }
+
+    .page { padding: 20px; }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 18px;
     }
 
-    .page {
-      padding: 20px;
+    .badge {
+      display: inline-block;
+      background: rgba(34,197,94,0.14);
+      color: #7CFC98;
+      border: 1px solid rgba(124,252,152,0.35);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .badge.locked {
+      background: rgba(255,107,107,0.12);
+      color: #ff8b8b;
+      border-color: rgba(255,107,107,0.35);
+    }
+
+    .lock-message {
+      color: #ff8b8b;
+      font-size: 14px;
+      min-height: 20px;
     }
 
     .bracket-wrap {
@@ -71,9 +96,7 @@
       height: 100%;
     }
 
-    .right {
-      grid-template-columns: repeat(4, 165px);
-    }
+    .right { grid-template-columns: repeat(4, 165px); }
 
     .round {
       display: grid;
@@ -123,9 +146,7 @@
       font-size: 13px;
     }
 
-    .team.selected {
-      background: #22c55e;
-    }
+    .team.selected { background: #22c55e; }
 
     .team.placeholder {
       background: #333;
@@ -134,8 +155,9 @@
     }
 
     .team:disabled {
-      opacity: 0.65;
+      opacity: 0.55;
       cursor: not-allowed;
+      filter: none;
     }
 
     .center {
@@ -159,9 +181,7 @@
       min-height: 32px;
     }
 
-    .center-box {
-      width: 230px;
-    }
+    .center-box { width: 230px; }
 
     .center-label {
       text-align: center;
@@ -192,7 +212,13 @@
 </nav>
 
 <div class="page">
-  <h1>Knockout Board</h1>
+  <div class="topbar">
+    <div>
+      <div id="lockBadge" class="badge">🏆 Knockout bracket</div>
+      <h1>Knockout Board</h1>
+      <div id="lockMessage" class="lock-message"></div>
+    </div>
+  </div>
 
   <div class="bracket-wrap" id="bracketWrap">
     <svg id="lines"></svg>
@@ -221,33 +247,38 @@
 </div>
 
 <script>
-  const username = localStorage.getItem("username");
+  const loggedInUser = localStorage.getItem("username");
   const code = localStorage.getItem("partyCode");
 
-  if (!username) {
+  const params = new URLSearchParams(window.location.search);
+  const viewUser = params.get("viewUser");
+
+  const username = viewUser || loggedInUser;
+  const viewingOtherUser = !!viewUser && viewUser !== loggedInUser;
+  if (!loggedInUser) {
     window.location.href = "/index.html";
+  }
+
+  if (!code) {
+    window.location.href = "/party.html";
   }
 
   let r32Matches = [];
   let saved = {};
-
-  const roundOrder = [
-    "ROUND_OF_32",
-    "ROUND_OF_16",
-    "QUARTER_FINAL",
-    "SEMI_FINAL",
-    "THIRD_PLACE",
-    "FINAL"
-  ];
+  let predictionsLocked = false;
 
   init();
 
   function init() {
     Promise.all([
-      fetch(`/round-of-32?username=${username}&code=${code}`).then(res => res.json()),
-      fetch(`/knockout/predictions?username=${username}&code=${code}`).then(res => res.json())
+      fetch(`/party/lock-status?code=${encodeURIComponent(code)}`).then(res => res.json()),
+      fetch(`/round-of-32?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`).then(res => res.json()),
+      fetch(`/knockout/predictions?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`).then(res => res.json())
     ])
-            .then(([roundOf32, predictions]) => {
+            .then(([locked, roundOf32, predictions]) => {
+              predictionsLocked = locked || viewingOtherUser;
+              renderLockStatus();
+
               r32Matches = roundOf32;
 
               predictions.forEach(p => {
@@ -260,6 +291,22 @@
 
               renderBracket();
             });
+  }
+
+  function renderLockStatus() {
+    if (viewingOtherUser) {
+      document.getElementById("lockBadge").innerText = `👀 ${username}'s predictions`;
+      document.getElementById("lockMessage").innerText =
+              `You are viewing ${username}'s knockout bracket.`;
+      return;
+    }
+
+    if (predictionsLocked) {
+      document.getElementById("lockBadge").innerText = "🔒 Predictions locked";
+      document.getElementById("lockBadge").classList.add("locked");
+      document.getElementById("lockMessage").innerText =
+              "Deadline passed. You can view your bracket, but you cannot change it.";
+    }
   }
 
   function renderBracket() {
@@ -420,7 +467,7 @@
       btn.classList.add("selected");
     }
 
-    if (!match.homeTeam || !match.awayTeam) {
+    if (!match.homeTeam || !match.awayTeam || predictionsLocked) {
       btn.disabled = true;
     }
 
@@ -430,10 +477,21 @@
   }
 
   function saveWinner(roundName, matchNumber, slot, winner) {
-    fetch(`/knockout/save?username=${username}&code=${code}&round=${roundName}&matchNumber=${matchNumber}&slot=${encodeURIComponent(slot)}&winner=${encodeURIComponent(winner)}`)
-            .then(res => res.json())
+    if (predictionsLocked) {
+      document.getElementById("lockMessage").innerText =
+              "Predictions are locked for this party.";
+      return;
+    }
+
+    fetch(`/knockout/save?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}&round=${roundName}&matchNumber=${matchNumber}&slot=${encodeURIComponent(slot)}&winner=${encodeURIComponent(winner)}`)
+            .then(res => {
+              if (!res.ok) {
+                throw new Error("Predictions are locked or could not be saved.");
+              }
+              return res.json();
+            })
             .then(() => {
-              clearLocalFutureRounds(roundName);
+              clearLocalAffectedFutureRounds(roundName, matchNumber);
 
               if (!saved[roundName]) {
                 saved[roundName] = {};
@@ -442,19 +500,56 @@
               saved[roundName][matchNumber] = winner;
 
               renderBracket();
+            })
+            .catch(err => {
+              document.getElementById("lockMessage").innerText = err.message;
             });
   }
 
-  function clearLocalFutureRounds(roundName) {
-    const index = roundOrder.indexOf(roundName);
+  function clearLocalAffectedFutureRounds(roundName, matchNumber) {
+    if (roundName === "ROUND_OF_32") {
+      const r16Match = nextMatchNumber(matchNumber);
+      const qfMatch = nextMatchNumber(r16Match);
+      const sfMatch = nextMatchNumber(qfMatch);
 
-    for (let i = index + 1; i < roundOrder.length; i++) {
-      delete saved[roundOrder[i]];
+      deleteSavedMatch("ROUND_OF_16", r16Match);
+      deleteSavedMatch("QUARTER_FINAL", qfMatch);
+      deleteSavedMatch("SEMI_FINAL", sfMatch);
+      deleteSavedMatch("FINAL", 1);
+      deleteSavedMatch("THIRD_PLACE", 1);
+    }
+
+    if (roundName === "ROUND_OF_16") {
+      const qfMatch = nextMatchNumber(matchNumber);
+      const sfMatch = nextMatchNumber(qfMatch);
+
+      deleteSavedMatch("QUARTER_FINAL", qfMatch);
+      deleteSavedMatch("SEMI_FINAL", sfMatch);
+      deleteSavedMatch("FINAL", 1);
+      deleteSavedMatch("THIRD_PLACE", 1);
+    }
+
+    if (roundName === "QUARTER_FINAL") {
+      const sfMatch = nextMatchNumber(matchNumber);
+
+      deleteSavedMatch("SEMI_FINAL", sfMatch);
+      deleteSavedMatch("FINAL", 1);
+      deleteSavedMatch("THIRD_PLACE", 1);
     }
 
     if (roundName === "SEMI_FINAL") {
-      delete saved["THIRD_PLACE"];
-      delete saved["FINAL"];
+      deleteSavedMatch("FINAL", 1);
+      deleteSavedMatch("THIRD_PLACE", 1);
+    }
+  }
+
+  function nextMatchNumber(matchNumber) {
+    return Math.ceil(matchNumber / 2);
+  }
+
+  function deleteSavedMatch(roundName, matchNumber) {
+    if (saved[roundName]) {
+      delete saved[roundName][matchNumber];
     }
   }
 

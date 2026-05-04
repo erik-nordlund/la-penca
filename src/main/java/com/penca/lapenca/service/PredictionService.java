@@ -5,14 +5,18 @@ import com.penca.lapenca.entity.*;
 import com.penca.lapenca.repository.*;
 import jakarta.transaction.Transactional;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 
 @Service
 public class PredictionService {
@@ -58,6 +62,8 @@ public class PredictionService {
 
         Party party = partyRepository.findByCode(partyCode)
                 .orElseThrow(() -> new RuntimeException("Party not found"));
+
+        validatePartyNotLocked(party);
 
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new RuntimeException("Match not found"));
@@ -209,6 +215,7 @@ public class PredictionService {
 
         Party party = partyRepository.findByCode(partyCode)
                 .orElseThrow(() -> new RuntimeException("Party not found"));
+        validatePartyNotLocked(party);
 
         List<Match> matches = matchRepository.findByStageAndHomeTeam_GroupName("GROUP", groupName);
 
@@ -262,12 +269,15 @@ public class PredictionService {
 
         return new ThirdPlaceSelectionDto(automaticallyQualified, tiedTeams, remainingSlots);
     }
+    @Transactional
     public List<String> saveQualifiedThirdPlaceTeams(String username, String partyCode, List<String> teamNames) {
         AppUser user = appUserRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Party party = partyRepository.findByCode(partyCode)
                 .orElseThrow(() -> new RuntimeException("Party not found"));
+
+        validatePartyNotLocked(party);
 
         if (teamNames.size() != 8) {
             throw new RuntimeException("You must select exactly 8 third-place teams");
@@ -287,7 +297,7 @@ public class PredictionService {
 
             qualifiedThirdPlaceSelectionRepository.save(selection);
         }
-
+        knockoutPredictionRepository.deleteByUserAndParty(user, party);
         return teamNames;
     }
     public QualifiedTeamsOverviewDto getQualifiedTeamsOverview(String username, String partyCode) {
@@ -422,6 +432,8 @@ public class PredictionService {
         Party party = partyRepository.findByCode(code)
                 .orElseThrow(() -> new RuntimeException("Party not found"));
 
+        validatePartyNotLocked(party);
+
         Team winner = teamRepository.findByName(winnerTeamName)
                 .orElseThrow(() -> new RuntimeException("Team not found: " + winnerTeamName));
 
@@ -437,13 +449,82 @@ public class PredictionService {
                                 .build()
                 );
 
-        clearFutureRounds(user, party, roundName);
+        boolean changed = prediction.getPredictedWinner() == null
+                || !prediction.getPredictedWinner().getName().equals(winnerTeamName);
 
         prediction.setSlot(slot);
         prediction.setPredictedWinner(winner);
 
-        return knockoutPredictionRepository.save(prediction);
+        KnockoutPrediction saved = knockoutPredictionRepository.save(prediction);
+
+        if (changed) {
+            clearAffectedFutureRounds(user, party, roundName, matchNumber);
+        }
+
+        return saved;
     }
+    private void clearAffectedFutureRounds(AppUser user, Party party, String roundName, int matchNumber) {
+
+        switch (roundName) {
+            case "ROUND_OF_32" -> {
+                int r16Match = nextMatchNumber(matchNumber);
+                int qfMatch = nextMatchNumber(r16Match);
+                int sfMatch = nextMatchNumber(qfMatch);
+
+                deleteKnockoutMatch(user, party, "ROUND_OF_16", r16Match);
+                deleteKnockoutMatch(user, party, "QUARTER_FINAL", qfMatch);
+                deleteKnockoutMatch(user, party, "SEMI_FINAL", sfMatch);
+
+                deleteKnockoutMatch(user, party, "FINAL", 1);
+                deleteKnockoutMatch(user, party, "THIRD_PLACE", 1);
+            }
+
+            case "ROUND_OF_16" -> {
+                int qfMatch = nextMatchNumber(matchNumber);
+                int sfMatch = nextMatchNumber(qfMatch);
+
+                deleteKnockoutMatch(user, party, "QUARTER_FINAL", qfMatch);
+                deleteKnockoutMatch(user, party, "SEMI_FINAL", sfMatch);
+
+                deleteKnockoutMatch(user, party, "FINAL", 1);
+                deleteKnockoutMatch(user, party, "THIRD_PLACE", 1);
+            }
+
+            case "QUARTER_FINAL" -> {
+                int sfMatch = nextMatchNumber(matchNumber);
+
+                deleteKnockoutMatch(user, party, "SEMI_FINAL", sfMatch);
+
+                deleteKnockoutMatch(user, party, "FINAL", 1);
+                deleteKnockoutMatch(user, party, "THIRD_PLACE", 1);
+            }
+
+            case "SEMI_FINAL" -> {
+                deleteKnockoutMatch(user, party, "FINAL", 1);
+                deleteKnockoutMatch(user, party, "THIRD_PLACE", 1);
+            }
+
+            case "FINAL" -> {
+            }
+
+            case "THIRD_PLACE" -> {
+            }
+        }
+    }
+
+    private int nextMatchNumber(int matchNumber) {
+        return (matchNumber + 1) / 2;
+    }
+
+    private void deleteKnockoutMatch(AppUser user, Party party, String roundName, int matchNumber) {
+        knockoutPredictionRepository.deleteByUserAndPartyAndRoundNameAndMatchNumber(
+                user,
+                party,
+                roundName,
+                matchNumber
+        );
+    }
+
     public List<KnockoutPrediction> autoPickRoundOf32HomeTeams(String username, String code) {
         List<KnockoutMatchDto> roundOf32Matches = buildRoundOf32(username, code);
 
@@ -691,54 +772,25 @@ public class PredictionService {
                 .toList();
     }
     public int calculateUserScore(String username, String code) {
-
-        AppUser user = appUserRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        Party party = partyRepository.findByCode(code)
-                .orElseThrow(() -> new RuntimeException("Party not found"));
-
-        int totalScore = 0;
-
-        List<Prediction> groupPredictions = predictionRepository.findByUserAndParty(user, party);
-
-        for (Prediction prediction : groupPredictions) {
-            Match match = prediction.getMatch();
-
-            if (!"GROUP".equals(match.getStage())) {
-                continue;
-            }
-
-            if (!match.isPlayed() || match.getHomeScore() == null || match.getAwayScore() == null) {
-                continue;
-            }
-
-            MatchOutcome actualOutcome;
-
-            if (match.getHomeScore() > match.getAwayScore()) {
-                actualOutcome = MatchOutcome.HOME_WIN;
-            } else if (match.getHomeScore() < match.getAwayScore()) {
-                actualOutcome = MatchOutcome.AWAY_WIN;
-            } else {
-                actualOutcome = MatchOutcome.DRAW;
-            }
-
-            if (prediction.getPredictedOutcome() == actualOutcome) {
-                totalScore += 1;
-            }
-        }
-
-        totalScore += countCorrectRoundOf32Teams(username, code) * 1;
-
-        totalScore += countCorrectKnockoutTeams(user, party, "ROUND_OF_32", "ROUND_OF_16") * 2;
-        totalScore += countCorrectKnockoutTeams(user, party, "ROUND_OF_16", "QUARTER_FINAL") * 3;
-        totalScore += countCorrectKnockoutTeams(user, party, "QUARTER_FINAL", "SEMI_FINAL") * 4;
-        totalScore += countCorrectKnockoutTeams(user, party, "SEMI_FINAL", "FINAL") * 5;
-        totalScore += countCorrectKnockoutTeams(user, party, "FINAL", "CHAMPION") * 6;
-        totalScore += calculatePlacementScore(username, code, user, party);
-
-        return totalScore;
+        return calculateUserScoreBreakdown(username, code).getTotalPoints();
     }
+
+    private int safeCountCorrectRoundOf32Teams(String username, String code) {
+        try {
+            return countCorrectRoundOf32Teams(username, code);
+        } catch (RuntimeException e) {
+            return 0;
+        }
+    }
+
+    private int safeCalculatePlacementScore(String username, String code, AppUser user, Party party) {
+        try {
+            return calculatePlacementScore(username, code, user, party);
+        } catch (RuntimeException e) {
+            return 0;
+        }
+    }
+
     private int countCorrectRoundOf32Teams(String username, String code) {
 
         List<String> predictedTeams = buildRoundOf32(username, code)
@@ -940,5 +992,79 @@ public class PredictionService {
     private void clearBracketAfterGroupChange(AppUser user, Party party) {
         qualifiedThirdPlaceSelectionRepository.deleteByUserAndParty(user, party);
         knockoutPredictionRepository.deleteByUserAndParty(user, party);
+    }
+    public ScoreBreakdownDto calculateUserScoreBreakdown(String username, String code) {
+
+        AppUser user = appUserRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Party party = partyRepository.findByCode(code)
+                .orElseThrow(() -> new RuntimeException("Party not found"));
+
+        int groupPoints = calculateGroupPoints(user, party);
+
+        int roundOf32Points = safeCountCorrectRoundOf32Teams(username, code) * 1;
+
+        int roundOf16Points = countCorrectKnockoutTeams(user, party, "ROUND_OF_32", "ROUND_OF_16") * 2;
+        int quarterFinalPoints = countCorrectKnockoutTeams(user, party, "ROUND_OF_16", "QUARTER_FINAL") * 3;
+        int semiFinalPoints = countCorrectKnockoutTeams(user, party, "QUARTER_FINAL", "SEMI_FINAL") * 4;
+        int finalPoints = countCorrectKnockoutTeams(user, party, "SEMI_FINAL", "FINAL") * 5;
+
+        int championPoints = countCorrectKnockoutTeams(user, party, "FINAL", "CHAMPION") * 6;
+
+        int placementPoints = safeCalculatePlacementScore(username, code, user, party);
+
+        return new ScoreBreakdownDto(
+                username,
+                groupPoints,
+                roundOf32Points,
+                roundOf16Points,
+                quarterFinalPoints,
+                semiFinalPoints,
+                finalPoints + championPoints,
+                placementPoints
+        );
+    }
+    private int calculateGroupPoints(AppUser user, Party party) {
+        int points = 0;
+
+        List<Prediction> groupPredictions = predictionRepository.findByUserAndParty(user, party);
+
+        for (Prediction prediction : groupPredictions) {
+            Match match = prediction.getMatch();
+
+            if (!"GROUP".equals(match.getStage())) {
+                continue;
+            }
+
+            if (!match.isPlayed() || match.getHomeScore() == null || match.getAwayScore() == null) {
+                continue;
+            }
+
+            MatchOutcome actualOutcome;
+
+            if (match.getHomeScore() > match.getAwayScore()) {
+                actualOutcome = MatchOutcome.HOME_WIN;
+            } else if (match.getHomeScore() < match.getAwayScore()) {
+                actualOutcome = MatchOutcome.AWAY_WIN;
+            } else {
+                actualOutcome = MatchOutcome.DRAW;
+            }
+
+            if (prediction.getPredictedOutcome() == actualOutcome) {
+                points += 1;
+            }
+        }
+
+        return points;
+    }
+    private void validatePartyNotLocked(Party party) {
+        if (party.getPredictionDeadline() != null &&
+                LocalDateTime.now().isAfter(party.getPredictionDeadline())) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "Predictions are locked for this party"
+            );
+        }
     }
 }

@@ -26,10 +26,7 @@
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
-        .logo {
-            font-size: 22px;
-            font-weight: bold;
-        }
+        .logo { font-size: 22px; font-weight: bold; }
 
         .links a {
             color: #d7d7d7;
@@ -40,17 +37,11 @@
         }
 
         .links a:hover,
-        .links a.active {
-            color: #7CFC98;
-        }
+        .links a.active { color: #7CFC98; }
 
         .page {
             padding: 55px 80px;
-        }
-
-        .hero {
-            max-width: 850px;
-            margin-bottom: 35px;
+            max-width: 1180px;
         }
 
         .badge {
@@ -72,42 +63,65 @@
         }
 
         .subtitle {
-            font-size: 19px;
             color: #cfcfcf;
+            font-size: 19px;
             line-height: 1.5;
-            margin: 0;
+            margin: 0 0 26px;
+            max-width: 760px;
         }
 
-        .hub {
-            display: grid;
-            grid-template-columns: 1fr 440px;
-            gap: 28px;
-            align-items: start;
+        .user-pill {
+            display: inline-flex;
+            gap: 8px;
+            align-items: center;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 999px;
+            padding: 9px 14px;
+            color: #ddd;
+            margin-bottom: 32px;
         }
 
-        .card {
+        .main-card {
             background: rgba(31,31,31,0.94);
             border: 1px solid rgba(255,255,255,0.13);
-            border-radius: 22px;
-            padding: 24px;
+            border-radius: 26px;
+            padding: 30px;
             box-shadow: 0 18px 60px rgba(0,0,0,0.35);
+            max-width: 760px;
         }
 
-        .card + .card {
-            margin-top: 22px;
-        }
-
-        .card-title {
+        .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
+            gap: 14px;
+            margin-bottom: 18px;
         }
 
         h2 {
             margin: 0;
-            font-size: 25px;
+            font-size: 28px;
+        }
+
+        .status-pill {
+            border-radius: 999px;
+            padding: 7px 11px;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .status-active {
+            background: rgba(34,197,94,0.14);
+            color: #7CFC98;
+            border: 1px solid rgba(124,252,152,0.3);
+        }
+
+        .status-empty {
+            background: rgba(255,255,255,0.08);
+            color: #aaa;
+            border: 1px solid rgba(255,255,255,0.12);
         }
 
         .muted {
@@ -115,24 +129,12 @@
             line-height: 1.45;
         }
 
-        .user-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255,255,255,0.07);
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 999px;
-            padding: 9px 14px;
-            color: #ddd;
-            margin-top: 18px;
-        }
-
         .party-code-box {
-            margin-top: 18px;
+            margin: 24px 0 20px;
             background: #111;
             border: 1px solid rgba(124,252,152,0.25);
-            border-radius: 18px;
-            padding: 20px;
+            border-radius: 20px;
+            padding: 24px;
             text-align: center;
         }
 
@@ -143,22 +145,20 @@
         }
 
         .code-value {
-            font-size: 38px;
+            font-size: 42px;
             font-weight: bold;
-            letter-spacing: 4px;
+            letter-spacing: 5px;
             color: #7CFC98;
         }
 
         .actions {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(3, 1fr);
             gap: 12px;
-            margin-top: 18px;
         }
 
         .primary-btn,
-        .secondary-btn,
-        .danger-btn {
+        .secondary-btn {
             width: 100%;
             padding: 14px;
             border-radius: 12px;
@@ -179,105 +179,27 @@
             color: white;
         }
 
-        .danger-btn {
-            border: 1px solid rgba(255,107,107,0.35);
-            background: rgba(255,107,107,0.08);
-            color: #ff8b8b;
+        button:hover { filter: brightness(1.08); }
+
+        .simple-section {
+            max-width: 760px;
+            margin-top: 22px;
+            background: rgba(31,31,31,0.72);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 22px;
+            padding: 22px;
         }
 
-        button:hover {
-            filter: brightness(1.08);
-        }
-
-        button:disabled {
-            opacity: 0.55;
-            cursor: not-allowed;
-        }
-
-        .status-pill {
-            display: inline-block;
-            border-radius: 999px;
-            padding: 7px 11px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .status-active {
-            background: rgba(34,197,94,0.14);
-            color: #7CFC98;
-            border: 1px solid rgba(124,252,152,0.3);
-        }
-
-        .status-empty {
-            background: rgba(255,255,255,0.08);
-            color: #aaa;
-            border: 1px solid rgba(255,255,255,0.12);
-        }
-
-        .member-list {
-            display: grid;
-            gap: 10px;
-            margin-top: 16px;
-        }
-
-        .member {
+        .simple-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(255,255,255,0.055);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 14px;
-            padding: 13px 15px;
+            gap: 18px;
         }
 
-        .member-name {
-            font-weight: bold;
-        }
-
-        .member-tag {
-            color: #7CFC98;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .right-column {
-            display: grid;
-            gap: 22px;
-        }
-
-        .choice-card {
-            background: rgba(31,31,31,0.94);
-            border: 1px solid rgba(255,255,255,0.13);
-            border-radius: 22px;
-            padding: 24px;
-        }
-
-        .choice-card h2 {
-            margin-bottom: 8px;
-        }
-
-        label {
-            display: block;
-            color: #cfcfcf;
-            font-size: 13px;
-            margin: 18px 0 8px;
-            font-weight: bold;
-        }
-
-        input {
-            width: 100%;
-            padding: 14px 15px;
-            border-radius: 12px;
-            border: 1px solid #3a3a3a;
-            background: #111;
-            color: white;
-            outline: none;
-            font-size: 15px;
-            text-transform: uppercase;
-        }
-
-        input:focus {
-            border-color: #0d6efd;
+        .simple-buttons {
+            display: flex;
+            gap: 12px;
         }
 
         .message {
@@ -294,36 +216,110 @@
             font-size: 14px;
         }
 
-        .future-list {
-            display: grid;
-            gap: 10px;
-            margin-top: 16px;
-        }
-
-        .future-item {
-            background: rgba(255,255,255,0.045);
-            border: 1px dashed rgba(255,255,255,0.16);
-            border-radius: 14px;
-            padding: 13px 15px;
-            color: #aaa;
-        }
-
         .empty-state {
             background: rgba(255,255,255,0.045);
             border: 1px dashed rgba(255,255,255,0.16);
-            border-radius: 16px;
+            border-radius: 18px;
             padding: 22px;
             color: #aaa;
             text-align: center;
+            margin-top: 20px;
         }
 
-        @media (max-width: 1000px) {
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.72);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-backdrop.show {
+            display: flex;
+        }
+
+        .modal {
+            width: 100%;
+            max-width: 460px;
+            background: #f3f5f9;
+            color: #111;
+            border-radius: 18px;
+            padding: 28px;
+            box-shadow: 0 25px 90px rgba(0,0,0,0.55);
+            position: relative;
+        }
+
+        .modal h2 {
+            color: #111;
+            margin-bottom: 10px;
+        }
+
+        .modal p {
+            color: #555;
+            line-height: 1.45;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: white;
+            color: #777;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-size: 13px;
+            margin: 20px 0 8px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 15px;
+            border-radius: 12px;
+            border: 1px solid #ccc;
+            background: white;
+            color: #111;
+            outline: none;
+            font-size: 16px;
+            text-transform: uppercase;
+        }
+
+        input:focus {
+            border-color: #0d6efd;
+        }
+
+        .modal-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 22px;
+        }
+
+        .modal .primary-btn {
+            margin: 0;
+        }
+
+        .modal .secondary-btn {
+            background: white;
+            color: #111;
+            border: 1px solid #ddd;
+        }
+
+        @media (max-width: 850px) {
             .page {
                 padding: 35px 20px;
-            }
-
-            .hub {
-                grid-template-columns: 1fr;
             }
 
             h1 {
@@ -337,6 +333,15 @@
             .actions {
                 grid-template-columns: 1fr;
             }
+
+            .simple-row {
+                display: block;
+            }
+
+            .simple-buttons {
+                margin-top: 16px;
+                display: grid;
+            }
         }
     </style>
 </head>
@@ -345,6 +350,7 @@
 <nav class="navbar">
     <div class="logo">🏆 La Penca</div>
     <div class="links">
+        <a href="/dashboard.html">Dashboard</a>
         <a href="/party.html" class="active">Party</a>
         <a href="/group.html">Groups</a>
         <a href="/third-place.html">Third place</a>
@@ -356,118 +362,95 @@
 </nav>
 
 <main class="page">
-    <section class="hero">
-        <div class="badge">👥 Party Hub</div>
-        <h1>Your World Cup party</h1>
-        <p class="subtitle">
-            Create or join a private competition, share your party code,
-            and compete with family and friends during the World Cup.
-        </p>
+    <div class="badge">👥 Party</div>
+    <h1>Your World Cup party</h1>
+    <p class="subtitle">
+        This is your private competition. Share the party code with your family, then start making predictions.
+    </p>
 
-        <div class="user-pill">
-            👤 Logged in as <strong id="username">...</strong>
+    <div class="user-pill">
+        👤 Logged in as <strong id="username">...</strong>
+    </div>
+
+    <section class="main-card">
+        <div class="card-header">
+            <h2>Your party</h2>
+            <span id="partyStatus" class="status-pill status-empty">No party</span>
+        </div>
+
+        <div id="noPartyState" class="empty-state">
+            You are not in a party yet. Create a party or join with a code.
+        </div>
+
+        <div id="currentPartyState" style="display:none;">
+            <p class="muted">
+                Use this code to invite your family and friends.
+            </p>
+
+            <div class="party-code-box">
+                <div class="code-label">Party code</div>
+                <div id="currentPartyCode" class="code-value">---</div>
+            </div>
+
+            <div class="actions">
+                <button class="primary-btn" onclick="goToDashboard()">Go to dashboard</button>
+                <button class="primary-btn" onclick="startPredictions()">Start predictions</button>
+                <button class="secondary-btn" onclick="copyPartyCode()">Copy code</button>
+            </div>
+
+            <div id="copyMessage" class="message"></div>
         </div>
     </section>
 
-    <section class="hub">
-        <div class="left-column">
-            <div class="card">
-                <div class="card-title">
-                    <h2>Current party</h2>
-                    <span id="partyStatus" class="status-pill status-empty">No party</span>
-                </div>
-
-                <div id="noPartyState" class="empty-state">
-                    You are not in a party yet. Create one or join using a code.
-                </div>
-
-                <div id="currentPartyState" style="display:none;">
-                    <p class="muted">
-                        This is the active party used for your predictions and leaderboard.
-                    </p>
-
-                    <div class="party-code-box">
-                        <div class="code-label">Party code</div>
-                        <div id="currentPartyCode" class="code-value">---</div>
-                    </div>
-
-                    <div class="actions">
-                        <button class="primary-btn" onclick="continueToPredictions()">Continue</button>
-                        <button class="secondary-btn" onclick="copyPartyCode()">Copy code</button>
-                    </div>
-
-                    <div id="copyMessage" class="message"></div>
-                </div>
+    <section class="simple-section">
+        <div class="simple-row">
+            <div>
+                <h2>Need another party?</h2>
+                <p class="muted">
+                    Join with a code, or create a new party.
+                </p>
             </div>
 
-            <div class="card">
-                <div class="card-title">
-                    <h2>Members</h2>
-                    <span class="status-pill status-empty">Light version</span>
-                </div>
-
-                <p class="muted">
-                    Later this can show everyone in the party. For now, it shows you and leaves space for the real members endpoint.
-                </p>
-
-                <div class="member-list">
-                    <div class="member">
-                        <span class="member-name">👤 <span id="memberUsername">...</span></span>
-                        <span class="member-tag">You</span>
-                    </div>
-
-                    <div class="member">
-                        <span class="member-name">👥 Other members</span>
-                        <span class="member-tag">Coming soon</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-title">
-                    <h2>My parties</h2>
-                    <span class="status-pill status-empty">Future</span>
-                </div>
-
-                <p class="muted">
-                    Later you can be part of several parties and choose which one is active.
-                </p>
-
-                <div class="future-list">
-                    <div class="future-item">Family World Cup 2026 — coming later</div>
-                    <div class="future-item">Friends League — coming later</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="right-column">
-            <div class="choice-card">
-                <h2>Create party</h2>
-                <p class="muted">
-                    Start a new private competition and share the code with your family or friends.
-                </p>
-
-                <button class="primary-btn" onclick="createParty()">Create new party</button>
-                <div id="createMessage" class="message"></div>
-            </div>
-
-            <div class="choice-card">
-                <h2>Join party</h2>
-                <p class="muted">
-                    Enter a party code you received from someone else.
-                </p>
-
-                <label>Party code</label>
-                <input id="partyCode" placeholder="Example: ABC123" onkeydown="handleEnter(event, joinParty)">
-
-                <button class="primary-btn" onclick="joinParty()">Join party</button>
-                <button class="secondary-btn" style="margin-top:12px;" onclick="clearPartyCode()">Clear</button>
-
-                <div id="joinMessage" class="message"></div>
+            <div class="simple-buttons">
+                <button class="secondary-btn" onclick="openJoinModal()">Join with code</button>
+                <button class="secondary-btn" onclick="openCreateModal()">Create party</button>
             </div>
         </div>
     </section>
 </main>
+
+<div id="joinModal" class="modal-backdrop">
+    <div class="modal">
+        <button class="close-btn" onclick="closeModals()">×</button>
+        <h2>Join a party</h2>
+        <p>Enter the party code you got from your family or friends.</p>
+
+        <label>Party code</label>
+        <input id="partyCodeInput" placeholder="Example: ABC123" onkeydown="handleEnter(event, joinParty)">
+
+        <div class="modal-actions">
+            <button class="secondary-btn" onclick="closeModals()">Cancel</button>
+            <button class="primary-btn" onclick="joinParty()">Join party</button>
+        </div>
+
+        <div id="joinMessage" class="message"></div>
+    </div>
+</div>
+
+<div id="createModal" class="modal-backdrop">
+    <div class="modal">
+        <button class="close-btn" onclick="closeModals()">×</button>
+        <h2>Create a party</h2>
+        <p>Create a new private competition. You will get a code to share with your family.</p>
+
+        <div class="modal-actions">
+            <button class="secondary-btn" onclick="closeModals()">Cancel</button>
+            <button class="primary-btn" onclick="createParty()">Create party</button>
+        </div>
+
+        <div id="createMessage" class="message"></div>
+    </div>
+</div>
 
 <script>
     const username = localStorage.getItem("username");
@@ -478,8 +461,6 @@
     }
 
     document.getElementById("username").innerText = username || "No user";
-    document.getElementById("memberUsername").innerText = username || "No user";
-
     renderPartyState();
 
     function renderPartyState() {
@@ -500,6 +481,22 @@
         }
     }
 
+    function openJoinModal() {
+        document.getElementById("joinModal").classList.add("show");
+        setTimeout(() => document.getElementById("partyCodeInput").focus(), 100);
+    }
+
+    function openCreateModal() {
+        document.getElementById("createModal").classList.add("show");
+    }
+
+    function closeModals() {
+        document.getElementById("joinModal").classList.remove("show");
+        document.getElementById("createModal").classList.remove("show");
+        setMessage("joinMessage", "");
+        setMessage("createMessage", "");
+    }
+
     function handleEnter(event, action) {
         if (event.key === "Enter") {
             action();
@@ -517,16 +514,14 @@
 
         fetch("/party/create")
             .then(res => {
-                if (!res.ok) {
-                    throw new Error("Create party failed");
-                }
+                if (!res.ok) throw new Error("Create failed");
                 return res.json();
             })
             .then(party => {
                 activePartyCode = party.code;
                 localStorage.setItem("partyCode", party.code);
 
-                setMessage("createMessage", "Party created!");
+                closeModals();
                 renderPartyState();
             })
             .catch(() => {
@@ -535,7 +530,7 @@
     }
 
     function joinParty() {
-        const code = document.getElementById("partyCode").value.trim().toUpperCase();
+        const code = document.getElementById("partyCodeInput").value.trim().toUpperCase();
 
         if (!code) {
             setMessage("joinMessage", "Enter a party code first.", true);
@@ -547,47 +542,34 @@
         fetch(`/party/join?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`)
             .then(res => {
                 if (!res.ok) {
-                    throw new Error("Join party failed");
+                    throw new Error("Could not join party. You may already be in this party.");
                 }
                 return res.json();
             })
             .then(member => {
-                activePartyCode = code;
                 localStorage.setItem("partyCode", code);
-
-                setMessage("joinMessage", "Joined party!");
-                renderPartyState();
+                window.location.href = "/dashboard.html";
             })
-            .catch(() => {
-                setMessage("joinMessage", "Could not join party. Check the code.", true);
+            .catch(err => {
+                joinMessage.className = "error";
+                joinMessage.innerText = err.message;
             });
-    }
-
-    function continueToPredictions() {
-        if (!activePartyCode) {
-            return;
-        }
-
-        window.location.href = "/group.html";
     }
 
     function copyPartyCode() {
-        if (!activePartyCode) {
-            return;
-        }
+        if (!activePartyCode) return;
 
         navigator.clipboard.writeText(activePartyCode)
-            .then(() => {
-                setMessage("copyMessage", "Party code copied!");
-            })
-            .catch(() => {
-                setMessage("copyMessage", "Could not copy code.", true);
-            });
+            .then(() => setMessage("copyMessage", "Party code copied!"))
+            .catch(() => setMessage("copyMessage", "Could not copy code.", true));
     }
 
-    function clearPartyCode() {
-        document.getElementById("partyCode").value = "";
-        setMessage("joinMessage", "");
+    function goToDashboard() {
+        window.location.href = "/dashboard.html";
+    }
+
+    function startPredictions() {
+        window.location.href = "/group.html";
     }
 </script>
 

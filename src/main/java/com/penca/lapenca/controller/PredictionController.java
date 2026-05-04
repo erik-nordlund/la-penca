@@ -183,4 +183,9 @@ public class PredictionController {
     public String resetActualData() {
         return predictionService.resetActualData();
     }
+    @GetMapping("/score-breakdown")
+    public ScoreBreakdownDto getScoreBreakdown(@RequestParam String username,
+                                               @RequestParam String code) {
+        return predictionService.calculateUserScoreBreakdown(username, code);
+    }
 }
