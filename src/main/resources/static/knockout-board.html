@@ -195,6 +195,70 @@
       stroke-width: 2;
       fill: none;
     }
+    .score-summary {
+      margin-top: 26px;
+      background: #1f1f1f;
+      border: 1px solid #333;
+      border-radius: 14px;
+      padding: 18px;
+    }
+
+    .score-summary h2 {
+      margin: 0 0 16px;
+    }
+
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    .score-column {
+      background: #222;
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 10px;
+    }
+    .score-column h3 {
+      margin: 0 0 4px;
+      font-size: 13px;
+    }
+    .score-subtitle {
+      color: #aaa;
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+
+
+    .score-box {
+      background: #222;
+      border: 1px solid #3a3a3a;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .score-box h3 {
+      margin: 0 0 10px;
+      font-size: 15px;
+      color: #ddd;
+    }
+
+    .score-team {
+      padding: 7px 9px;
+      border-radius: 7px;
+      margin-top: 5px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .score-team.correct {
+      background: rgba(34,197,94,0.45);
+      border: 1px solid rgba(124,252,152,0.45);
+    }
+
+    .score-team.wrong {
+      background: rgba(239,68,68,0.45);
+      border: 1px solid rgba(255,107,107,0.45);
+    }
   </style>
 </head>
 <body>
@@ -241,8 +305,13 @@
         </div>
       </div>
 
+
       <div class="side right" id="rightSide"></div>
     </div>
+  </div>
+  <div class="score-summary">
+    <h2>Knockout score overview</h2>
+    <div id="knockoutScoreSummary" class="score-grid"></div>
   </div>
 </div>
 
@@ -266,6 +335,7 @@
   let r32Matches = [];
   let saved = {};
   let predictionsLocked = false;
+  let actualQualified = {};
 
   init();
 
@@ -273,7 +343,8 @@
     Promise.all([
       fetch(`/party/lock-status?code=${encodeURIComponent(code)}`).then(res => res.json()),
       fetch(`/round-of-32?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`).then(res => res.json()),
-      fetch(`/knockout/predictions?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`).then(res => res.json())
+      fetch(`/knockout/predictions?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`).then(res => res.json()),
+      loadActualQualified()
     ])
             .then(([locked, roundOf32, predictions]) => {
               predictionsLocked = locked || viewingOtherUser;
@@ -332,6 +403,7 @@
     const champion = saved["FINAL"]?.[1];
     document.getElementById("champion").innerText = champion ? `Champion: ${champion}` : "";
 
+    renderScoreSummary();
     setTimeout(drawLines, 50);
   }
 
@@ -551,6 +623,194 @@
     if (saved[roundName]) {
       delete saved[roundName][matchNumber];
     }
+  }
+
+  function loadActualQualified() {
+    const stages = [
+      "ROUND_OF_32",
+      "ROUND_OF_16",
+      "QUARTER_FINAL",
+      "SEMI_FINAL",
+      "FINAL",
+      "CHAMPION",
+      "RUNNER_UP",
+      "THIRD_PLACE",
+      "FOURTH_PLACE"
+    ];
+
+    return Promise.all(
+            stages.map(stage =>
+                    fetch(`/actual/qualified?stage=${encodeURIComponent(stage)}`)
+                            .then(res => res.ok ? res.json() : [])
+                            .then(data => {
+                              actualQualified[stage] = data.map(item => item.team.name);
+                            })
+            )
+    );
+  }
+
+  function getActualTeamsForSummary(stage) {
+    if (stage === "PLACEMENTS") {
+      return [
+        ...(actualQualified["CHAMPION"] || []),
+        ...(actualQualified["RUNNER_UP"] || []),
+        ...(actualQualified["THIRD_PLACE"] || []),
+        ...(actualQualified["FOURTH_PLACE"] || [])
+      ];
+    }
+
+    return actualQualified[stage] || [];
+  }
+
+  function renderScoreSummary() {
+    const container = document.getElementById("knockoutScoreSummary");
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    const all = buildAllRounds();
+
+    const columns = [
+      {
+        title: "Round of 32",
+        pointsEach: 1,
+        maxPoints: 32,
+        predictedTeams: getTeamsFromMatches(all.r32),
+        actualStage: "ROUND_OF_32"
+      },
+      {
+        title: "Round of 16",
+        pointsEach: 2,
+        maxPoints: 32,
+        predictedTeams: getPredictedWinners("ROUND_OF_32"),
+        actualStage: "ROUND_OF_16"
+      },
+      {
+        title: "Quarter finals",
+        pointsEach: 3,
+        maxPoints: 24,
+        predictedTeams: getPredictedWinners("ROUND_OF_16"),
+        actualStage: "QUARTER_FINAL"
+      },
+      {
+        title: "Semi finals",
+        pointsEach: 4,
+        maxPoints: 16,
+        predictedTeams: getPredictedWinners("QUARTER_FINAL"),
+        actualStage: "SEMI_FINAL"
+      },
+      {
+        title: "Final",
+        pointsEach: 5,
+        maxPoints: 10,
+        predictedTeams: getPredictedWinners("SEMI_FINAL"),
+        actualStage: "FINAL"
+      },
+      {
+        title: "Placements",
+        pointsEach: null,
+        maxPoints: 18,
+        predictedTeams: getPlacementPredictions(),
+        actualStage: "PLACEMENTS"
+      }
+    ];
+
+    columns.forEach(column => {
+      const actualTeams = getActualTeamsForSummary(column.actualStage);
+      const correctCount = column.predictedTeams.filter(team => actualTeams.includes(stripPlacementLabel(team))).length;
+
+      let earnedPoints;
+
+      if (column.title === "Placements") {
+        earnedPoints = calculatePlacementSummaryPoints(column.predictedTeams);
+      } else {
+        earnedPoints = correctCount * column.pointsEach;
+      }
+
+      const div = document.createElement("div");
+      div.className = "score-column";
+
+      div.innerHTML = `
+      <h3>${column.title}</h3>
+      <div class="score-subtitle">
+        ${earnedPoints}/${column.maxPoints} pts
+        ${column.pointsEach ? ` · ${column.pointsEach} pt each` : " · 6/5/4/3 pts"}
+      </div>
+    `;
+
+      column.predictedTeams.forEach(team => {
+        const cleanTeam = stripPlacementLabel(team);
+        const row = document.createElement("div");
+        row.className = `score-team ${actualTeams.includes(cleanTeam) ? "correct" : "wrong"}`;
+        row.innerText = team;
+        div.appendChild(row);
+      });
+
+      container.appendChild(div);
+    });
+  }
+
+  function getPredictedWinners(roundName) {
+    if (!saved[roundName]) return [];
+
+    return Object.keys(saved[roundName])
+            .sort((a, b) => Number(a) - Number(b))
+            .map(matchNumber => saved[roundName][matchNumber])
+            .filter(Boolean);
+  }
+
+  function getPlacementPredictions() {
+    const placements = [];
+
+    const champion = saved["FINAL"]?.[1];
+    if (champion) placements.push(`Champion: ${champion}`);
+
+    const all = buildAllRounds();
+
+    const finalMatch = all.finalMatch?.[0];
+    if (champion && finalMatch?.homeTeam && finalMatch?.awayTeam) {
+      const runnerUp = finalMatch.homeTeam === champion ? finalMatch.awayTeam : finalMatch.homeTeam;
+      placements.push(`Runner-up: ${runnerUp}`);
+    }
+
+    const third = saved["THIRD_PLACE"]?.[1];
+    if (third) placements.push(`Third: ${third}`);
+
+    const thirdMatch = all.thirdPlace?.[0];
+    if (third && thirdMatch?.homeTeam && thirdMatch?.awayTeam) {
+      const fourth = thirdMatch.homeTeam === third ? thirdMatch.awayTeam : thirdMatch.homeTeam;
+      placements.push(`Fourth: ${fourth}`);
+    }
+
+    return placements;
+  }
+
+  function stripPlacementLabel(value) {
+    return value.replace("Champion: ", "")
+            .replace("Runner-up: ", "")
+            .replace("Third: ", "")
+            .replace("Fourth: ", "");
+  }
+
+  function calculatePlacementSummaryPoints(predictedPlacements) {
+    let points = 0;
+
+    predictedPlacements.forEach(item => {
+      const team = stripPlacementLabel(item);
+
+      if (item.startsWith("Champion: ") && getActualTeamsForSummary("CHAMPION").includes(team)) points += 6;
+      if (item.startsWith("Runner-up: ") && getActualTeamsForSummary("RUNNER_UP").includes(team)) points += 5;
+      if (item.startsWith("Third: ") && getActualTeamsForSummary("THIRD_PLACE").includes(team)) points += 4;
+      if (item.startsWith("Fourth: ") && getActualTeamsForSummary("FOURTH_PLACE").includes(team)) points += 3;
+    });
+
+    return points;
+  }
+
+  function getTeamsFromMatches(matches) {
+    return matches
+            .flatMap(match => [match.homeTeam, match.awayTeam])
+            .filter(Boolean);
   }
 
   function drawLines() {

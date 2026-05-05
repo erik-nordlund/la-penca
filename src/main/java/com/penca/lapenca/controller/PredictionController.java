@@ -264,4 +264,18 @@ public class PredictionController {
                                                           @RequestParam int matchNumber) {
         return predictionService.resetActualKnockoutResult(round, matchNumber);
     }
+    @GetMapping("/group-tiebreak/save")
+    public List<GroupTieBreakRanking> saveGroupTieBreakRanking(@RequestParam String username,
+                                                               @RequestParam String code,
+                                                               @RequestParam String group,
+                                                               @RequestParam List<String> teams) {
+        return predictionService.saveGroupTieBreakRanking(username, code, group, teams);
+    }
+
+    @GetMapping("/group-tiebreak")
+    public List<String> getGroupTieBreakRanking(@RequestParam String username,
+                                                @RequestParam String code,
+                                                @RequestParam String group) {
+        return predictionService.getGroupTieBreakRanking(username, code, group);
+    }
 }

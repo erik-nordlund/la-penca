@@ -31,6 +31,7 @@ public class PredictionService {
     private final ActualQualifiedTeamRepository actualQualifiedTeamRepository;
     private final PartyMemberRepository partyMemberRepository;
     private final ActualKnockoutResultRepository actualKnockoutResultRepository;
+    private final GroupTieBreakRankingRepository groupTieBreakRankingRepository;
 
 
     public PredictionService(PredictionRepository predictionRepository,
@@ -41,7 +42,8 @@ public class PredictionService {
                              TeamRepository teamRepository, KnockoutPredictionRepository knockoutPredictionRepository,
                              ActualQualifiedTeamRepository actualQualifiedTeamRepository,
                              PartyMemberRepository partyMemberRepository,
-                             ActualKnockoutResultRepository actualKnockoutResultRepository) {
+                             ActualKnockoutResultRepository actualKnockoutResultRepository,
+                             GroupTieBreakRankingRepository groupTieBreakRankingRepository) {
         this.predictionRepository = predictionRepository;
         this.appUserRepository = appUserRepository;
         this.partyRepository = partyRepository;
@@ -52,6 +54,7 @@ public class PredictionService {
         this.actualQualifiedTeamRepository = actualQualifiedTeamRepository;
         this.partyMemberRepository = partyMemberRepository;
         this.actualKnockoutResultRepository = actualKnockoutResultRepository;
+        this.groupTieBreakRankingRepository = groupTieBreakRankingRepository;
     }
 
     @Transactional
@@ -135,24 +138,124 @@ public class PredictionService {
             if (outcome == MatchOutcome.HOME_WIN) {
                 homeRow.setWins(homeRow.getWins() + 1);
                 homeRow.setPoints(homeRow.getPoints() + 3);
-
                 awayRow.setLosses(awayRow.getLosses() + 1);
             } else if (outcome == MatchOutcome.AWAY_WIN) {
                 awayRow.setWins(awayRow.getWins() + 1);
                 awayRow.setPoints(awayRow.getPoints() + 3);
-
                 homeRow.setLosses(homeRow.getLosses() + 1);
             } else if (outcome == MatchOutcome.DRAW) {
                 homeRow.setDraws(homeRow.getDraws() + 1);
                 awayRow.setDraws(awayRow.getDraws() + 1);
-
                 homeRow.setPoints(homeRow.getPoints() + 1);
                 awayRow.setPoints(awayRow.getPoints() + 1);
             }
         }
 
-        return table.values().stream()
-                .sorted((a, b) -> Integer.compare(b.getPoints(), a.getPoints()))
+        List<GroupTableRow> rows = new ArrayList<>(table.values());
+
+        List<GroupTieBreakRanking> savedRanking =
+                groupTieBreakRankingRepository.findByUserAndPartyAndGroupNameOrderByPositionIndexAsc(
+                        user,
+                        party,
+                        groupName
+                );
+
+        if (!savedRanking.isEmpty()) {
+            Map<String, Integer> rankingMap = new HashMap<>();
+
+            for (GroupTieBreakRanking ranking : savedRanking) {
+                rankingMap.put(ranking.getTeam().getName(), ranking.getPositionIndex());
+            }
+
+            rows.sort((a, b) -> {
+                int pointsCompare = Integer.compare(b.getPoints(), a.getPoints());
+
+                if (pointsCompare != 0) {
+                    return pointsCompare;
+                }
+
+                Integer aRank = rankingMap.get(a.getTeamName());
+                Integer bRank = rankingMap.get(b.getTeamName());
+
+                if (aRank != null && bRank != null) {
+                    return Integer.compare(aRank, bRank);
+                }
+
+                return a.getTeamName().compareTo(b.getTeamName());
+            });
+
+            return rows;
+        }
+
+        return rows.stream()
+                .sorted((a, b) -> {
+                    int pointsCompare = Integer.compare(b.getPoints(), a.getPoints());
+
+                    if (pointsCompare != 0) {
+                        return pointsCompare;
+                    }
+
+                    return a.getTeamName().compareTo(b.getTeamName());
+                })
+                .toList();
+    }
+    @Transactional
+    public List<GroupTieBreakRanking> saveGroupTieBreakRanking(String username,
+                                                               String code,
+                                                               String groupName,
+                                                               List<String> teamNames) {
+        AppUser user = appUserRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Party party = partyRepository.findByCode(code)
+                .orElseThrow(() -> new RuntimeException("Party not found"));
+
+        validatePartyNotLocked(party);
+
+        if (teamNames.size() != 4) {
+            throw new RuntimeException("You must rank exactly 4 teams");
+        }
+
+        groupTieBreakRankingRepository.deleteByUserAndPartyAndGroupName(user, party, groupName);
+
+        List<GroupTieBreakRanking> saved = new ArrayList<>();
+
+        for (int i = 0; i < teamNames.size(); i++) {
+            int position = i + 1;
+            String teamName = teamNames.get(i);
+
+            Team team = teamRepository.findByName(teamName)
+                    .orElseThrow(() -> new RuntimeException("Team not found: " + teamName));
+
+            GroupTieBreakRanking ranking = GroupTieBreakRanking.builder()
+                    .user(user)
+                    .party(party)
+                    .groupName(groupName)
+                    .team(team)
+                    .positionIndex(position)
+                    .build();
+
+            saved.add(groupTieBreakRankingRepository.save(ranking));
+        }
+
+        clearBracketAfterGroupChange(user, party);
+
+        return saved;
+    }
+
+    public List<String> getGroupTieBreakRanking(String username,
+                                                String code,
+                                                String groupName) {
+        AppUser user = appUserRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Party party = partyRepository.findByCode(code)
+                .orElseThrow(() -> new RuntimeException("Party not found"));
+
+        return groupTieBreakRankingRepository
+                .findByUserAndPartyAndGroupNameOrderByPositionIndexAsc(user, party, groupName)
+                .stream()
+                .map(ranking -> ranking.getTeam().getName())
                 .toList();
     }
 

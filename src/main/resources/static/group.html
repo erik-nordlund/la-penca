@@ -191,7 +191,7 @@
             border: 1px solid rgba(255,255,255,0.08);
             border-radius: 14px;
             padding: 10px;
-            margin-top: 8px;
+            margin-top: 14px;
         }
 
         .team {
@@ -229,17 +229,43 @@
 
         .pick.selected { background: #22c55e; }
 
-        .saved-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: transparent;
-            margin-left: 4px;
+        .match.correct-result {
+            border: 2px solid rgba(34,197,94,0.7);
+            box-shadow: 0 0 18px rgba(34,197,94,0.25);
         }
 
-        .saved-dot.saved {
-            background: #7CFC98;
-            box-shadow: 0 0 10px rgba(124,252,152,0.8);
+        .match.wrong-result {
+            border: 2px solid rgba(239,68,68,0.7);
+            box-shadow: 0 0 18px rgba(239,68,68,0.25);
+        }
+
+        .result-badge {
+            min-width: 38px;
+            text-align: center;
+            padding: 7px 10px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .result-badge.correct {
+            background: rgba(34,197,94,0.18);
+            color: #7CFC98;
+            border: 1px solid rgba(124,252,152,0.4);
+        }
+
+        .result-badge.wrong {
+            background: rgba(239,68,68,0.16);
+            color: #ff8b8b;
+            border: 1px solid rgba(239,68,68,0.4);
+        }
+
+        .pick.correct-pick {
+            background: #22c55e;
+        }
+
+        .pick.wrong-pick {
+            background: #ef4444;
         }
 
         .message {
@@ -254,6 +280,38 @@
             min-height: 20px;
             color: #ff8b8b;
             font-size: 14px;
+        }
+        .group-table-box {
+            margin-top: 14px;
+            padding: 12px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.045);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .group-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .group-table th,
+        .group-table td {
+            padding: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            text-align: left;
+        }
+
+        .draggable-row {
+            cursor: grab;
+        }
+
+        .draggable-row.dragging {
+            opacity: 0.45;
+        }
+
+        .draggable-row:hover {
+            background: rgba(34,197,94,0.12);
         }
 
         @media (max-width: 1300px) {
@@ -362,7 +420,22 @@
     let savedPredictions = {};
     let allGroupMatches = [];
     let predictionsLocked = false;
+    let currentDragTeam = null;
+    let currentGroupTable = [];
+    let currentGroup = null;
 
+    const tieBreakStorageKey = `tieBreakSaved-${username}-${code}`;
+    let savedTieBreakGroups = new Set(JSON.parse(localStorage.getItem(tieBreakStorageKey) || "[]"));
+
+    function markTieBreakSaved(group) {
+        savedTieBreakGroups.add(group);
+        localStorage.setItem(tieBreakStorageKey, JSON.stringify([...savedTieBreakGroups]));
+    }
+
+    function clearTieBreakSaved(group) {
+        savedTieBreakGroups.delete(group);
+        localStorage.setItem(tieBreakStorageKey, JSON.stringify([...savedTieBreakGroups]));
+    }
     Promise.all([
         fetch(`/party/lock-status?code=${encodeURIComponent(code)}`).then(res => res.json()),
         fetch(`/predictions?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`).then(res => res.json()),
@@ -436,37 +509,54 @@
                 card.appendChild(createMatchRow(match));
             });
 
+            const tableButton = document.createElement("button");
+            tableButton.id = `tie-button-${group}`;
+            tableButton.className = "secondary-btn";
+            tableButton.style.width = "100%";
+            tableButton.style.marginTop = "12px";
+            tableButton.innerText = "Open tie-break / table";
+            tableButton.onclick = () => toggleGroupTable(group);
+
+            card.appendChild(tableButton);
+
+            const tableBox = document.createElement("div");
+            tableBox.id = `group-table-box-${group}`;
+            tableBox.className = "group-table-box";
+            tableBox.style.display = "none";
+            card.appendChild(tableBox);
+
             container.appendChild(card);
+            setTimeout(() => refreshTieButton(group), 100);
         });
     }
 
     function createMatchRow(match) {
         const row = document.createElement("div");
-        row.className = "match";
+        row.className = `match ${getResultClass(match)}`;
         row.id = `match-${match.id}`;
         row.dataset.group = match.homeTeam.groupName;
 
         row.innerHTML = `
-            <div class="team">${match.homeTeam.name}</div>
-            <div class="vs">vs</div>
-            <div class="team away">${match.awayTeam.name}</div>
+        <div class="team">${match.homeTeam.name}</div>
+        <div class="vs">vs</div>
+        <div class="team away">${match.awayTeam.name}</div>
 
-            <div class="pick-buttons">
-                <button class="pick ${selected[match.id] === 'HOME_WIN' ? 'selected' : ''}"
-                        ${predictionsLocked ? "disabled" : ""}
-                        onclick="savePrediction(${match.id}, 'HOME_WIN')">1</button>
+        <div class="pick-buttons">
+            <button class="pick ${getPickClass(match, 'HOME_WIN')}"
+                    ${predictionsLocked ? "disabled" : ""}
+                    onclick="savePrediction(${match.id}, 'HOME_WIN')">1</button>
 
-                <button class="pick ${selected[match.id] === 'DRAW' ? 'selected' : ''}"
-                        ${predictionsLocked ? "disabled" : ""}
-                        onclick="savePrediction(${match.id}, 'DRAW')">X</button>
+            <button class="pick ${getPickClass(match, 'DRAW')}"
+                    ${predictionsLocked ? "disabled" : ""}
+                    onclick="savePrediction(${match.id}, 'DRAW')">X</button>
 
-                <button class="pick ${selected[match.id] === 'AWAY_WIN' ? 'selected' : ''}"
-                        ${predictionsLocked ? "disabled" : ""}
-                        onclick="savePrediction(${match.id}, 'AWAY_WIN')">2</button>
+            <button class="pick ${getPickClass(match, 'AWAY_WIN')}"
+                    ${predictionsLocked ? "disabled" : ""}
+                    onclick="savePrediction(${match.id}, 'AWAY_WIN')">2</button>
 
-                <span id="saved-${match.id}" class="saved-dot ${selected[match.id] ? 'saved' : ''}"></span>
-            </div>
-        `;
+            ${getResultBadge(match)}
+        </div>
+    `;
 
         return row;
     }
@@ -497,10 +587,10 @@
                 if (outcome === "DRAW") buttons[1].classList.add("selected");
                 if (outcome === "AWAY_WIN") buttons[2].classList.add("selected");
 
-                document.getElementById(`saved-${matchId}`).classList.add("saved");
-
                 updateProgress();
                 updateGroupProgress(matchDiv.dataset.group);
+                clearTieBreakSaved(matchDiv.dataset.group);
+                refreshTieButton(matchDiv.dataset.group);
 
                 showMessage("Saved!");
                 setTimeout(() => {
@@ -549,6 +639,289 @@
 
     function scrollToTop() {
         window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    function hasTie(table) {
+        const pointsCount = {};
+        table.forEach(row => {
+            pointsCount[row.points] = (pointsCount[row.points] || 0) + 1;
+        });
+        return Object.values(pointsCount).some(count => count > 1);
+    }
+
+    function teamIsInTie(row, table) {
+        return table.filter(other => other.points === row.points).length > 1;
+    }
+    function toggleGroupTable(group) {
+        const box = document.getElementById(`group-table-box-${group}`);
+
+        if (box && box.style.display === "block") {
+            box.style.display = "none";
+            return;
+        }
+
+        loadGroupTable(group);
+    }
+    function loadGroupTable(group) {
+        document.querySelectorAll(".group-table-box").forEach(box => {
+            box.style.display = "none";
+        });
+
+        fetch(`/group-table?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}&group=${encodeURIComponent(group)}`)
+            .then(res => {
+                if (!res.ok) throw new Error("Could not load group table");
+                return res.json();
+            })
+            .then(table => {
+                currentGroup = group;
+                currentGroupTable = table;
+                renderGroupTable(group, table);
+            })
+            .catch(() => {
+                showMessage("Could not load group table.", true);
+            });
+    }
+
+    function renderGroupTable(group, table) {
+        const box = document.getElementById(`group-table-box-${group}`);
+        box.style.display = "block";
+        box.innerHTML = "";
+
+        const tieExists = hasTie(table);
+        const tieSolved = tieExists && savedTieBreakGroups.has(group);
+
+        const wrapper = document.createElement("div");
+
+        wrapper.innerHTML = `
+        <h3 style="margin:0 0 10px;">Group ${group} table</h3>
+        ${tieExists && !tieSolved ? `
+            <div style="
+                border:1px solid rgba(255,193,7,0.4);
+                background:rgba(255,193,7,0.12);
+                color:#ffd166;
+                padding:12px;
+                border-radius:12px;
+                margin-bottom:12px;
+            ">
+                ⚠️ Tie-break needed. Drag the teams into the correct order, then save.
+            </div>
+        ` : ""}
+        <table class="group-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Team</th>
+                    <th>P</th>
+                    <th>W</th>
+                    <th>D</th>
+                    <th>L</th>
+                    <th>Pts</th>
+                </tr>
+            </thead>
+            <tbody id="groupTableBody-${group}"></tbody>
+        </table>
+
+        ${tieExists ? `
+            <button class="primary-btn" style="width:100%; margin-top:12px;" onclick="saveTieBreakRanking('${group}')">
+                Save tie-break order
+            </button>
+            <div id="tieBreakMessage-${group}" class="message"></div>
+        ` : ""}
+    `;
+
+        box.appendChild(wrapper);
+
+        const tbody = document.getElementById(`groupTableBody-${group}`);
+
+        table.forEach((row, index) => {
+            const tr = document.createElement("tr");
+            const rowCanMove = tieExists && teamIsInTie(row, table) && !predictionsLocked && !viewingOtherUser;
+            tr.draggable = rowCanMove;
+            tr.dataset.team = row.teamName;
+
+            if (rowCanMove) {
+                tr.classList.add("draggable-row");
+
+                tr.addEventListener("dragstart", () => {
+                    currentDragTeam = row.teamName;
+                    tr.classList.add("dragging");
+                });
+
+                tr.addEventListener("dragend", () => {
+                    currentDragTeam = null;
+                    tr.classList.remove("dragging");
+                });
+
+                tr.addEventListener("dragover", event => {
+                    event.preventDefault();
+                });
+
+                tr.addEventListener("drop", event => {
+                    event.preventDefault();
+
+                    const targetTeam = tr.dataset.team;
+
+                    if (!currentDragTeam || currentDragTeam === targetTeam) {
+                        return;
+                    }
+
+                    const dragRow = currentGroupTable.find(row => row.teamName === currentDragTeam);
+                    const targetRow = currentGroupTable.find(row => row.teamName === targetTeam);
+
+                    if (!dragRow || !targetRow || dragRow.points !== targetRow.points) {
+                        return;
+                    }
+
+                    reorderGroupTable(group, currentDragTeam, targetTeam);
+                });
+            }
+
+            tr.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${rowCanMove ? "☰ " : ""}<strong>${row.teamName}</strong></td>
+            <td>${row.played}</td>
+            <td>${row.wins}</td>
+            <td>${row.draws}</td>
+            <td>${row.losses}</td>
+            <td><strong>${row.points}</strong></td>
+        `;
+
+            tbody.appendChild(tr);
+        });
+    }
+
+    function reorderGroupTable(group, dragTeam, targetTeam) {
+        const fromIndex = currentGroupTable.findIndex(row => row.teamName === dragTeam);
+        const toIndex = currentGroupTable.findIndex(row => row.teamName === targetTeam);
+
+        if (fromIndex === -1 || toIndex === -1) {
+            return;
+        }
+
+        const moved = currentGroupTable.splice(fromIndex, 1)[0];
+        currentGroupTable.splice(toIndex, 0, moved);
+
+        renderGroupTable(group, currentGroupTable);
+    }
+
+    function saveTieBreakRanking(group) {
+        if (predictionsLocked || viewingOtherUser) {
+            showMessage("Predictions are locked.", true);
+            return;
+        }
+
+        const teams = currentGroupTable.map(row => row.teamName);
+        const teamsParam = teams.map(encodeURIComponent).join(",");
+
+        const message = document.getElementById(`tieBreakMessage-${group}`);
+        message.innerText = "Saving tie-break order...";
+
+        fetch(`/group-tiebreak/save?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}&group=${encodeURIComponent(group)}&teams=${teamsParam}`)
+            .then(res => {
+                if (!res.ok) throw new Error("Save failed");
+                return res.json();
+            })
+            .then(() => {
+                markTieBreakSaved(group);
+
+                message.className = "message";
+                message.innerText = "Tie-break order saved.";
+
+                refreshTieButton(group);
+                loadGroupTable(group);
+
+                setTimeout(() => {
+                    const newMessage = document.getElementById(`tieBreakMessage-${group}`);
+                    if (newMessage) {
+                        newMessage.className = "message";
+                        newMessage.innerText = "Tie-break order saved.";
+                    }
+                }, 100);
+            })
+            .catch(() => {
+                message.className = "error";
+                message.innerText = "Could not save tie-break order.";
+            });
+    }
+    function refreshTieButton(group) {
+        fetch(`/group-table?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}&group=${encodeURIComponent(group)}`)
+            .then(res => res.json())
+            .then(table => {
+                const button = document.getElementById(`tie-button-${group}`);
+                if (!button) return;
+
+                const tieExists = hasTie(table);
+                const tieSolved = savedTieBreakGroups.has(group);
+
+                if (tieExists && !tieSolved) {
+                    button.innerText = "⚠️ Fix tie-break / table";
+                    button.style.borderColor = "rgba(255,193,7,0.7)";
+                    button.style.color = "#ffd166";
+                } else {
+                    button.innerText = "Open tie-break / table";
+                    button.style.borderColor = "rgba(255,255,255,0.16)";
+                    button.style.color = "white";
+                }
+            });
+    }
+    function getActualOutcome(match) {
+        if (!match.played || match.homeScore === null || match.awayScore === null) {
+            return null;
+        }
+
+        if (match.homeScore > match.awayScore) {
+            return "HOME_WIN";
+        }
+
+        if (match.homeScore < match.awayScore) {
+            return "AWAY_WIN";
+        }
+
+        return "DRAW";
+    }
+
+    function getResultClass(match) {
+        const actualOutcome = getActualOutcome(match);
+        const predictedOutcome = selected[match.id];
+
+        if (!actualOutcome || !predictedOutcome) {
+            return "";
+        }
+
+        return actualOutcome === predictedOutcome ? "correct-result" : "wrong-result";
+    }
+
+    function getPickClass(match, outcome) {
+        const actualOutcome = getActualOutcome(match);
+        const predictedOutcome = selected[match.id];
+
+        let className = predictedOutcome === outcome ? "selected" : "";
+
+        if (!actualOutcome || !predictedOutcome || predictedOutcome !== outcome) {
+            return className;
+        }
+
+        if (actualOutcome === predictedOutcome) {
+            className += " correct-pick";
+        } else {
+            className += " wrong-pick";
+        }
+
+        return className.trim();
+    }
+
+    function getResultBadge(match) {
+        const actualOutcome = getActualOutcome(match);
+        const predictedOutcome = selected[match.id];
+
+        if (!actualOutcome || !predictedOutcome) {
+            return "";
+        }
+
+        if (actualOutcome === predictedOutcome) {
+            return `<div class="result-badge correct">+1</div>`;
+        }
+
+        return `<div class="result-badge wrong">0</div>`;
     }
 </script>
 
