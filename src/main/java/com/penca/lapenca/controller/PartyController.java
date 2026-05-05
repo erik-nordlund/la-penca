@@ -1,5 +1,6 @@
 package com.penca.lapenca.controller;
 
+import com.penca.lapenca.dto.PartyDto;
 import com.penca.lapenca.dto.PartyMemberDto;
 import com.penca.lapenca.entity.AppUser;
 import com.penca.lapenca.entity.Party;
@@ -8,9 +9,7 @@ import com.penca.lapenca.repository.AppUserRepository;
 import com.penca.lapenca.repository.PartyMemberRepository;
 import com.penca.lapenca.service.PartyMemberService;
 import com.penca.lapenca.service.PartyService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,8 +33,26 @@ public class PartyController {
     }
 
     @GetMapping("/party/create")
-    public Party createParty() {
-        return partyService.createParty();
+    public Party createParty(@RequestParam String username,
+                             @RequestParam String name,
+                             @RequestParam String deadline) {
+
+        AppUser user = appUserRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Party party = partyService.createParty(
+                name.trim(),
+                LocalDateTime.parse(deadline)
+        );
+
+        PartyMember partyMember = PartyMember.builder()
+                .user(user)
+                .party(party)
+                .build();
+
+        partyMemberRepository.save(partyMember);
+
+        return party;
     }
 
     @GetMapping("/party/join")
@@ -52,18 +69,28 @@ public class PartyController {
                 .map(PartyMember::getParty)
                 .orElse(null);
     }
-    @GetMapping("/party/deadline/set")
-    public Party setPredictionDeadline(@RequestParam String code,
-                                       @RequestParam String deadline) {
-        return partyService.setPredictionDeadline(
-                code,
-                LocalDateTime.parse(deadline)
-        );
+
+    @GetMapping("/party/my-parties")
+    public List<PartyDto> getMyParties(@RequestParam String username) {
+        AppUser user = appUserRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return partyMemberRepository.findByUser(user)
+                .stream()
+                .map(member -> {
+                    Party party = member.getParty();
+                    int memberCount = partyMemberRepository.findByParty(party).size();
+
+                    return new PartyDto(
+                            party.getCode(),
+                            party.getName(),
+                            party.getPredictionDeadline(),
+                            memberCount
+                    );
+                })
+                .toList();
     }
-    @GetMapping("/party/lock-status")
-    public boolean getLockStatus(@RequestParam String code) {
-        return partyService.isPredictionLocked(code);
-    }
+
     @GetMapping("/party/members")
     public List<PartyMemberDto> getPartyMembers(@RequestParam String code) {
         Party party = partyService.findByCode(code)
@@ -73,5 +100,26 @@ public class PartyController {
                 .stream()
                 .map(member -> new PartyMemberDto(member.getUser().getUsername()))
                 .toList();
+    }
+
+    @PostMapping("/party/leave")
+    public String leaveParty(@RequestParam String username,
+                             @RequestParam String code) {
+        partyMemberService.leaveParty(username, code);
+        return "Left party";
+    }
+
+    @GetMapping("/party/deadline/set")
+    public Party setPredictionDeadline(@RequestParam String code,
+                                       @RequestParam String deadline) {
+        return partyService.setPredictionDeadline(
+                code,
+                LocalDateTime.parse(deadline)
+        );
+    }
+
+    @GetMapping("/party/lock-status")
+    public boolean getLockStatus(@RequestParam String code) {
+        return partyService.isPredictionLocked(code);
     }
 }

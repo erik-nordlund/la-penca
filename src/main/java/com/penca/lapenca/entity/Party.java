@@ -20,6 +20,8 @@ public class Party {
     @Column(unique = true, nullable = false)
     private String code;
 
+    private String name;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime predictionDeadline;

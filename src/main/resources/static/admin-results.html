@@ -42,9 +42,7 @@
         .links a:hover,
         .links a.active { color: #7CFC98; }
 
-        .page {
-            padding: 42px 60px 70px;
-        }
+        .page { padding: 42px 60px 70px; }
 
         .badge {
             display: inline-block;
@@ -87,9 +85,7 @@
             box-shadow: 0 14px 45px rgba(0,0,0,0.28);
         }
 
-        .card + .card {
-            margin-top: 22px;
-        }
+        .card + .card { margin-top: 22px; }
 
         .card-title {
             display: flex;
@@ -99,26 +95,132 @@
             margin-bottom: 16px;
         }
 
-        h2 {
-            margin: 0;
-            font-size: 24px;
-        }
+        h2 { margin: 0; font-size: 24px; }
 
-        .muted {
+        .muted { color: #aaa; line-height: 1.45; }
+
+        .status-pill {
+            border-radius: 999px;
+            padding: 7px 11px;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+            background: rgba(255,255,255,0.08);
             color: #aaa;
-            line-height: 1.45;
+            border: 1px solid rgba(255,255,255,0.12);
         }
 
-        .form-grid {
-            display: grid;
-            gap: 14px;
-            margin-top: 18px;
+        .status-ok {
+            background: rgba(34,197,94,0.14);
+            color: #7CFC98;
+            border-color: rgba(124,252,152,0.3);
         }
 
-        .score-grid {
+        .status-danger {
+            background: rgba(255,107,107,0.1);
+            color: #ff8b8b;
+            border-color: rgba(255,107,107,0.35);
+        }
+
+        .tabs {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 14px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 22px;
+        }
+
+        .tab-btn,
+        .group-btn,
+        .round-btn {
+            padding: 13px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.16);
+            background: #151515;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .tab-btn.active,
+        .group-btn.active,
+        .round-btn.active {
+            background: rgba(34,197,94,0.18);
+            border-color: rgba(124,252,152,0.5);
+            color: #7CFC98;
+        }
+
+        .group-buttons {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin: 18px 0 20px;
+        }
+
+        .round-buttons {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin: 18px 0 20px;
+        }
+
+        .matches-list,
+        .list {
+            display: grid;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .match-card,
+        .team-row,
+        .knockout-card {
+            background: rgba(255,255,255,0.055);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 18px;
+            padding: 16px;
+        }
+
+        .match-top {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr auto;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .team {
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        .team.away { text-align: right; }
+
+        .vs {
+            color: #777;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .played-pill {
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-size: 12px;
+            font-weight: bold;
+            background: rgba(255,255,255,0.08);
+            color: #aaa;
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+
+        .played-pill.played {
+            background: rgba(34,197,94,0.14);
+            color: #7CFC98;
+            border-color: rgba(124,252,152,0.3);
+        }
+
+        .match-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto auto;
+            gap: 10px;
+            align-items: end;
         }
 
         label {
@@ -131,7 +233,7 @@
 
         input, select {
             width: 100%;
-            padding: 14px 15px;
+            padding: 12px 13px;
             border-radius: 12px;
             border: 1px solid #3a3a3a;
             background: #111;
@@ -140,16 +242,12 @@
             font-size: 15px;
         }
 
-        input:focus,
-        select:focus {
-            border-color: #0d6efd;
-        }
+        input:focus, select:focus { border-color: #0d6efd; }
 
         .primary-btn,
         .danger-btn,
         .secondary-btn {
-            width: 100%;
-            padding: 14px;
+            padding: 13px 15px;
             border-radius: 12px;
             font-weight: bold;
             cursor: pointer;
@@ -190,23 +288,6 @@
             font-size: 14px;
         }
 
-        .status-pill {
-            border-radius: 999px;
-            padding: 7px 11px;
-            font-size: 12px;
-            font-weight: bold;
-            white-space: nowrap;
-            background: rgba(255,255,255,0.08);
-            color: #aaa;
-            border: 1px solid rgba(255,255,255,0.12);
-        }
-
-        .status-danger {
-            background: rgba(255,107,107,0.1);
-            color: #ff8b8b;
-            border-color: rgba(255,107,107,0.35);
-        }
-
         .quick-list {
             display: grid;
             gap: 10px;
@@ -221,30 +302,98 @@
             color: #ddd;
         }
 
-        .quick-item strong {
-            color: white;
+        .empty-state {
+            background: rgba(255,255,255,0.045);
+            border: 1px dashed rgba(255,255,255,0.16);
+            border-radius: 16px;
+            padding: 22px;
+            color: #aaa;
+            text-align: center;
         }
 
+        .team-row {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .team-row.selected {
+            background: rgba(34,197,94,0.16);
+            border-color: rgba(124,252,152,0.45);
+        }
+
+        .knockout-grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(240px, 1fr));
+            gap: 18px;
+            align-items: start;
+            overflow-x: auto;
+            padding-bottom: 12px;
+        }
+
+        .round-column {
+            display: grid;
+            gap: 14px;
+            min-width: 240px;
+        }
+
+        .round-title {
+            text-align: center;
+            font-weight: bold;
+            color: #7CFC98;
+            margin-bottom: 4px;
+        }
+
+        .knockout-card.played {
+            border-color: rgba(124,252,152,0.45);
+            background: rgba(34,197,94,0.10);
+        }
+
+        .slot-label {
+            color: #aaa;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .score-row {
+            display: grid;
+            grid-template-columns: 1fr 70px;
+            gap: 8px;
+            align-items: center;
+            margin-top: 8px;
+        }
+
+        .score-row strong {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .knockout-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .winner-text {
+            margin-top: 10px;
+            color: #7CFC98;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .hidden { display: none; }
+
         @media (max-width: 1000px) {
-            .page {
-                padding: 30px 18px 60px;
-            }
-
-            .layout {
-                grid-template-columns: 1fr;
-            }
-
-            h1 {
-                font-size: 40px;
-            }
-
-            .links {
-                display: none;
-            }
-
-            .score-grid {
-                grid-template-columns: 1fr;
-            }
+            .page { padding: 30px 18px 60px; }
+            .layout { grid-template-columns: 1fr; }
+            h1 { font-size: 40px; }
+            .links { display: none; }
+            .group-buttons, .tabs, .round-buttons { grid-template-columns: 1fr; }
+            .match-top, .match-actions, .team-row { grid-template-columns: 1fr; }
+            .team.away { text-align: left; }
         }
     </style>
 </head>
@@ -268,100 +417,81 @@
     <div class="badge">🛠️ Admin</div>
     <h1>Admin results</h1>
     <p class="subtitle">
-        Add real match results and actual qualified teams. This data is used to calculate scores and update the leaderboard.
+        Add real match results, choose actual third-place qualifiers, and save knockout scores.
     </p>
+
+    <div class="tabs">
+        <button id="groupsTabBtn" class="tab-btn active" onclick="showTab('groups')">Group results</button>
+        <button id="thirdTabBtn" class="tab-btn" onclick="showTab('third')">Third-place</button>
+        <button id="knockoutTabBtn" class="tab-btn" onclick="showTab('knockout')">Knockout</button>
+    </div>
 
     <section class="layout">
         <div>
-            <div class="card">
+            <div id="groupsView" class="card">
                 <div class="card-title">
-                    <h2>Set group match result</h2>
-                    <span class="status-pill">Group stage</span>
+                    <h2>Group match results</h2>
+                    <span id="selectedGroupPill" class="status-pill">Group A</span>
                 </div>
 
-                <p class="muted">
-                    Enter the match ID and final score. This marks the match as played.
-                </p>
+                <p class="muted">Choose a group, enter the real score for each match, then save.</p>
 
-                <div class="form-grid">
-                    <div>
-                        <label>Match ID</label>
-                        <input id="matchId" placeholder="Example: 7" type="number">
-                    </div>
-
-                    <div class="score-grid">
-                        <div>
-                            <label>Home score</label>
-                            <input id="homeScore" placeholder="2" type="number">
-                        </div>
-
-                        <div>
-                            <label>Away score</label>
-                            <input id="awayScore" placeholder="0" type="number">
-                        </div>
-
-                        <div>
-                            <label>&nbsp;</label>
-                            <button class="primary-btn" onclick="setMatchResult()">Save result</button>
-                        </div>
-                    </div>
-                </div>
-
+                <div id="groupButtons" class="group-buttons"></div>
                 <div id="matchMessage" class="message"></div>
+
+                <div id="matchesList" class="matches-list">
+                    <div class="empty-state">Loading Group A matches...</div>
+                </div>
             </div>
 
-            <div class="card">
+            <div id="thirdView" class="card hidden">
                 <div class="card-title">
-                    <h2>Add actual qualified team</h2>
-                    <span class="status-pill">Knockout</span>
+                    <h2>Actual third-place qualifiers</h2>
+                    <span id="thirdSelectedCount" class="status-pill">0/8 selected</span>
                 </div>
 
                 <p class="muted">
-                    Add the real teams that reached each stage. These are compared against user predictions.
+                    These are calculated from actual group results. Select exactly 8 third-place teams.
+                    Saving this stores all actual Round of 32 teams.
                 </p>
 
-                <div class="form-grid">
-                    <div>
-                        <label>Team name</label>
-                        <input id="teamName" placeholder="Example: Spain">
-                    </div>
+                <div id="thirdMessage" class="message"></div>
+                <div id="thirdPlaceList" class="list"></div>
 
-                    <div>
-                        <label>Stage</label>
-                        <select id="stage">
-                            <option value="ROUND_OF_32">Round of 32</option>
-                            <option value="ROUND_OF_16">Round of 16</option>
-                            <option value="QUARTER_FINAL">Quarter-final</option>
-                            <option value="SEMI_FINAL">Semi-final</option>
-                            <option value="FINAL">Final</option>
-                            <option value="CHAMPION">Champion</option>
-                            <option value="RUNNER_UP">Runner-up</option>
-                            <option value="THIRD_PLACE">Third place</option>
-                            <option value="FOURTH_PLACE">Fourth place</option>
-                        </select>
-                    </div>
+                <button class="primary-btn" style="width:100%; margin-top:18px;" onclick="saveActualRoundOf32()">
+                    Save actual Round of 32 teams
+                </button>
+            </div>
 
-                    <button class="primary-btn" onclick="addActualTeam()">Add team</button>
+            <div id="knockoutView" class="card hidden">
+                <div class="card-title">
+                    <h2>Actual knockout bracket</h2>
+                    <span id="knockoutStagePill" class="status-pill">Round of 32</span>
                 </div>
 
-                <div id="teamMessage" class="message"></div>
+                <p class="muted">
+                    Enter real knockout scores. Winner is calculated automatically and builds the next round.
+                </p>
+
+                <div id="roundButtons" class="round-buttons"></div>
+                <div id="knockoutMessage" class="message"></div>
+
+                <div id="knockoutBracket" class="knockout-grid"></div>
             </div>
         </div>
 
         <aside>
             <div class="card">
-                <div class="card-title">
-                    <h2>Quick guide</h2>
-                </div>
+                <div class="card-title"><h2>Quick guide</h2></div>
 
                 <div class="quick-list">
-                    <div class="quick-item"><strong>1.</strong> Add group match results first.</div>
-                    <div class="quick-item"><strong>2.</strong> Add teams that actually reached R32.</div>
-                    <div class="quick-item"><strong>3.</strong> Continue adding teams for each knockout stage.</div>
-                    <div class="quick-item"><strong>4.</strong> Check leaderboard after adding data.</div>
+                    <div class="quick-item"><strong>1.</strong> Add all group results.</div>
+                    <div class="quick-item"><strong>2.</strong> Open Third-place and save actual R32.</div>
+                    <div class="quick-item"><strong>3.</strong> Add knockout scores round by round.</div>
+                    <div class="quick-item"><strong>4.</strong> Check leaderboard.</div>
                 </div>
 
-                <button class="secondary-btn" style="margin-top:18px;" onclick="goToLeaderboard()">View leaderboard</button>
+                <button class="secondary-btn" style="width:100%; margin-top:18px;" onclick="goToLeaderboard()">View leaderboard</button>
             </div>
 
             <div class="card">
@@ -370,11 +500,9 @@
                     <span class="status-pill status-danger">Danger</span>
                 </div>
 
-                <p class="muted">
-                    Removes all actual qualified teams and clears all match results.
-                </p>
+                <p class="muted">Removes all actual qualified teams and clears all match results.</p>
 
-                <button class="danger-btn" onclick="resetActualData()">Reset actual data</button>
+                <button class="danger-btn" style="width:100%;" onclick="resetActualData()">Reset actual data</button>
                 <div id="resetMessage" class="message"></div>
             </div>
         </aside>
@@ -382,19 +510,163 @@
 </main>
 
 <script>
+    const adminUsername = localStorage.getItem("username");
+    const allowedAdmin = "erik";
+
+    let currentGroup = "A";
+    let selectedThirdPlaceTeams = [];
+    let currentKnockoutRound = "ROUND_OF_32";
+
+    const knockoutRounds = [
+        { value: "ROUND_OF_32", label: "R32" },
+        { value: "ROUND_OF_16", label: "R16" },
+        { value: "QUARTER_FINAL", label: "QF" },
+        { value: "SEMI_FINAL", label: "SF" },
+        { value: "FINAL", label: "Final" },
+        { value: "THIRD_PLACE", label: "Third place" }
+    ];
+
+    if (!adminUsername) {
+        window.location.href = "/index.html";
+    }
+
+    if (adminUsername !== allowedAdmin) {
+        document.body.innerHTML = `
+            <div style="padding:50px; color:white; font-family:Arial;">
+                <h1>Access denied</h1>
+                <p>You do not have admin access.</p>
+                <button onclick="window.location.href='/dashboard.html'">Go back</button>
+            </div>
+        `;
+    } else {
+        renderGroupButtons();
+        renderRoundButtons();
+        loadGroupMatches("A");
+    }
+
     function setMessage(id, text, isError = false) {
         const el = document.getElementById(id);
         el.className = isError ? "error" : "message";
         el.innerText = text;
     }
 
-    function setMatchResult() {
-        const matchId = document.getElementById("matchId").value.trim();
-        const homeScore = document.getElementById("homeScore").value.trim();
-        const awayScore = document.getElementById("awayScore").value.trim();
+    function showTab(tab) {
+        document.getElementById("groupsView").classList.add("hidden");
+        document.getElementById("thirdView").classList.add("hidden");
+        document.getElementById("knockoutView").classList.add("hidden");
 
-        if (!matchId || homeScore === "" || awayScore === "") {
-            setMessage("matchMessage", "Enter match ID, home score and away score.", true);
+        document.getElementById("groupsTabBtn").classList.remove("active");
+        document.getElementById("thirdTabBtn").classList.remove("active");
+        document.getElementById("knockoutTabBtn").classList.remove("active");
+
+        if (tab === "groups") {
+            document.getElementById("groupsView").classList.remove("hidden");
+            document.getElementById("groupsTabBtn").classList.add("active");
+            loadGroupMatches(currentGroup);
+        }
+
+        if (tab === "third") {
+            document.getElementById("thirdView").classList.remove("hidden");
+            document.getElementById("thirdTabBtn").classList.add("active");
+            loadThirdPlaceTeams();
+        }
+
+        if (tab === "knockout") {
+            document.getElementById("knockoutView").classList.remove("hidden");
+            document.getElementById("knockoutTabBtn").classList.add("active");
+            renderRoundButtons();
+            loadKnockoutBracket();
+        }
+    }
+
+    function renderGroupButtons() {
+        const groups = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"];
+        const container = document.getElementById("groupButtons");
+        container.innerHTML = "";
+
+        groups.forEach(group => {
+            const button = document.createElement("button");
+            button.className = `group-btn ${group === currentGroup ? "active" : ""}`;
+            button.innerText = `Group ${group}`;
+            button.onclick = () => loadGroupMatches(group);
+            container.appendChild(button);
+        });
+    }
+
+    function loadGroupMatches(group) {
+        currentGroup = group;
+        document.getElementById("selectedGroupPill").innerText = `Group ${group}`;
+        renderGroupButtons();
+
+        const list = document.getElementById("matchesList");
+        list.innerHTML = `<div class="empty-state">Loading Group ${group} matches...</div>`;
+        setMessage("matchMessage", "");
+
+        fetch(`/matches/group?group=${encodeURIComponent(group)}`)
+            .then(res => {
+                if (!res.ok) throw new Error("Could not load matches");
+                return res.json();
+            })
+            .then(matches => renderMatches(matches))
+            .catch(() => {
+                list.innerHTML = `<div class="empty-state">Could not load matches for Group ${group}.</div>`;
+            });
+    }
+
+    function renderMatches(matches) {
+        const list = document.getElementById("matchesList");
+        list.innerHTML = "";
+
+        if (!matches || matches.length === 0) {
+            list.innerHTML = `<div class="empty-state">No matches found for this group.</div>`;
+            return;
+        }
+
+        matches.sort((a, b) => new Date(a.matchDate) - new Date(b.matchDate));
+
+        matches.forEach(match => {
+            const card = document.createElement("div");
+            card.className = "match-card";
+
+            const homeScore = match.homeScore ?? "";
+            const awayScore = match.awayScore ?? "";
+
+            card.innerHTML = `
+                <div class="match-top">
+                    <div class="team">${match.homeTeam.name}</div>
+                    <div class="vs">vs</div>
+                    <div class="team away">${match.awayTeam.name}</div>
+                    <div class="played-pill ${match.played ? "played" : ""}">
+                        ${match.played ? "Played" : "Not played"}
+                    </div>
+                </div>
+
+                <div class="match-actions">
+                    <div>
+                        <label>${match.homeTeam.name} score</label>
+                        <input id="home-${match.id}" type="number" value="${homeScore}" placeholder="0">
+                    </div>
+
+                    <div>
+                        <label>${match.awayTeam.name} score</label>
+                        <input id="away-${match.id}" type="number" value="${awayScore}" placeholder="0">
+                    </div>
+
+                    <button class="primary-btn" onclick="saveMatchResult(${match.id})">Save</button>
+                    <button class="danger-btn" onclick="resetMatchResult(${match.id})">Reset</button>
+                </div>
+            `;
+
+            list.appendChild(card);
+        });
+    }
+
+    function saveMatchResult(matchId) {
+        const homeScore = document.getElementById(`home-${matchId}`).value.trim();
+        const awayScore = document.getElementById(`away-${matchId}`).value.trim();
+
+        if (homeScore === "" || awayScore === "") {
+            setMessage("matchMessage", "Enter both scores before saving.", true);
             return;
         }
 
@@ -406,45 +678,298 @@
                 return res.json();
             })
             .then(data => {
-                setMessage(
-                    "matchMessage",
-                    `Saved: ${data.homeTeam.name} ${data.homeScore} - ${data.awayScore} ${data.awayTeam.name}`
-                );
+                setMessage("matchMessage", `Saved: ${data.homeTeam.name} ${data.homeScore} - ${data.awayScore} ${data.awayTeam.name}`);
+                loadGroupMatches(currentGroup);
             })
-            .catch(() => {
-                setMessage("matchMessage", "Could not save match result.", true);
-            });
+            .catch(() => setMessage("matchMessage", "Could not save match result.", true));
     }
 
-    function addActualTeam() {
-        const teamName = document.getElementById("teamName").value.trim();
-        const stage = document.getElementById("stage").value;
+    function resetMatchResult(matchId) {
+        if (!confirm("Reset this match result?")) return;
 
-        if (!teamName) {
-            setMessage("teamMessage", "Enter a team name first.", true);
-            return;
-        }
+        setMessage("matchMessage", "Resetting match result...");
 
-        setMessage("teamMessage", "Adding team...");
-
-        fetch(`/actual/qualified/add?team=${encodeURIComponent(teamName)}&stage=${encodeURIComponent(stage)}`)
+        fetch(`/actual/match-result/reset?matchId=${encodeURIComponent(matchId)}`)
             .then(res => {
-                if (!res.ok) throw new Error("Add failed");
+                if (!res.ok) throw new Error("Reset failed");
                 return res.json();
             })
             .then(data => {
-                setMessage("teamMessage", `Saved: ${data.team.name} as ${formatStage(data.stage)}`);
-                document.getElementById("teamName").value = "";
+                setMessage("matchMessage", `Reset: ${data.homeTeam.name} vs ${data.awayTeam.name}`);
+                loadGroupMatches(currentGroup);
+            })
+            .catch(() => setMessage("matchMessage", "Could not reset match result.", true));
+    }
+
+    function loadThirdPlaceTeams() {
+        selectedThirdPlaceTeams = [];
+        updateThirdCount();
+
+        const list = document.getElementById("thirdPlaceList");
+        list.innerHTML = `<div class="empty-state">Loading third-place teams...</div>`;
+        setMessage("thirdMessage", "");
+
+        Promise.all([
+            fetch("/actual/third-place-teams").then(res => {
+                if (!res.ok) throw new Error("Could not load third-place teams");
+                return res.json();
+            }),
+            fetch("/actual/qualified?stage=ROUND_OF_32").then(res => {
+                if (!res.ok) return [];
+                return res.json();
+            })
+        ])
+            .then(([thirdPlaceTeams, actualR32]) => {
+                const actualR32Names = actualR32.map(item => item.team.name);
+                renderThirdPlaceTeams(thirdPlaceTeams, actualR32Names);
             })
             .catch(() => {
-                setMessage("teamMessage", "Could not add team. Check the team name.", true);
+                list.innerHTML = `<div class="empty-state">Could not load third-place teams.</div>`;
+            });
+    }
+
+    function renderThirdPlaceTeams(teams, actualR32Names) {
+        const list = document.getElementById("thirdPlaceList");
+        list.innerHTML = "";
+
+        if (!teams || teams.length === 0) {
+            list.innerHTML = `<div class="empty-state">No third-place teams found.</div>`;
+            return;
+        }
+
+        teams.forEach(team => {
+            const row = document.createElement("div");
+            const alreadySelected = actualR32Names.includes(team.teamName);
+
+            row.className = `team-row ${alreadySelected ? "selected" : ""}`;
+            row.id = `third-${safeId(team.teamName)}`;
+
+            if (alreadySelected && !selectedThirdPlaceTeams.includes(team.teamName)) {
+                selectedThirdPlaceTeams.push(team.teamName);
+            }
+
+            row.innerHTML = `
+                <div>
+                    <strong>${team.teamName}</strong>
+                    <div class="muted">Group ${team.groupName} • ${team.points} points</div>
+                </div>
+
+                <span class="status-pill">Third place</span>
+                <button class="secondary-btn" onclick="toggleThirdPlaceTeam('${escapeJs(team.teamName)}')">
+                    ${alreadySelected ? "Selected" : "Select"}
+                </button>
+            `;
+
+            list.appendChild(row);
+        });
+
+        updateThirdCount();
+
+        if (selectedThirdPlaceTeams.length === 8) {
+            setMessage("thirdMessage", "Loaded saved third-place selections.");
+        }
+    }
+
+    function toggleThirdPlaceTeam(teamName) {
+        const index = selectedThirdPlaceTeams.indexOf(teamName);
+        const row = document.getElementById(`third-${safeId(teamName)}`);
+        const button = row.querySelector("button");
+
+        if (index >= 0) {
+            selectedThirdPlaceTeams.splice(index, 1);
+            row.classList.remove("selected");
+            button.innerText = "Select";
+            updateThirdCount();
+            return;
+        }
+
+        if (selectedThirdPlaceTeams.length >= 8) {
+            setMessage("thirdMessage", "You can only select 8 third-place teams.", true);
+            return;
+        }
+
+        selectedThirdPlaceTeams.push(teamName);
+        row.classList.add("selected");
+        button.innerText = "Selected";
+        setMessage("thirdMessage", "");
+        updateThirdCount();
+    }
+
+    function updateThirdCount() {
+        document.getElementById("thirdSelectedCount").innerText = `${selectedThirdPlaceTeams.length}/8 selected`;
+    }
+
+    function saveActualRoundOf32() {
+        if (selectedThirdPlaceTeams.length !== 8) {
+            setMessage("thirdMessage", "Select exactly 8 third-place teams before saving.", true);
+            return;
+        }
+
+        const teamsParam = selectedThirdPlaceTeams.map(encodeURIComponent).join(",");
+
+        setMessage("thirdMessage", "Saving actual Round of 32 teams...");
+
+        fetch(`/actual/round-of-32/save?teams=${teamsParam}`)
+            .then(res => {
+                if (!res.ok) throw new Error("Save failed");
+                return res.json();
+            })
+            .then(saved => {
+                setMessage("thirdMessage", `Saved actual Round of 32 teams: ${saved.length} teams.`);
+                setTimeout(() => showTab("knockout"), 700);
+            })
+            .catch(() => {
+                setMessage("thirdMessage", "Could not save actual Round of 32 teams.", true);
+            });
+    }
+
+    function renderRoundButtons() {
+        const container = document.getElementById("roundButtons");
+        container.innerHTML = "";
+
+        knockoutRounds.forEach(round => {
+            const button = document.createElement("button");
+            button.className = `round-btn ${round.value === currentKnockoutRound ? "active" : ""}`;
+            button.innerText = round.label;
+            button.onclick = () => {
+                currentKnockoutRound = round.value;
+                loadKnockoutBracket();
+            };
+            container.appendChild(button);
+        });
+    }
+
+    function loadKnockoutBracket() {
+        renderRoundButtons();
+        document.getElementById("knockoutStagePill").innerText = formatStage(currentKnockoutRound);
+
+        const bracket = document.getElementById("knockoutBracket");
+        bracket.innerHTML = `<div class="empty-state">Loading ${formatStage(currentKnockoutRound)}...</div>`;
+        setMessage("knockoutMessage", "");
+
+        Promise.all([
+            fetch(`/actual/knockout/round?round=${encodeURIComponent(currentKnockoutRound)}`).then(res => {
+                if (!res.ok) throw new Error("Could not build round");
+                return res.json();
+            }),
+            fetch(`/actual/knockout/results?round=${encodeURIComponent(currentKnockoutRound)}`).then(res => {
+                if (!res.ok) return [];
+                return res.json();
+            })
+        ])
+            .then(([matches, results]) => renderKnockoutRound(matches, results))
+            .catch(() => {
+                bracket.innerHTML = `<div class="empty-state">Could not load ${formatStage(currentKnockoutRound)}. Save the previous round first.</div>`;
+            });
+    }
+
+    function renderKnockoutRound(matches, results) {
+        const bracket = document.getElementById("knockoutBracket");
+        bracket.innerHTML = "";
+
+        if (!matches || matches.length === 0) {
+            bracket.innerHTML = `<div class="empty-state">No matches found for ${formatStage(currentKnockoutRound)}.</div>`;
+            return;
+        }
+
+        const column = document.createElement("div");
+        column.className = "round-column";
+        column.innerHTML = `<div class="round-title">${formatStage(currentKnockoutRound)}</div>`;
+
+        matches.forEach((match, index) => {
+            const matchNumber = index + 1;
+            const saved = results.find(r => r.matchNumber === matchNumber);
+            const homeScore = saved?.homeScore ?? "";
+            const awayScore = saved?.awayScore ?? "";
+            const played = saved?.played === true;
+            const winnerName = saved?.winner?.name;
+
+            const card = document.createElement("div");
+            card.className = `knockout-card ${played ? "played" : ""}`;
+
+            card.innerHTML = `
+                <div class="slot-label">${match.slot}</div>
+
+                <div class="score-row">
+                    <strong>${match.homeTeam}</strong>
+                    <input id="ko-home-${matchNumber}" type="number" value="${homeScore}" placeholder="0">
+                </div>
+
+                <div class="score-row">
+                    <strong>${match.awayTeam}</strong>
+                    <input id="ko-away-${matchNumber}" type="number" value="${awayScore}" placeholder="0">
+                </div>
+
+                ${winnerName ? `<div class="winner-text">Winner: ${winnerName}</div>` : ""}
+
+                <div class="knockout-actions">
+                    <button class="primary-btn" onclick="saveKnockoutResult(${matchNumber}, '${escapeJs(match.slot)}', '${escapeJs(match.homeTeam)}', '${escapeJs(match.awayTeam)}')">
+                        Save
+                    </button>
+
+                    <button class="danger-btn" onclick="resetKnockoutResult(${matchNumber})">
+                        Reset
+                    </button>
+                </div>
+            `;
+
+            column.appendChild(card);
+        });
+
+        bracket.appendChild(column);
+    }
+
+    function saveKnockoutResult(matchNumber, slot, homeTeam, awayTeam) {
+        const homeScore = document.getElementById(`ko-home-${matchNumber}`).value.trim();
+        const awayScore = document.getElementById(`ko-away-${matchNumber}`).value.trim();
+
+        if (homeScore === "" || awayScore === "") {
+            setMessage("knockoutMessage", "Enter both scores before saving.", true);
+            return;
+        }
+
+        if (Number(homeScore) === Number(awayScore)) {
+            setMessage("knockoutMessage", "Knockout matches cannot end in a draw.", true);
+            return;
+        }
+
+        setMessage("knockoutMessage", "Saving knockout result...");
+
+        fetch(`/actual/knockout/save?round=${encodeURIComponent(currentKnockoutRound)}&matchNumber=${encodeURIComponent(matchNumber)}&slot=${encodeURIComponent(slot)}&homeTeam=${encodeURIComponent(homeTeam)}&awayTeam=${encodeURIComponent(awayTeam)}&homeScore=${encodeURIComponent(homeScore)}&awayScore=${encodeURIComponent(awayScore)}`)
+            .then(res => {
+                if (!res.ok) throw new Error("Save failed");
+                return res.json();
+            })
+            .then(data => {
+                setMessage("knockoutMessage", `Saved: ${data.homeTeam.name} ${data.homeScore} - ${data.awayScore} ${data.awayTeam.name}. Winner: ${data.winner.name}`);
+                loadKnockoutBracket();
+            })
+            .catch(() => {
+                setMessage("knockoutMessage", "Could not save knockout result.", true);
+            });
+    }
+
+    function resetKnockoutResult(matchNumber) {
+        if (!confirm("Reset this knockout result? This may clear future rounds.")) return;
+
+        setMessage("knockoutMessage", "Resetting knockout result...");
+
+        fetch(`/actual/knockout/reset?round=${encodeURIComponent(currentKnockoutRound)}&matchNumber=${encodeURIComponent(matchNumber)}`)
+            .then(res => {
+                if (!res.ok) throw new Error("Reset failed");
+                return res.json();
+            })
+            .then(() => {
+                setMessage("knockoutMessage", "Knockout result reset.");
+                loadKnockoutBracket();
+            })
+            .catch(() => {
+                setMessage("knockoutMessage", "Could not reset knockout result.", true);
             });
     }
 
     function resetActualData() {
-        if (!confirm("Are you sure? This removes all actual data.")) {
-            return;
-        }
+        if (!confirm("Are you sure? This removes all actual qualified teams and all match results.")) return;
 
         setMessage("resetMessage", "Resetting data...");
 
@@ -452,10 +977,10 @@
             .then(res => res.text())
             .then(message => {
                 setMessage("resetMessage", message);
+                selectedThirdPlaceTeams = [];
+                loadGroupMatches(currentGroup);
             })
-            .catch(() => {
-                setMessage("resetMessage", "Could not reset actual data.", true);
-            });
+            .catch(() => setMessage("resetMessage", "Could not reset actual data.", true));
     }
 
     function formatStage(stage) {
@@ -463,6 +988,14 @@
             .replaceAll("_", " ")
             .toLowerCase()
             .replace(/\b\w/g, letter => letter.toUpperCase());
+    }
+
+    function safeId(value) {
+        return value.replaceAll(" ", "-").replaceAll(".", "").replaceAll("'", "").toLowerCase();
+    }
+
+    function escapeJs(value) {
+        return value.replaceAll("'", "\\'");
     }
 
     function goToLeaderboard() {

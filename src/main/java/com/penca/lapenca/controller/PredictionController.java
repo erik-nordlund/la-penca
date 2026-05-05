@@ -188,4 +188,80 @@ public class PredictionController {
                                                @RequestParam String code) {
         return predictionService.calculateUserScoreBreakdown(username, code);
     }
+    @GetMapping("/actual/match-result/reset")
+    public Match resetActualMatchResult(@RequestParam Long matchId) {
+        return predictionService.resetActualMatchResult(matchId);
+    }
+
+    @GetMapping("/matches/group")
+    public List<Match> getGroupMatches(@RequestParam String group) {
+        return predictionService.getGroupMatches(group);
+    }
+    @GetMapping("/actual/group/reset")
+    public String resetActualGroupResults(@RequestParam String group) {
+        return predictionService.resetActualGroupResults(group);
+    }
+    @GetMapping("/actual/group-table")
+    public List<GroupTableRow> getActualGroupTable(@RequestParam String group) {
+        return predictionService.calculateActualGroupTable(group);
+    }
+
+    @GetMapping("/actual/third-place-teams")
+    public List<ThirdPlaceTeamDto> getActualThirdPlaceTeams() {
+        return predictionService.getActualThirdPlaceTeams();
+    }
+
+    @GetMapping("/actual/round-of-32/save")
+    public List<ActualQualifiedTeam> saveActualRoundOf32Teams(@RequestParam List<String> teams) {
+        return predictionService.saveActualRoundOf32Teams(teams);
+    }
+
+    @GetMapping("/actual/qualified")
+    public List<ActualQualifiedTeam> getActualQualifiedTeams(@RequestParam String stage) {
+        return predictionService.getActualQualifiedTeamsByStage(stage);
+    }
+
+    @GetMapping("/actual/qualified/reset-stage")
+    public String resetActualQualifiedTeamsByStage(@RequestParam String stage) {
+        return predictionService.resetActualQualifiedTeamsByStage(stage);
+    }
+
+    @GetMapping("/actual/qualified/delete")
+    public String deleteActualQualifiedTeam(@RequestParam Long id) {
+        return predictionService.deleteActualQualifiedTeam(id);
+    }
+    @GetMapping("/actual/knockout/round")
+    public List<KnockoutMatchDto> getActualKnockoutRound(@RequestParam String round) {
+        return predictionService.buildActualKnockoutRound(round);
+    }
+
+    @GetMapping("/actual/knockout/results")
+    public List<ActualKnockoutResult> getActualKnockoutResults(@RequestParam String round) {
+        return predictionService.getActualKnockoutResults(round);
+    }
+
+    @GetMapping("/actual/knockout/save")
+    public ActualKnockoutResult saveActualKnockoutResult(@RequestParam String round,
+                                                         @RequestParam int matchNumber,
+                                                         @RequestParam String slot,
+                                                         @RequestParam String homeTeam,
+                                                         @RequestParam String awayTeam,
+                                                         @RequestParam int homeScore,
+                                                         @RequestParam int awayScore) {
+        return predictionService.saveActualKnockoutResult(
+                round,
+                matchNumber,
+                slot,
+                homeTeam,
+                awayTeam,
+                homeScore,
+                awayScore
+        );
+    }
+
+    @GetMapping("/actual/knockout/reset")
+    public ActualKnockoutResult resetActualKnockoutResult(@RequestParam String round,
+                                                          @RequestParam int matchNumber) {
+        return predictionService.resetActualKnockoutResult(round, matchNumber);
+    }
 }

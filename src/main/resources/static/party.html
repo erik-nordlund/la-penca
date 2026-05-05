@@ -40,8 +40,8 @@
         .links a.active { color: #7CFC98; }
 
         .page {
-            padding: 55px 80px;
-            max-width: 1180px;
+            padding: 55px 70px;
+            max-width: 1400px;
         }
 
         .badge {
@@ -67,7 +67,7 @@
             font-size: 19px;
             line-height: 1.5;
             margin: 0 0 26px;
-            max-width: 760px;
+            max-width: 780px;
         }
 
         .user-pill {
@@ -82,13 +82,23 @@
             margin-bottom: 32px;
         }
 
-        .main-card {
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr 420px;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .card {
             background: rgba(31,31,31,0.94);
             border: 1px solid rgba(255,255,255,0.13);
-            border-radius: 26px;
-            padding: 30px;
+            border-radius: 24px;
+            padding: 24px;
             box-shadow: 0 18px 60px rgba(0,0,0,0.35);
-            max-width: 760px;
+        }
+
+        .card + .card {
+            margin-top: 22px;
         }
 
         .card-header {
@@ -101,7 +111,12 @@
 
         h2 {
             margin: 0;
-            font-size: 28px;
+            font-size: 26px;
+        }
+
+        .muted {
+            color: #aaa;
+            line-height: 1.45;
         }
 
         .status-pill {
@@ -110,6 +125,9 @@
             font-size: 12px;
             font-weight: bold;
             white-space: nowrap;
+            background: rgba(255,255,255,0.08);
+            color: #aaa;
+            border: 1px solid rgba(255,255,255,0.12);
         }
 
         .status-active {
@@ -118,23 +136,64 @@
             border: 1px solid rgba(124,252,152,0.3);
         }
 
-        .status-empty {
-            background: rgba(255,255,255,0.08);
-            color: #aaa;
-            border: 1px solid rgba(255,255,255,0.12);
+        .party-list {
+            display: grid;
+            gap: 12px;
         }
 
-        .muted {
+        .party-row,
+        .member-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 14px;
+            align-items: center;
+            background: rgba(255,255,255,0.055);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 18px;
+            padding: 16px;
+        }
+
+        .party-row {
+            cursor: pointer;
+        }
+
+        .party-row:hover {
+            border-color: rgba(124,252,152,0.35);
+        }
+
+        .party-row.active {
+            background: rgba(34,197,94,0.13);
+            border-color: rgba(124,252,152,0.45);
+        }
+        .show-all-btn {
+            width: 100%;
+            margin-top: 12px;
+            padding: 13px;
+            border-radius: 12px;
+            border: 1px solid rgba(124,252,152,0.25);
+            background: rgba(34,197,94,0.10);
+            color: #7CFC98;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .party-name {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .party-meta {
             color: #aaa;
-            line-height: 1.45;
+            font-size: 13px;
+            margin-top: 5px;
         }
 
         .party-code-box {
-            margin: 24px 0 20px;
+            margin: 18px 0;
             background: #111;
             border: 1px solid rgba(124,252,152,0.25);
             border-radius: 20px;
-            padding: 24px;
+            padding: 22px;
             text-align: center;
         }
 
@@ -145,7 +204,7 @@
         }
 
         .code-value {
-            font-size: 42px;
+            font-size: 36px;
             font-weight: bold;
             letter-spacing: 5px;
             color: #7CFC98;
@@ -155,10 +214,12 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 12px;
+            margin-top: 14px;
         }
 
         .primary-btn,
-        .secondary-btn {
+        .secondary-btn,
+        .danger-btn {
             width: 100%;
             padding: 14px;
             border-radius: 12px;
@@ -179,28 +240,13 @@
             color: white;
         }
 
+        .danger-btn {
+            border: 1px solid rgba(255,107,107,0.35);
+            background: rgba(255,107,107,0.10);
+            color: #ff8b8b;
+        }
+
         button:hover { filter: brightness(1.08); }
-
-        .simple-section {
-            max-width: 760px;
-            margin-top: 22px;
-            background: rgba(31,31,31,0.72);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 22px;
-            padding: 22px;
-        }
-
-        .simple-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 18px;
-        }
-
-        .simple-buttons {
-            display: flex;
-            gap: 12px;
-        }
 
         .message {
             margin-top: 14px;
@@ -223,7 +269,6 @@
             padding: 22px;
             color: #aaa;
             text-align: center;
-            margin-top: 20px;
         }
 
         .modal-backdrop {
@@ -243,7 +288,7 @@
 
         .modal {
             width: 100%;
-            max-width: 460px;
+            max-width: 480px;
             background: #f3f5f9;
             color: #111;
             border-radius: 18px;
@@ -280,7 +325,7 @@
             display: block;
             color: #333;
             font-size: 13px;
-            margin: 20px 0 8px;
+            margin: 18px 0 8px;
             font-weight: bold;
         }
 
@@ -293,6 +338,9 @@
             color: #111;
             outline: none;
             font-size: 16px;
+        }
+
+        #partyCodeInput {
             text-transform: uppercase;
         }
 
@@ -307,17 +355,19 @@
             margin-top: 22px;
         }
 
-        .modal .primary-btn {
-            margin: 0;
-        }
-
         .modal .secondary-btn {
             background: white;
             color: #111;
             border: 1px solid #ddd;
         }
 
-        @media (max-width: 850px) {
+        .side-actions {
+            display: grid;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        @media (max-width: 1000px) {
             .page {
                 padding: 35px 20px;
             }
@@ -330,17 +380,12 @@
                 display: none;
             }
 
-            .actions {
+            .layout {
                 grid-template-columns: 1fr;
             }
 
-            .simple-row {
-                display: block;
-            }
-
-            .simple-buttons {
-                margin-top: 16px;
-                display: grid;
+            .actions {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -363,59 +408,89 @@
 
 <main class="page">
     <div class="badge">👥 Party</div>
-    <h1>Your World Cup party</h1>
+    <h1>Your World Cup parties</h1>
     <p class="subtitle">
-        This is your private competition. Share the party code with your family, then start making predictions.
+        Create parties, join with a code, view members, and choose which party leaderboard you want to use.
     </p>
 
     <div class="user-pill">
         👤 Logged in as <strong id="username">...</strong>
     </div>
 
-    <section class="main-card">
-        <div class="card-header">
-            <h2>Your party</h2>
-            <span id="partyStatus" class="status-pill status-empty">No party</span>
+    <section class="layout">
+        <div>
+            <section class="card">
+                <div class="card-header">
+                    <h2>Your parties</h2>
+                    <span id="partyCount" class="status-pill">Loading...</span>
+                </div>
+
+                <div id="partyList" class="party-list">
+                    <div class="empty-state">Loading parties...</div>
+                </div>
+
+                <div class="actions">
+                    <button class="secondary-btn" onclick="openJoinModal()">Join with code</button>
+                    <button class="secondary-btn" onclick="openCreateModal()">Create party</button>
+                    <button class="primary-btn" onclick="goToDashboard()">Go to dashboard</button>
+                </div>
+
+                <div id="mainMessage" class="message"></div>
+            </section>
+
+            <section class="card">
+                <div class="card-header">
+                    <h2 id="detailTitle">Party details</h2>
+                    <span id="detailStatus" class="status-pill">No party selected</span>
+                </div>
+
+                <div id="noSelectedParty" class="empty-state">
+                    Select a party from the list above.
+                </div>
+
+                <div id="selectedPartyDetails" style="display:none;">
+                    <p class="muted" id="partyDeadlineText"></p>
+
+                    <div class="party-code-box">
+                        <div class="code-label">Party code</div>
+                        <div id="currentPartyCode" class="code-value">---</div>
+                    </div>
+
+                    <div class="actions">
+                        <button class="primary-btn" onclick="startPredictions()">Start predictions</button>
+                        <button class="secondary-btn" onclick="copyPartyCode()">Copy code</button>
+                        <button class="danger-btn" onclick="confirmLeaveParty()">Leave party</button>
+                    </div>
+
+                    <div id="copyMessage" class="message"></div>
+                </div>
+            </section>
         </div>
 
-        <div id="noPartyState" class="empty-state">
-            You are not in a party yet. Create a party or join with a code.
-        </div>
+        <aside>
+            <section class="card">
+                <div class="card-header">
+                    <h2>Members</h2>
+                    <span id="memberCount" class="status-pill">0</span>
+                </div>
 
-        <div id="currentPartyState" style="display:none;">
-            <p class="muted">
-                Use this code to invite your family and friends.
-            </p>
+                <div id="membersList" class="party-list">
+                    <div class="empty-state">Select a party to see members.</div>
+                </div>
+            </section>
 
-            <div class="party-code-box">
-                <div class="code-label">Party code</div>
-                <div id="currentPartyCode" class="code-value">---</div>
-            </div>
+            <section class="card">
+                <div class="card-header">
+                    <h2>Quick actions</h2>
+                </div>
 
-            <div class="actions">
-                <button class="primary-btn" onclick="goToDashboard()">Go to dashboard</button>
-                <button class="primary-btn" onclick="startPredictions()">Start predictions</button>
-                <button class="secondary-btn" onclick="copyPartyCode()">Copy code</button>
-            </div>
-
-            <div id="copyMessage" class="message"></div>
-        </div>
-    </section>
-
-    <section class="simple-section">
-        <div class="simple-row">
-            <div>
-                <h2>Need another party?</h2>
-                <p class="muted">
-                    Join with a code, or create a new party.
-                </p>
-            </div>
-
-            <div class="simple-buttons">
-                <button class="secondary-btn" onclick="openJoinModal()">Join with code</button>
-                <button class="secondary-btn" onclick="openCreateModal()">Create party</button>
-            </div>
-        </div>
+                <div class="side-actions">
+                    <button class="primary-btn" onclick="goToLeaderboard()">Open leaderboard</button>
+                    <button class="secondary-btn" onclick="goToGroups()">Group predictions</button>
+                    <button class="secondary-btn" onclick="goToKnockout()">Knockout bracket</button>
+                </div>
+            </section>
+        </aside>
     </section>
 </main>
 
@@ -441,7 +516,13 @@
     <div class="modal">
         <button class="close-btn" onclick="closeModals()">×</button>
         <h2>Create a party</h2>
-        <p>Create a new private competition. You will get a code to share with your family.</p>
+        <p>Create a private competition. Give it a name and set the prediction deadline.</p>
+
+        <label>Party name</label>
+        <input id="partyNameInput" placeholder="Example: Erik family party">
+
+        <label>Prediction deadline</label>
+        <input id="deadlineInput" type="datetime-local">
 
         <div class="modal-actions">
             <button class="secondary-btn" onclick="closeModals()">Cancel</button>
@@ -451,34 +532,221 @@
         <div id="createMessage" class="message"></div>
     </div>
 </div>
+<div id="membersModal" class="modal-backdrop">
+    <div class="modal">
+        <button class="close-btn" onclick="closeMembersModal()">×</button>
+        <h2 id="membersModalTitle">Party members</h2>
+        <p id="membersModalSubtitle">All members in this party.</p>
+
+        <div id="membersModalList" style="display:grid; gap:10px; margin-top:18px;"></div>
+    </div>
+</div>
 
 <script>
     const username = localStorage.getItem("username");
     let activePartyCode = localStorage.getItem("partyCode");
+
+    let parties = [];
+    let selectedParty = null;
+    let currentMembers = [];
 
     if (!username) {
         window.location.href = "/index.html";
     }
 
     document.getElementById("username").innerText = username || "No user";
-    renderPartyState();
 
-    function renderPartyState() {
-        const hasParty = !!activePartyCode;
+    loadMyParties();
 
-        document.getElementById("noPartyState").style.display = hasParty ? "none" : "block";
-        document.getElementById("currentPartyState").style.display = hasParty ? "block" : "none";
+    function loadMyParties() {
+        fetch(`/party/my-parties?username=${encodeURIComponent(username)}`)
+            .then(res => res.json())
+            .then(data => {
+                parties = data || [];
 
-        const status = document.getElementById("partyStatus");
+                if (!activePartyCode && parties.length > 0) {
+                    activePartyCode = parties[0].code;
+                    localStorage.setItem("partyCode", activePartyCode);
+                }
 
-        if (hasParty) {
-            status.innerText = "Active";
-            status.className = "status-pill status-active";
-            document.getElementById("currentPartyCode").innerText = activePartyCode;
-        } else {
-            status.innerText = "No party";
-            status.className = "status-pill status-empty";
+                if (activePartyCode) {
+                    selectedParty = parties.find(p => p.code === activePartyCode) || null;
+                }
+
+                renderParties();
+                renderSelectedParty();
+
+                if (selectedParty) {
+                    loadMembers(selectedParty.code);
+                }
+            })
+            .catch(() => {
+                document.getElementById("partyList").innerHTML =
+                    `<div class="empty-state">Could not load your parties.</div>`;
+                document.getElementById("partyCount").innerText = "Error";
+            });
+    }
+
+    function renderParties() {
+        const list = document.getElementById("partyList");
+        const count = document.getElementById("partyCount");
+
+        if (!parties || parties.length === 0) {
+            list.innerHTML = `<div class="empty-state">You are not in any party yet. Create one or join with a code.</div>`;
+            count.innerText = "0 parties";
+            return;
         }
+
+        count.innerText = `${parties.length} party${parties.length === 1 ? "" : "s"}`;
+        list.innerHTML = "";
+
+        parties.forEach(party => {
+            const isActive = party.code === activePartyCode;
+            const name = party.name || `Party ${party.code}`;
+
+            const row = document.createElement("div");
+            row.className = `party-row ${isActive ? "active" : ""}`;
+            row.onclick = () => selectParty(party.code);
+
+            row.innerHTML = `
+                <div>
+                    <div class="party-name">${name}</div>
+                    <div class="party-meta">
+                        ${party.memberCount} member${party.memberCount === 1 ? "" : "s"} • Code ${party.code}
+                    </div>
+                </div>
+
+                <span class="status-pill ${isActive ? "status-active" : ""}">
+                    ${isActive ? "Selected" : "Open"}
+                </span>
+            `;
+
+            list.appendChild(row);
+        });
+    }
+
+    function selectParty(code) {
+        activePartyCode = code;
+        localStorage.setItem("partyCode", code);
+
+        selectedParty = parties.find(p => p.code === code) || null;
+
+        renderParties();
+        renderSelectedParty();
+        loadMembers(code);
+        setMessage("mainMessage", "Party selected.");
+    }
+
+    function renderSelectedParty() {
+        const noSelected = document.getElementById("noSelectedParty");
+        const details = document.getElementById("selectedPartyDetails");
+        const status = document.getElementById("detailStatus");
+
+        if (!selectedParty) {
+            noSelected.style.display = "block";
+            details.style.display = "none";
+            status.innerText = "No party selected";
+            status.className = "status-pill";
+            return;
+        }
+
+        const name = selectedParty.name || `Party ${selectedParty.code}`;
+
+        noSelected.style.display = "none";
+        details.style.display = "block";
+
+        document.getElementById("detailTitle").innerText = name;
+        document.getElementById("currentPartyCode").innerText = selectedParty.code;
+
+        status.innerText = "Active";
+        status.className = "status-pill status-active";
+
+        document.getElementById("partyDeadlineText").innerText =
+            selectedParty.predictionDeadline
+                ? `Prediction deadline: ${formatDate(selectedParty.predictionDeadline)}`
+                : "No prediction deadline set.";
+    }
+
+    function loadMembers(code) {
+        fetch(`/party/members?code=${encodeURIComponent(code)}`)
+            .then(res => res.json())
+            .then(members => {
+                renderMembers(members || []);
+            })
+            .catch(() => {
+                document.getElementById("membersList").innerHTML =
+                    `<div class="empty-state">Could not load members.</div>`;
+                document.getElementById("memberCount").innerText = "Error";
+            });
+    }
+
+    function renderMembers(members) {
+        currentMembers = members || [];
+
+        const list = document.getElementById("membersList");
+        const count = document.getElementById("memberCount");
+
+        count.innerText = `${currentMembers.length}`;
+
+        if (!currentMembers || currentMembers.length === 0) {
+            list.innerHTML = `<div class="empty-state">No members found.</div>`;
+            return;
+        }
+
+        list.innerHTML = "";
+
+        const visibleMembers = currentMembers.slice(0, 4);
+
+        visibleMembers.forEach(member => {
+            list.appendChild(createMemberRow(member));
+        });
+
+        if (currentMembers.length > 4) {
+            const button = document.createElement("button");
+            button.className = "show-all-btn";
+            button.innerText = `View all ${currentMembers.length} members`;
+            button.onclick = openMembersModal;
+            list.appendChild(button);
+        }
+    }
+    function createMemberRow(member) {
+        const row = document.createElement("div");
+        row.className = "member-row";
+
+        row.innerHTML = `
+        <div>
+            <div class="party-name">${member.username}</div>
+            <div class="party-meta">${member.username === username ? "You" : "Party member"}</div>
+        </div>
+        <span class="status-pill">${member.username === username ? "You" : "Member"}</span>
+    `;
+
+        return row;
+    }
+
+    function openMembersModal() {
+        const list = document.getElementById("membersModalList");
+        const title = document.getElementById("membersModalTitle");
+        const subtitle = document.getElementById("membersModalSubtitle");
+
+        const partyName = selectedParty
+            ? (selectedParty.name || `Party ${selectedParty.code}`)
+            : "Party";
+
+        title.innerText = `${partyName} members`;
+        subtitle.innerText = `${currentMembers.length} member${currentMembers.length === 1 ? "" : "s"} in this party.`;
+
+        list.innerHTML = "";
+
+        currentMembers.forEach(member => {
+            list.appendChild(createMemberRow(member));
+        });
+
+        document.getElementById("membersModal").classList.add("show");
+    }
+
+    function closeMembersModal() {
+        document.getElementById("membersModal").classList.remove("show");
     }
 
     function openJoinModal() {
@@ -488,6 +756,10 @@
 
     function openCreateModal() {
         document.getElementById("createModal").classList.add("show");
+
+        if (!document.getElementById("deadlineInput").value) {
+            document.getElementById("deadlineInput").value = "2026-06-11T18:00";
+        }
     }
 
     function closeModals() {
@@ -510,9 +782,22 @@
     }
 
     function createParty() {
+        const name = document.getElementById("partyNameInput").value.trim();
+        const deadline = document.getElementById("deadlineInput").value;
+
+        if (!name) {
+            setMessage("createMessage", "Enter a party name.", true);
+            return;
+        }
+
+        if (!deadline) {
+            setMessage("createMessage", "Choose a prediction deadline.", true);
+            return;
+        }
+
         setMessage("createMessage", "Creating party...");
 
-        fetch("/party/create")
+        fetch(`/party/create?username=${encodeURIComponent(username)}&name=${encodeURIComponent(name)}&deadline=${encodeURIComponent(deadline)}`)
             .then(res => {
                 if (!res.ok) throw new Error("Create failed");
                 return res.json();
@@ -522,7 +807,7 @@
                 localStorage.setItem("partyCode", party.code);
 
                 closeModals();
-                renderPartyState();
+                loadMyParties();
             })
             .catch(() => {
                 setMessage("createMessage", "Could not create party.", true);
@@ -546,22 +831,61 @@
                 }
                 return res.json();
             })
-            .then(member => {
+            .then(() => {
+                activePartyCode = code;
                 localStorage.setItem("partyCode", code);
-                window.location.href = "/dashboard.html";
+
+                closeModals();
+                loadMyParties();
             })
             .catch(err => {
-                joinMessage.className = "error";
-                joinMessage.innerText = err.message;
+                setMessage("joinMessage", err.message, true);
+            });
+    }
+
+    function confirmLeaveParty() {
+        if (!selectedParty) return;
+
+        const name = selectedParty.name || `Party ${selectedParty.code}`;
+        const confirmed = confirm(`Are you sure you want to leave ${name}?`);
+
+        if (!confirmed) return;
+
+        leaveParty();
+    }
+
+    function leaveParty() {
+        if (!selectedParty) return;
+
+        fetch(`/party/leave?username=${encodeURIComponent(username)}&code=${encodeURIComponent(selectedParty.code)}`, {
+            method: "POST"
+        })
+            .then(res => {
+                if (!res.ok) throw new Error("Could not leave party");
+                return res.text();
+            })
+            .then(() => {
+                localStorage.removeItem("partyCode");
+                activePartyCode = null;
+                selectedParty = null;
+                setMessage("mainMessage", "You left the party.");
+                loadMyParties();
+            })
+            .catch(() => {
+                setMessage("copyMessage", "Could not leave party.", true);
             });
     }
 
     function copyPartyCode() {
-        if (!activePartyCode) return;
+        if (!selectedParty) return;
 
-        navigator.clipboard.writeText(activePartyCode)
+        navigator.clipboard.writeText(selectedParty.code)
             .then(() => setMessage("copyMessage", "Party code copied!"))
             .catch(() => setMessage("copyMessage", "Could not copy code.", true));
+    }
+
+    function formatDate(value) {
+        return value.replace("T", " ").slice(0, 16);
     }
 
     function goToDashboard() {
@@ -570,6 +894,18 @@
 
     function startPredictions() {
         window.location.href = "/group.html";
+    }
+
+    function goToLeaderboard() {
+        window.location.href = "/leaderboard.html";
+    }
+
+    function goToGroups() {
+        window.location.href = "/group.html";
+    }
+
+    function goToKnockout() {
+        window.location.href = "/knockout-board.html";
     }
 </script>
 

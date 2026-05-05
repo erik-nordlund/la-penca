@@ -30,6 +30,7 @@ public class PredictionService {
     private final KnockoutPredictionRepository knockoutPredictionRepository;
     private final ActualQualifiedTeamRepository actualQualifiedTeamRepository;
     private final PartyMemberRepository partyMemberRepository;
+    private final ActualKnockoutResultRepository actualKnockoutResultRepository;
 
 
     public PredictionService(PredictionRepository predictionRepository,
@@ -39,7 +40,8 @@ public class PredictionService {
                              QualifiedThirdPlaceSelectionRepository qualifiedThirdPlaceSelectionRepository,
                              TeamRepository teamRepository, KnockoutPredictionRepository knockoutPredictionRepository,
                              ActualQualifiedTeamRepository actualQualifiedTeamRepository,
-                             PartyMemberRepository partyMemberRepository) {
+                             PartyMemberRepository partyMemberRepository,
+                             ActualKnockoutResultRepository actualKnockoutResultRepository) {
         this.predictionRepository = predictionRepository;
         this.appUserRepository = appUserRepository;
         this.partyRepository = partyRepository;
@@ -49,6 +51,7 @@ public class PredictionService {
         this.knockoutPredictionRepository = knockoutPredictionRepository;
         this.actualQualifiedTeamRepository = actualQualifiedTeamRepository;
         this.partyMemberRepository = partyMemberRepository;
+        this.actualKnockoutResultRepository = actualKnockoutResultRepository;
     }
 
     @Transactional
@@ -845,6 +848,10 @@ public class PredictionService {
         Team team = teamRepository.findByName(teamName)
                 .orElseThrow(() -> new RuntimeException("Team not found"));
 
+        if (actualQualifiedTeamRepository.existsByTeamAndStage(team, stage)) {
+            throw new RuntimeException("Team already exists in stage: " + stage);
+        }
+
         ActualQualifiedTeam actual = ActualQualifiedTeam.builder()
                 .team(team)
                 .stage(stage)
@@ -1066,5 +1073,468 @@ public class PredictionService {
                     "Predictions are locked for this party"
             );
         }
+    }
+    public Match resetActualMatchResult(Long matchId) {
+        Match match = matchRepository.findById(matchId)
+                .orElseThrow(() -> new RuntimeException("Match not found"));
+
+        match.setHomeScore(null);
+        match.setAwayScore(null);
+        match.setPlayed(false);
+
+        return matchRepository.save(match);
+    }
+
+    public List<Match> getGroupMatches(String group) {
+        return matchRepository.findByStageAndHomeTeam_GroupNameOrderByMatchDateAsc("GROUP", group);
+    }
+    public String resetActualGroupResults(String group) {
+        List<Match> matches = matchRepository.findByStageAndHomeTeam_GroupNameOrderByMatchDateAsc("GROUP", group);
+
+        for (Match match : matches) {
+            match.setHomeScore(null);
+            match.setAwayScore(null);
+            match.setPlayed(false);
+        }
+
+        matchRepository.saveAll(matches);
+
+        return "Group " + group + " results reset";
+    }
+    public List<GroupTableRow> calculateActualGroupTable(String groupName) {
+        List<Match> matches = matchRepository
+                .findByStageAndHomeTeam_GroupNameOrderByMatchDateAsc("GROUP", groupName);
+
+        Map<String, GroupTableRow> table = new HashMap<>();
+
+        for (Match match : matches) {
+            String homeTeamName = match.getHomeTeam().getName();
+            String awayTeamName = match.getAwayTeam().getName();
+
+            table.putIfAbsent(homeTeamName, new GroupTableRow(homeTeamName, 0, 0, 0, 0, 0));
+            table.putIfAbsent(awayTeamName, new GroupTableRow(awayTeamName, 0, 0, 0, 0, 0));
+
+            if (!match.isPlayed() || match.getHomeScore() == null || match.getAwayScore() == null) {
+                continue;
+            }
+
+            GroupTableRow homeRow = table.get(homeTeamName);
+            GroupTableRow awayRow = table.get(awayTeamName);
+
+            homeRow.setPlayed(homeRow.getPlayed() + 1);
+            awayRow.setPlayed(awayRow.getPlayed() + 1);
+
+            if (match.getHomeScore() > match.getAwayScore()) {
+                homeRow.setWins(homeRow.getWins() + 1);
+                homeRow.setPoints(homeRow.getPoints() + 3);
+                awayRow.setLosses(awayRow.getLosses() + 1);
+            } else if (match.getHomeScore() < match.getAwayScore()) {
+                awayRow.setWins(awayRow.getWins() + 1);
+                awayRow.setPoints(awayRow.getPoints() + 3);
+                homeRow.setLosses(homeRow.getLosses() + 1);
+            } else {
+                homeRow.setDraws(homeRow.getDraws() + 1);
+                awayRow.setDraws(awayRow.getDraws() + 1);
+                homeRow.setPoints(homeRow.getPoints() + 1);
+                awayRow.setPoints(awayRow.getPoints() + 1);
+            }
+        }
+
+        return table.values().stream()
+                .sorted((a, b) -> Integer.compare(b.getPoints(), a.getPoints()))
+                .toList();
+    }
+
+    public List<ThirdPlaceTeamDto> getActualThirdPlaceTeams() {
+        List<String> groups = List.of("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L");
+
+        return groups.stream()
+                .map(group -> {
+                    List<GroupTableRow> table = calculateActualGroupTable(group);
+
+                    if (table.size() < 3) {
+                        throw new RuntimeException("Not enough teams in group " + group);
+                    }
+
+                    GroupTableRow third = table.get(2);
+
+                    return new ThirdPlaceTeamDto(
+                            group,
+                            third.getTeamName(),
+                            third.getPoints()
+                    );
+                })
+                .sorted((a, b) -> Integer.compare(b.getPoints(), a.getPoints()))
+                .toList();
+    }
+
+    @Transactional
+    public List<ActualQualifiedTeam> saveActualRoundOf32Teams(List<String> thirdPlaceTeamNames) {
+        if (thirdPlaceTeamNames.size() != 8) {
+            throw new RuntimeException("You must select exactly 8 third-place teams");
+        }
+
+        actualQualifiedTeamRepository.deleteByStage("ROUND_OF_32");
+
+        List<String> groups = List.of("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L");
+        List<String> allQualifiedTeamNames = new ArrayList<>();
+
+        for (String group : groups) {
+            List<GroupTableRow> table = calculateActualGroupTable(group);
+
+            if (table.size() < 2) {
+                throw new RuntimeException("Not enough teams in group " + group);
+            }
+
+            allQualifiedTeamNames.add(table.get(0).getTeamName());
+            allQualifiedTeamNames.add(table.get(1).getTeamName());
+        }
+
+        allQualifiedTeamNames.addAll(thirdPlaceTeamNames);
+
+        List<ActualQualifiedTeam> saved = new ArrayList<>();
+
+        for (String teamName : allQualifiedTeamNames) {
+            Team team = teamRepository.findByName(teamName)
+                    .orElseThrow(() -> new RuntimeException("Team not found: " + teamName));
+
+            ActualQualifiedTeam actual = ActualQualifiedTeam.builder()
+                    .team(team)
+                    .stage("ROUND_OF_32")
+                    .build();
+
+            saved.add(actualQualifiedTeamRepository.save(actual));
+        }
+
+        return saved;
+    }
+
+    public List<ActualQualifiedTeam> getActualQualifiedTeamsByStage(String stage) {
+        return actualQualifiedTeamRepository.findByStage(stage);
+    }
+
+    public String resetActualQualifiedTeamsByStage(String stage) {
+        actualQualifiedTeamRepository.deleteByStage(stage);
+        return stage + " actual teams reset";
+    }
+
+    public String deleteActualQualifiedTeam(Long id) {
+        actualQualifiedTeamRepository.deleteById(id);
+        return "Actual qualified team deleted";
+    }
+    public List<KnockoutMatchDto> buildActualRoundOf32() {
+        List<String> groups = List.of("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L");
+
+        Map<String, String> groupWinners = new HashMap<>();
+        Map<String, String> groupRunnersUp = new HashMap<>();
+        Map<String, String> thirdPlaceTeams = new HashMap<>();
+
+        List<ActualQualifiedTeam> actualRoundOf32Teams =
+                actualQualifiedTeamRepository.findByStage("ROUND_OF_32");
+
+        if (actualRoundOf32Teams.size() < 32) {
+            throw new RuntimeException("You must save 32 actual Round of 32 teams first");
+        }
+
+        for (String group : groups) {
+            List<GroupTableRow> table = calculateActualGroupTable(group);
+
+            if (table.size() < 3) {
+                throw new RuntimeException("Group " + group + " does not have enough teams");
+            }
+
+            groupWinners.put(group, table.get(0).getTeamName());
+            groupRunnersUp.put(group, table.get(1).getTeamName());
+
+            String thirdTeamName = table.get(2).getTeamName();
+
+            boolean thirdQualified = actualRoundOf32Teams.stream()
+                    .anyMatch(actual -> actual.getTeam().getName().equals(thirdTeamName));
+
+            if (thirdQualified) {
+                thirdPlaceTeams.put(group, thirdTeamName);
+            }
+        }
+
+        List<String> qualifiedThirdGroups = thirdPlaceTeams.keySet()
+                .stream()
+                .sorted()
+                .toList();
+
+        ThirdPlaceRule rule = loadRules()
+                .stream()
+                .filter(r -> r.getQualifiedGroups()
+                        .stream()
+                        .sorted()
+                        .toList()
+                        .equals(qualifiedThirdGroups))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("No third-place rule found for groups: " + qualifiedThirdGroups));
+
+        List<KnockoutMatchDto> matches = new ArrayList<>();
+
+        for (Map.Entry<String, String> entry : rule.getMapping().entrySet()) {
+            String winnerSlot = entry.getKey();
+            String thirdSlot = entry.getValue();
+
+            String winnerGroup = winnerSlot.substring(1);
+            String thirdGroup = thirdSlot.substring(1);
+
+            matches.add(new KnockoutMatchDto(
+                    winnerSlot + " vs " + thirdSlot,
+                    groupWinners.get(winnerGroup),
+                    thirdPlaceTeams.get(thirdGroup)
+            ));
+        }
+
+        matches.add(new KnockoutMatchDto("2A vs 2B", groupRunnersUp.get("A"), groupRunnersUp.get("B")));
+        matches.add(new KnockoutMatchDto("1F vs 2C", groupWinners.get("F"), groupRunnersUp.get("C")));
+        matches.add(new KnockoutMatchDto("2K vs 2L", groupRunnersUp.get("K"), groupRunnersUp.get("L")));
+        matches.add(new KnockoutMatchDto("1H vs 2J", groupWinners.get("H"), groupRunnersUp.get("J")));
+        matches.add(new KnockoutMatchDto("1C vs 2F", groupWinners.get("C"), groupRunnersUp.get("F")));
+        matches.add(new KnockoutMatchDto("2E vs 2I", groupRunnersUp.get("E"), groupRunnersUp.get("I")));
+        matches.add(new KnockoutMatchDto("1J vs 2H", groupWinners.get("J"), groupRunnersUp.get("H")));
+        matches.add(new KnockoutMatchDto("2D vs 2G", groupRunnersUp.get("D"), groupRunnersUp.get("G")));
+
+        return matches;
+    }
+
+    public List<KnockoutMatchDto> buildActualNextRound(String previousRoundName, String previousShortName, int expectedWinners) {
+        List<ActualKnockoutResult> previousResults =
+                actualKnockoutResultRepository.findByRoundNameOrderByMatchNumberAsc(previousRoundName);
+
+        List<ActualKnockoutResult> playedResults = previousResults.stream()
+                .filter(result -> result.isPlayed() && result.getWinner() != null)
+                .toList();
+
+        if (playedResults.size() != expectedWinners) {
+            throw new RuntimeException("You must save all results for " + previousRoundName + " first");
+        }
+
+        List<KnockoutMatchDto> matches = new ArrayList<>();
+
+        for (int i = 0; i < playedResults.size(); i += 2) {
+            ActualKnockoutResult first = playedResults.get(i);
+            ActualKnockoutResult second = playedResults.get(i + 1);
+
+            matches.add(new KnockoutMatchDto(
+                    "Winner " + previousShortName + "-" + first.getMatchNumber()
+                            + " vs Winner " + previousShortName + "-" + second.getMatchNumber(),
+                    first.getWinner().getName(),
+                    second.getWinner().getName()
+            ));
+        }
+
+        return matches;
+    }
+
+    public List<KnockoutMatchDto> buildActualKnockoutRound(String roundName) {
+        return switch (roundName) {
+            case "ROUND_OF_32" -> buildActualRoundOf32();
+            case "ROUND_OF_16" -> buildActualNextRound("ROUND_OF_32", "R32", 16);
+            case "QUARTER_FINAL" -> buildActualNextRound("ROUND_OF_16", "R16", 8);
+            case "SEMI_FINAL" -> buildActualNextRound("QUARTER_FINAL", "QF", 4);
+            case "FINAL" -> buildActualNextRound("SEMI_FINAL", "SF", 2);
+            case "THIRD_PLACE" -> buildActualThirdPlaceMatch();
+            default -> throw new RuntimeException("Unknown round: " + roundName);
+        };
+    }
+
+    public List<KnockoutMatchDto> buildActualThirdPlaceMatch() {
+        List<KnockoutMatchDto> semiFinalMatches = buildActualKnockoutRound("SEMI_FINAL");
+
+        List<ActualKnockoutResult> semiResults =
+                actualKnockoutResultRepository.findByRoundNameOrderByMatchNumberAsc("SEMI_FINAL");
+
+        if (semiResults.size() != 2) {
+            throw new RuntimeException("You must save both semi finals first");
+        }
+
+        List<String> losers = new ArrayList<>();
+
+        for (int i = 0; i < semiFinalMatches.size(); i++) {
+            KnockoutMatchDto match = semiFinalMatches.get(i);
+            ActualKnockoutResult result = semiResults.get(i);
+
+            String winner = result.getWinner().getName();
+
+            String loser = match.getHomeTeam().equals(winner)
+                    ? match.getAwayTeam()
+                    : match.getHomeTeam();
+
+            losers.add(loser);
+        }
+
+        return List.of(new KnockoutMatchDto(
+                "Loser SF-1 vs Loser SF-2",
+                losers.get(0),
+                losers.get(1)
+        ));
+    }
+
+    @Transactional
+    public ActualKnockoutResult saveActualKnockoutResult(String roundName,
+                                                         int matchNumber,
+                                                         String slot,
+                                                         String homeTeamName,
+                                                         String awayTeamName,
+                                                         int homeScore,
+                                                         int awayScore) {
+        if (homeScore == awayScore) {
+            throw new RuntimeException("Knockout matches cannot end in a draw");
+        }
+
+        clearActualFutureRounds(roundName);
+
+        Team homeTeam = teamRepository.findByName(homeTeamName)
+                .orElseThrow(() -> new RuntimeException("Home team not found: " + homeTeamName));
+
+        Team awayTeam = teamRepository.findByName(awayTeamName)
+                .orElseThrow(() -> new RuntimeException("Away team not found: " + awayTeamName));
+
+        Team winner = homeScore > awayScore ? homeTeam : awayTeam;
+
+        ActualKnockoutResult result = actualKnockoutResultRepository
+                .findByRoundNameAndMatchNumber(roundName, matchNumber)
+                .orElse(ActualKnockoutResult.builder()
+                        .roundName(roundName)
+                        .matchNumber(matchNumber)
+                        .build());
+
+        result.setSlot(slot);
+        result.setHomeTeam(homeTeam);
+        result.setAwayTeam(awayTeam);
+        result.setHomeScore(homeScore);
+        result.setAwayScore(awayScore);
+        result.setPlayed(true);
+        result.setWinner(winner);
+
+        ActualKnockoutResult saved = actualKnockoutResultRepository.saveAndFlush(result);
+
+        rebuildActualQualifiedTeamsForRound(roundName);
+
+        return saved;
+    }
+
+    private void rebuildActualQualifiedTeamsForRound(String roundName) {
+        String nextStage = switch (roundName) {
+            case "ROUND_OF_32" -> "ROUND_OF_16";
+            case "ROUND_OF_16" -> "QUARTER_FINAL";
+            case "QUARTER_FINAL" -> "SEMI_FINAL";
+            case "SEMI_FINAL" -> "FINAL";
+            case "FINAL" -> "CHAMPION";
+            case "THIRD_PLACE" -> "THIRD_PLACE";
+            default -> null;
+        };
+
+        if (nextStage == null) return;
+
+        actualQualifiedTeamRepository.deleteByStage(nextStage);
+
+        if ("FINAL".equals(roundName)) {
+            actualQualifiedTeamRepository.deleteByStage("RUNNER_UP");
+        }
+
+        if ("THIRD_PLACE".equals(roundName)) {
+            actualQualifiedTeamRepository.deleteByStage("FOURTH_PLACE");
+        }
+
+        actualQualifiedTeamRepository.flush();
+
+        List<ActualKnockoutResult> results =
+                actualKnockoutResultRepository.findByRoundNameOrderByMatchNumberAsc(roundName);
+
+        for (ActualKnockoutResult result : results) {
+            if (!result.isPlayed() || result.getWinner() == null) {
+                continue;
+            }
+
+            actualQualifiedTeamRepository.save(
+                    ActualQualifiedTeam.builder()
+                            .team(result.getWinner())
+                            .stage(nextStage)
+                            .build()
+            );
+
+            if ("FINAL".equals(roundName)) {
+                Team runnerUp = result.getHomeTeam().getName().equals(result.getWinner().getName())
+                        ? result.getAwayTeam()
+                        : result.getHomeTeam();
+
+                actualQualifiedTeamRepository.save(
+                        ActualQualifiedTeam.builder()
+                                .team(runnerUp)
+                                .stage("RUNNER_UP")
+                                .build()
+                );
+            }
+
+            if ("THIRD_PLACE".equals(roundName)) {
+                Team fourthPlace = result.getHomeTeam().getName().equals(result.getWinner().getName())
+                        ? result.getAwayTeam()
+                        : result.getHomeTeam();
+
+                actualQualifiedTeamRepository.save(
+                        ActualQualifiedTeam.builder()
+                                .team(fourthPlace)
+                                .stage("FOURTH_PLACE")
+                                .build()
+                );
+            }
+        }
+
+        actualQualifiedTeamRepository.flush();
+    }
+
+    private void clearActualFutureRounds(String roundName) {
+        List<String> futureRounds = switch (roundName) {
+            case "ROUND_OF_32" -> List.of("ROUND_OF_16", "QUARTER_FINAL", "SEMI_FINAL", "FINAL", "THIRD_PLACE");
+            case "ROUND_OF_16" -> List.of("QUARTER_FINAL", "SEMI_FINAL", "FINAL", "THIRD_PLACE");
+            case "QUARTER_FINAL" -> List.of("SEMI_FINAL", "FINAL", "THIRD_PLACE");
+            case "SEMI_FINAL" -> List.of("FINAL", "THIRD_PLACE");
+            case "FINAL", "THIRD_PLACE" -> List.of();
+            default -> List.of();
+        };
+
+        List<String> futureStages = switch (roundName) {
+            case "ROUND_OF_32" -> List.of("ROUND_OF_16", "QUARTER_FINAL", "SEMI_FINAL", "FINAL", "CHAMPION", "RUNNER_UP", "THIRD_PLACE", "FOURTH_PLACE");
+            case "ROUND_OF_16" -> List.of("QUARTER_FINAL", "SEMI_FINAL", "FINAL", "CHAMPION", "RUNNER_UP", "THIRD_PLACE", "FOURTH_PLACE");
+            case "QUARTER_FINAL" -> List.of("SEMI_FINAL", "FINAL", "CHAMPION", "RUNNER_UP", "THIRD_PLACE", "FOURTH_PLACE");
+            case "SEMI_FINAL" -> List.of("FINAL", "CHAMPION", "RUNNER_UP", "THIRD_PLACE", "FOURTH_PLACE");
+            case "FINAL" -> List.of("CHAMPION", "RUNNER_UP");
+            case "THIRD_PLACE" -> List.of("THIRD_PLACE", "FOURTH_PLACE");
+            default -> List.of();
+        };
+
+        for (String round : futureRounds) {
+            actualKnockoutResultRepository.deleteByRoundName(round);
+        }
+
+        for (String stage : futureStages) {
+            actualQualifiedTeamRepository.deleteByStage(stage);
+        }
+    }
+
+    public List<ActualKnockoutResult> getActualKnockoutResults(String roundName) {
+        return actualKnockoutResultRepository.findByRoundNameOrderByMatchNumberAsc(roundName);
+    }
+
+    @Transactional
+    public ActualKnockoutResult resetActualKnockoutResult(String roundName, int matchNumber) {
+        ActualKnockoutResult result = actualKnockoutResultRepository
+                .findByRoundNameAndMatchNumber(roundName, matchNumber)
+                .orElseThrow(() -> new RuntimeException("Actual knockout result not found"));
+
+        result.setHomeScore(null);
+        result.setAwayScore(null);
+        result.setPlayed(false);
+        result.setWinner(null);
+
+        ActualKnockoutResult saved = actualKnockoutResultRepository.saveAndFlush(result);
+
+        clearActualFutureRounds(roundName);
+        rebuildActualQualifiedTeamsForRound(roundName);
+
+        return saved;
     }
 }
