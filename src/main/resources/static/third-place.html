@@ -305,6 +305,14 @@
             transform: none;
             border-color: rgba(255,255,255,0.1);
         }
+        .flag {
+            width: 20px;
+            height: 14px;
+            object-fit: cover;
+            border-radius: 3px;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
 
         @media (max-width: 1050px) {
             .layout {
@@ -357,7 +365,7 @@
         <a href="/group.html">Groups</a>
         <a href="/third-place.html" class="active">Third place</a>
         <a href="/knockout-board.html">Knockout</a>
-        <a href="/bracket.html">Bracket</a>
+        <a href="/world-cup.html">World Cup 2026</a>
         <a href="/leaderboard.html">Leaderboard</a>
         <a href="/admin-results.html">Admin</a>
     </div>
@@ -463,6 +471,77 @@
     let savedTeams = [];
     let predictionsLocked = false;
 
+    function getFlagUrl(teamName) {
+        const map = {
+            "Mexico": "mx",
+            "South Africa": "za",
+            "South Korea": "kr",
+            "Czech Republic": "cz",
+            "Switzerland": "ch",
+            "New Zealand": "nz",
+            "Canada": "ca",
+            "Bosnia": "ba",
+            "Qatar": "qa",
+            "Brazil": "br",
+            "Haiti": "ht",
+            "Scotland": "gb-sct",
+            "Morocco": "ma",
+            "Turkey": "tr",
+            "Paraguay": "py",
+            "USA": "us",
+            "Egypt": "eg",
+            "Germany": "de",
+            "Curacao": "cw",
+            "Ecuador": "ec",
+            "Norway": "no",
+            "DR Congo": "cd",
+            "Cape Verde": "cv",
+            "Japan": "jp",
+            "Belgium": "be",
+            "England": "gb-eng",
+            "Colombia": "co",
+            "Portugal": "pt",
+            "Spain": "es",
+            "Austria": "at",
+            "Uruguay": "uy",
+            "Ivory Coast": "ci",
+            "France": "fr",
+            "Argentina": "ar",
+            "Jordan": "jo",
+            "Algeria": "dz",
+            "Panama": "pa",
+            "Croatia": "hr",
+            "Senegal": "sn",
+            "Uzbekistan": "uz",
+            "Netherlands": "nl",
+            "Sweden": "se",
+            "Iraq": "iq",
+            "Saudi Arabia": "sa",
+            "Australia": "au",
+            "Iran": "ir",
+            "Tunisia": "tn",
+            "Ghana": "gh",
+            "Wales": "gb-wls",
+            "Denmark": "dk",
+            "Poland": "pl"
+        };
+
+        const code = map[teamName];
+        if (!code) return "";
+
+        return `https://flagcdn.com/w40/${code}.png`;
+    }
+
+    function teamWithFlag(teamName) {
+        const flagUrl = getFlagUrl(teamName);
+
+        if (!flagUrl) {
+            return teamName;
+        }
+
+        return `<img src="${flagUrl}" class="flag"> ${teamName}`;
+    }
+
     Promise.all([
         fetch(`/party/lock-status?code=${encodeURIComponent(code)}`).then(res => res.json()),
         fetch(`/third-place-selection?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`).then(res => res.json()),
@@ -543,7 +622,7 @@
 
         card.innerHTML = `
             <div>
-                <div class="team-name">${team.teamName}</div>
+                <div class="team-name">${teamWithFlag(team.teamName)}</div>
                 <div class="team-meta">Group ${team.groupName} • ${team.points ?? 0} pts</div>
             </div>
             <div class="check">✓</div>
@@ -618,7 +697,7 @@
             div.className = "team-card automatic";
             div.innerHTML = `
                 <div>
-                    <div class="team-name">${teamName}</div>
+                    <div class="team-name">${teamWithFlag(teamName)}</div>
                     <div class="team-meta">Qualified for Round of 32</div>
                 </div>
                 <div class="check">✓</div>

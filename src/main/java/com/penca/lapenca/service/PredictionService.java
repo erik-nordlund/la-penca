@@ -1058,8 +1058,9 @@ public class PredictionService {
 
         return score;
     }
+    @Transactional
     public String resetActualData() {
-
+        actualKnockoutResultRepository.deleteAll();
         actualQualifiedTeamRepository.deleteAll();
 
         List<Match> matches = matchRepository.findAll();
@@ -1072,8 +1073,12 @@ public class PredictionService {
 
         matchRepository.saveAll(matches);
 
+        actualKnockoutResultRepository.flush();
+        actualQualifiedTeamRepository.flush();
+
         return "Actual data reset";
     }
+
     private void clearFutureRounds(AppUser user, Party party, String roundName) {
 
         List<String> roundsToDelete = new ArrayList<>();
@@ -1277,7 +1282,11 @@ public class PredictionService {
             throw new RuntimeException("You must select exactly 8 third-place teams");
         }
 
-        actualQualifiedTeamRepository.deleteByStage("ROUND_OF_32");
+        List<String> previousRoundOf32Teams = actualQualifiedTeamRepository.findByStage("ROUND_OF_32")
+                .stream()
+                .map(actual -> actual.getTeam().getName())
+                .sorted()
+                .toList();
 
         List<String> groups = List.of("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L");
         List<String> allQualifiedTeamNames = new ArrayList<>();
@@ -1295,6 +1304,19 @@ public class PredictionService {
 
         allQualifiedTeamNames.addAll(thirdPlaceTeamNames);
 
+        List<String> newRoundOf32Teams = allQualifiedTeamNames.stream()
+                .sorted()
+                .toList();
+
+        boolean changed = !previousRoundOf32Teams.equals(newRoundOf32Teams);
+
+        if (changed) {
+            clearAllActualKnockoutDataAfterRoundOf32Change();
+        }
+
+        actualQualifiedTeamRepository.deleteByStage("ROUND_OF_32");
+        actualQualifiedTeamRepository.flush();
+
         List<ActualQualifiedTeam> saved = new ArrayList<>();
 
         for (String teamName : allQualifiedTeamNames) {
@@ -1310,6 +1332,38 @@ public class PredictionService {
         }
 
         return saved;
+    }
+    private void clearAllActualKnockoutDataAfterRoundOf32Change() {
+        List<String> knockoutRounds = List.of(
+                "ROUND_OF_32",
+                "ROUND_OF_16",
+                "QUARTER_FINAL",
+                "SEMI_FINAL",
+                "FINAL",
+                "THIRD_PLACE"
+        );
+
+        for (String round : knockoutRounds) {
+            actualKnockoutResultRepository.deleteByRoundName(round);
+        }
+
+        List<String> futureStages = List.of(
+                "ROUND_OF_16",
+                "QUARTER_FINAL",
+                "SEMI_FINAL",
+                "FINAL",
+                "CHAMPION",
+                "RUNNER_UP",
+                "THIRD_PLACE",
+                "FOURTH_PLACE"
+        );
+
+        for (String stage : futureStages) {
+            actualQualifiedTeamRepository.deleteByStage(stage);
+        }
+
+        actualKnockoutResultRepository.flush();
+        actualQualifiedTeamRepository.flush();
     }
 
     public List<ActualQualifiedTeam> getActualQualifiedTeamsByStage(String stage) {

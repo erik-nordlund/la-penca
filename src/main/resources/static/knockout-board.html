@@ -259,6 +259,14 @@
       background: rgba(239,68,68,0.45);
       border: 1px solid rgba(255,107,107,0.45);
     }
+    .flag {
+      width: 20px;
+      height: 14px;
+      object-fit: cover;
+      border-radius: 3px;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
   </style>
 </head>
 <body>
@@ -270,7 +278,7 @@
     <a href="/group.html">Groups</a>
     <a href="/third-place.html">Third place</a>
     <a href="/knockout-board.html">Knockout</a>
-    <a href="/bracket.html">Bracket</a>
+    <a href="/world-cup.html">World Cup 2026</a>
     <a href="/leaderboard.html">Leaderboard</a>
   </div>
 </nav>
@@ -336,6 +344,77 @@
   let saved = {};
   let predictionsLocked = false;
   let actualQualified = {};
+
+  function getFlagUrl(teamName) {
+    const map = {
+      "Mexico": "mx",
+      "South Africa": "za",
+      "South Korea": "kr",
+      "Czech Republic": "cz",
+      "Switzerland": "ch",
+      "New Zealand": "nz",
+      "Canada": "ca",
+      "Bosnia": "ba",
+      "Qatar": "qa",
+      "Brazil": "br",
+      "Haiti": "ht",
+      "Scotland": "gb-sct",
+      "Morocco": "ma",
+      "Turkey": "tr",
+      "Paraguay": "py",
+      "USA": "us",
+      "Egypt": "eg",
+      "Germany": "de",
+      "Curacao": "cw",
+      "Ecuador": "ec",
+      "Norway": "no",
+      "DR Congo": "cd",
+      "Cape Verde": "cv",
+      "Japan": "jp",
+      "Belgium": "be",
+      "England": "gb-eng",
+      "Colombia": "co",
+      "Portugal": "pt",
+      "Spain": "es",
+      "Austria": "at",
+      "Uruguay": "uy",
+      "Ivory Coast": "ci",
+      "France": "fr",
+      "Argentina": "ar",
+      "Jordan": "jo",
+      "Algeria": "dz",
+      "Panama": "pa",
+      "Croatia": "hr",
+      "Senegal": "sn",
+      "Uzbekistan": "uz",
+      "Netherlands": "nl",
+      "Sweden": "se",
+      "Iraq": "iq",
+      "Saudi Arabia": "sa",
+      "Australia": "au",
+      "Iran": "ir",
+      "Tunisia": "tn",
+      "Ghana": "gh",
+      "Wales": "gb-wls",
+      "Denmark": "dk",
+      "Poland": "pl"
+    };
+
+    const code = map[teamName];
+    if (!code) return "";
+
+    return `https://flagcdn.com/w40/${code}.png`;
+  }
+
+  function teamWithFlag(teamName) {
+    const flagUrl = getFlagUrl(teamName);
+
+    if (!flagUrl) {
+      return teamName;
+    }
+
+    return `<img src="${flagUrl}" class="flag"> ${teamName}`;
+  }
 
   init();
 
@@ -531,7 +610,7 @@
       return btn;
     }
 
-    btn.innerText = teamName;
+    btn.innerHTML = teamWithFlag(teamName);
 
     const selectedWinner = saved[roundName]?.[matchNumber];
 
@@ -742,7 +821,7 @@
         const cleanTeam = stripPlacementLabel(team);
         const row = document.createElement("div");
         row.className = `score-team ${actualTeams.includes(cleanTeam) ? "correct" : "wrong"}`;
-        row.innerText = team;
+        row.innerHTML = teamWithFlag(team);
         div.appendChild(row);
       });
 
