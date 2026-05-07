@@ -468,6 +468,49 @@ public class PredictionService {
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("No matching third-place rule found for groups: " + selectedGroups));
     }
+    private record R32TemplateMatch(String homeSlot, String awaySlot, String awayMappingKey) {}
+
+    private List<R32TemplateMatch> getRoundOf32Template() {
+        return List.of(
+                // LEFT SIDE — top to bottom
+                new R32TemplateMatch("1E", null, "1E"),
+                new R32TemplateMatch("1I", null, "1I"),
+                new R32TemplateMatch("2A", "2B", null),
+                new R32TemplateMatch("1F", "2C", null),
+
+                new R32TemplateMatch("2K", "2L", null),
+                new R32TemplateMatch("1H", "2J", null),
+                new R32TemplateMatch("1D", null, "1D"),
+                new R32TemplateMatch("1G", null, "1G"),
+
+                // RIGHT SIDE — top to bottom
+                new R32TemplateMatch("1C", "2F", null),
+                new R32TemplateMatch("2E", "2I", null),
+                new R32TemplateMatch("1A", null, "1A"),
+                new R32TemplateMatch("1L", null, "1L"),
+
+                new R32TemplateMatch("1J", "2H", null),
+                new R32TemplateMatch("2D", "2G", null),
+                new R32TemplateMatch("1B", null, "1B"),
+                new R32TemplateMatch("1K", null, "1K")
+        );
+    }
+
+    private String resolveKnockoutSlot(String slot,
+                                       Map<String, String> groupWinners,
+                                       Map<String, String> groupRunnersUp,
+                                       Map<String, String> thirdPlaceTeams) {
+        int position = Integer.parseInt(slot.substring(0, 1));
+        String group = slot.substring(1);
+
+        return switch (position) {
+            case 1 -> groupWinners.get(group);
+            case 2 -> groupRunnersUp.get(group);
+            case 3 -> thirdPlaceTeams.get(group);
+            default -> throw new RuntimeException("Unknown knockout slot: " + slot);
+        };
+    }
+
     public List<KnockoutMatchDto> buildRoundOf32(String username, String code) {
         QualifiedTeamsOverviewDto overview = getQualifiedTeamsOverview(username, code);
         ThirdPlaceRule rule = findMatchingThirdPlaceRule(username, code);
@@ -499,29 +542,34 @@ public class PredictionService {
 
         List<KnockoutMatchDto> matches = new ArrayList<>();
 
-        // Dynamic third-place matches from FIFA rule mapping
-        for (Map.Entry<String, String> entry : rule.getMapping().entrySet()) {
-            String winnerSlot = entry.getKey();      // example: "1A"
-            String thirdSlot = entry.getValue();     // example: "3E"
+        for (R32TemplateMatch template : getRoundOf32Template()) {
+            String homeSlot = template.homeSlot();
 
-            String winnerGroup = winnerSlot.substring(1); // A
-            String thirdGroup = thirdSlot.substring(1);    // E
+            String awaySlot = template.awaySlot();
+            if (awaySlot == null) {
+                awaySlot = rule.getMapping().get(template.awayMappingKey());
+            }
 
-            String homeTeam = groupWinners.get(winnerGroup);
-            String awayTeam = thirdPlaceTeams.get(thirdGroup);
+            String homeTeam = resolveKnockoutSlot(
+                    homeSlot,
+                    groupWinners,
+                    groupRunnersUp,
+                    thirdPlaceTeams
+            );
 
-            String slot = winnerSlot + " vs " + thirdSlot;
-            matches.add(new KnockoutMatchDto(slot, homeTeam, awayTeam));
+            String awayTeam = resolveKnockoutSlot(
+                    awaySlot,
+                    groupWinners,
+                    groupRunnersUp,
+                    thirdPlaceTeams
+            );
+
+            matches.add(new KnockoutMatchDto(
+                    homeSlot + " vs " + awaySlot,
+                    homeTeam,
+                    awayTeam
+            ));
         }
-
-        matches.add(new KnockoutMatchDto("2A vs 2B", groupRunnersUp.get("A"), groupRunnersUp.get("B")));
-        matches.add(new KnockoutMatchDto("1F vs 2C", groupWinners.get("F"), groupRunnersUp.get("C")));
-        matches.add(new KnockoutMatchDto("2K vs 2L", groupRunnersUp.get("K"), groupRunnersUp.get("L")));
-        matches.add(new KnockoutMatchDto("1H vs 2J", groupWinners.get("H"), groupRunnersUp.get("J")));
-        matches.add(new KnockoutMatchDto("1C vs 2F", groupWinners.get("C"), groupRunnersUp.get("F")));
-        matches.add(new KnockoutMatchDto("2E vs 2I", groupRunnersUp.get("E"), groupRunnersUp.get("I")));
-        matches.add(new KnockoutMatchDto("1J vs 2H", groupWinners.get("J"), groupRunnersUp.get("H")));
-        matches.add(new KnockoutMatchDto("2D vs 2G", groupRunnersUp.get("D"), groupRunnersUp.get("G")));
 
         return matches;
     }
@@ -1430,28 +1478,34 @@ public class PredictionService {
 
         List<KnockoutMatchDto> matches = new ArrayList<>();
 
-        for (Map.Entry<String, String> entry : rule.getMapping().entrySet()) {
-            String winnerSlot = entry.getKey();
-            String thirdSlot = entry.getValue();
+        for (R32TemplateMatch template : getRoundOf32Template()) {
+            String homeSlot = template.homeSlot();
 
-            String winnerGroup = winnerSlot.substring(1);
-            String thirdGroup = thirdSlot.substring(1);
+            String awaySlot = template.awaySlot();
+            if (awaySlot == null) {
+                awaySlot = rule.getMapping().get(template.awayMappingKey());
+            }
+
+            String homeTeam = resolveKnockoutSlot(
+                    homeSlot,
+                    groupWinners,
+                    groupRunnersUp,
+                    thirdPlaceTeams
+            );
+
+            String awayTeam = resolveKnockoutSlot(
+                    awaySlot,
+                    groupWinners,
+                    groupRunnersUp,
+                    thirdPlaceTeams
+            );
 
             matches.add(new KnockoutMatchDto(
-                    winnerSlot + " vs " + thirdSlot,
-                    groupWinners.get(winnerGroup),
-                    thirdPlaceTeams.get(thirdGroup)
+                    homeSlot + " vs " + awaySlot,
+                    homeTeam,
+                    awayTeam
             ));
         }
-
-        matches.add(new KnockoutMatchDto("2A vs 2B", groupRunnersUp.get("A"), groupRunnersUp.get("B")));
-        matches.add(new KnockoutMatchDto("1F vs 2C", groupWinners.get("F"), groupRunnersUp.get("C")));
-        matches.add(new KnockoutMatchDto("2K vs 2L", groupRunnersUp.get("K"), groupRunnersUp.get("L")));
-        matches.add(new KnockoutMatchDto("1H vs 2J", groupWinners.get("H"), groupRunnersUp.get("J")));
-        matches.add(new KnockoutMatchDto("1C vs 2F", groupWinners.get("C"), groupRunnersUp.get("F")));
-        matches.add(new KnockoutMatchDto("2E vs 2I", groupRunnersUp.get("E"), groupRunnersUp.get("I")));
-        matches.add(new KnockoutMatchDto("1J vs 2H", groupWinners.get("J"), groupRunnersUp.get("H")));
-        matches.add(new KnockoutMatchDto("2D vs 2G", groupRunnersUp.get("D"), groupRunnersUp.get("G")));
 
         return matches;
     }
