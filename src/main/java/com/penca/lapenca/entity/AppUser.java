@@ -16,13 +16,14 @@ public class AppUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false)
     private String username;
 
-    @JsonIgnore
     private String email;
 
     @JsonIgnore
-    private String password;
+    @Column(nullable = false)
+    private String passwordHash;
 
     private String role;
 

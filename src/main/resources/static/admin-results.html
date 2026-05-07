@@ -409,7 +409,7 @@
         <a href="/knockout-board.html">Knockout</a>
         <a href="/world-cup.html">World Cup 2026</a>
         <a href="/leaderboard.html">Leaderboard</a>
-        <a href="/admin-results.html" class="active">Admin</a>
+        <a id="adminLink" href="/admin-results.html" class="active">Admin</a>
     </div>
 </nav>
 
@@ -511,7 +511,7 @@
 
 <script>
     const adminUsername = localStorage.getItem("username");
-    const allowedAdmin = "erik";
+    const role = localStorage.getItem("role");
 
     let currentGroup = "A";
     let selectedThirdPlaceTeams = [];
@@ -530,7 +530,7 @@
         window.location.href = "/index.html";
     }
 
-    if (adminUsername !== allowedAdmin) {
+    if (role !== "ADMIN") {
         document.body.innerHTML = `
             <div style="padding:50px; color:white; font-family:Arial;">
                 <h1>Access denied</h1>
@@ -672,7 +672,7 @@
 
         setMessage("matchMessage", "Saving result...");
 
-        fetch(`/actual/match-result?matchId=${encodeURIComponent(matchId)}&homeScore=${encodeURIComponent(homeScore)}&awayScore=${encodeURIComponent(awayScore)}`)
+        fetch(`/actual/match-result?adminUsername=${encodeURIComponent(adminUsername)}&matchId=${encodeURIComponent(matchId)}&homeScore=${encodeURIComponent(homeScore)}&awayScore=${encodeURIComponent(awayScore)}`)
             .then(res => {
                 if (!res.ok) throw new Error("Save failed");
                 return res.json();
@@ -689,7 +689,7 @@
 
         setMessage("matchMessage", "Resetting match result...");
 
-        fetch(`/actual/match-result/reset?matchId=${encodeURIComponent(matchId)}`)
+        fetch(`/actual/match-result/reset?adminUsername=${encodeURIComponent(adminUsername)}&matchId=${encodeURIComponent(matchId)}`)
             .then(res => {
                 if (!res.ok) throw new Error("Reset failed");
                 return res.json();
@@ -809,7 +809,7 @@
 
         setMessage("thirdMessage", "Saving actual Round of 32 teams...");
 
-        fetch(`/actual/round-of-32/save?teams=${teamsParam}`)
+        fetch(`/actual/round-of-32/save?adminUsername=${encodeURIComponent(adminUsername)}&teams=${teamsParam}`)
             .then(res => {
                 if (!res.ok) throw new Error("Save failed");
                 return res.json();
@@ -935,8 +935,7 @@
 
         setMessage("knockoutMessage", "Saving knockout result...");
 
-        fetch(`/actual/knockout/save?round=${encodeURIComponent(currentKnockoutRound)}&matchNumber=${encodeURIComponent(matchNumber)}&slot=${encodeURIComponent(slot)}&homeTeam=${encodeURIComponent(homeTeam)}&awayTeam=${encodeURIComponent(awayTeam)}&homeScore=${encodeURIComponent(homeScore)}&awayScore=${encodeURIComponent(awayScore)}`)
-            .then(res => {
+        fetch(`/actual/knockout/save?adminUsername=${encodeURIComponent(adminUsername)}&round=${encodeURIComponent(currentKnockoutRound)}&matchNumber=${encodeURIComponent(matchNumber)}&slot=${encodeURIComponent(slot)}&homeTeam=${encodeURIComponent(homeTeam)}&awayTeam=${encodeURIComponent(awayTeam)}&homeScore=${encodeURIComponent(homeScore)}&awayScore=${encodeURIComponent(awayScore)}`)            .then(res => {
                 if (!res.ok) throw new Error("Save failed");
                 return res.json();
             })
@@ -954,8 +953,7 @@
 
         setMessage("knockoutMessage", "Resetting knockout result...");
 
-        fetch(`/actual/knockout/reset?round=${encodeURIComponent(currentKnockoutRound)}&matchNumber=${encodeURIComponent(matchNumber)}`)
-            .then(res => {
+        fetch(`/actual/knockout/reset?adminUsername=${encodeURIComponent(adminUsername)}&round=${encodeURIComponent(currentKnockoutRound)}&matchNumber=${encodeURIComponent(matchNumber)}`)            .then(res => {
                 if (!res.ok) throw new Error("Reset failed");
                 return res.json();
             })
@@ -973,7 +971,7 @@
 
         setMessage("resetMessage", "Resetting data...");
 
-        fetch("/actual/reset")
+        fetch(`/actual/reset?adminUsername=${encodeURIComponent(adminUsername)}`)
             .then(res => res.text())
             .then(message => {
                 setMessage("resetMessage", message);
@@ -1000,6 +998,10 @@
 
     function goToLeaderboard() {
         window.location.href = "/leaderboard.html";
+    }
+    const adminLink = document.getElementById("adminLink");
+    if (adminLink && localStorage.getItem("role") !== "ADMIN") {
+        adminLink.style.display = "none";
     }
 </script>
 

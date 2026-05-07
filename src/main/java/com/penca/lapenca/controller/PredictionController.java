@@ -2,10 +2,13 @@ package com.penca.lapenca.controller;
 
 import com.penca.lapenca.dto.*;
 import com.penca.lapenca.entity.*;
+import com.penca.lapenca.repository.AppUserRepository;
 import com.penca.lapenca.service.PredictionService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -13,9 +16,12 @@ import java.util.List;
 public class PredictionController {
 
     private final PredictionService predictionService;
+    private final AppUserRepository appUserRepository;
 
-    public PredictionController(PredictionService predictionService) {
+    public PredictionController(PredictionService predictionService,
+                                AppUserRepository appUserRepository) {
         this.predictionService = predictionService;
+        this.appUserRepository = appUserRepository;
     }
 
     @GetMapping("/prediction/save")
@@ -160,14 +166,18 @@ public class PredictionController {
         return predictionService.calculateUserScore(username, code);
     }
     @GetMapping("/actual/qualified/add")
-    public ActualQualifiedTeam addActualQualifiedTeam(@RequestParam String team,
+    public ActualQualifiedTeam addActualQualifiedTeam(@RequestParam String adminUsername,
+                                                      @RequestParam String team,
                                                       @RequestParam String stage) {
+        requireAdmin(adminUsername);
         return predictionService.addActualQualifiedTeam(team, stage);
     }
     @GetMapping("/actual/match-result")
-    public Match setActualMatchResult(@RequestParam Long matchId,
+    public Match setActualMatchResult(@RequestParam String adminUsername,
+                                      @RequestParam Long matchId,
                                       @RequestParam int homeScore,
                                       @RequestParam int awayScore) {
+        requireAdmin(adminUsername);
         return predictionService.setActualMatchResult(matchId, homeScore, awayScore);
     }
     @GetMapping("/leaderboard")
@@ -180,7 +190,8 @@ public class PredictionController {
         return predictionService.buildThirdPlaceMatch(username, code);
     }
     @GetMapping("/actual/reset")
-    public String resetActualData() {
+    public String resetActualData(@RequestParam String adminUsername) {
+        requireAdmin(adminUsername);
         return predictionService.resetActualData();
     }
     @GetMapping("/score-breakdown")
@@ -189,7 +200,9 @@ public class PredictionController {
         return predictionService.calculateUserScoreBreakdown(username, code);
     }
     @GetMapping("/actual/match-result/reset")
-    public Match resetActualMatchResult(@RequestParam Long matchId) {
+    public Match resetActualMatchResult(@RequestParam String adminUsername,
+                                        @RequestParam Long matchId) {
+        requireAdmin(adminUsername);
         return predictionService.resetActualMatchResult(matchId);
     }
 
@@ -198,7 +211,9 @@ public class PredictionController {
         return predictionService.getGroupMatches(group);
     }
     @GetMapping("/actual/group/reset")
-    public String resetActualGroupResults(@RequestParam String group) {
+    public String resetActualGroupResults(@RequestParam String adminUsername,
+                                          @RequestParam String group) {
+        requireAdmin(adminUsername);
         return predictionService.resetActualGroupResults(group);
     }
     @GetMapping("/actual/group-table")
@@ -212,7 +227,9 @@ public class PredictionController {
     }
 
     @GetMapping("/actual/round-of-32/save")
-    public List<ActualQualifiedTeam> saveActualRoundOf32Teams(@RequestParam List<String> teams) {
+    public List<ActualQualifiedTeam> saveActualRoundOf32Teams(@RequestParam String adminUsername,
+                                                              @RequestParam List<String> teams) {
+        requireAdmin(adminUsername);
         return predictionService.saveActualRoundOf32Teams(teams);
     }
 
@@ -222,12 +239,16 @@ public class PredictionController {
     }
 
     @GetMapping("/actual/qualified/reset-stage")
-    public String resetActualQualifiedTeamsByStage(@RequestParam String stage) {
+    public String resetActualQualifiedTeamsByStage(@RequestParam String adminUsername,
+                                                   @RequestParam String stage) {
+        requireAdmin(adminUsername);
         return predictionService.resetActualQualifiedTeamsByStage(stage);
     }
 
     @GetMapping("/actual/qualified/delete")
-    public String deleteActualQualifiedTeam(@RequestParam Long id) {
+    public String deleteActualQualifiedTeam(@RequestParam String adminUsername,
+                                            @RequestParam Long id) {
+        requireAdmin(adminUsername);
         return predictionService.deleteActualQualifiedTeam(id);
     }
     @GetMapping("/actual/knockout/round")
@@ -241,13 +262,15 @@ public class PredictionController {
     }
 
     @GetMapping("/actual/knockout/save")
-    public ActualKnockoutResult saveActualKnockoutResult(@RequestParam String round,
+    public ActualKnockoutResult saveActualKnockoutResult(@RequestParam String adminUsername,
+                                                         @RequestParam String round,
                                                          @RequestParam int matchNumber,
                                                          @RequestParam String slot,
                                                          @RequestParam String homeTeam,
                                                          @RequestParam String awayTeam,
                                                          @RequestParam int homeScore,
                                                          @RequestParam int awayScore) {
+        requireAdmin(adminUsername);
         return predictionService.saveActualKnockoutResult(
                 round,
                 matchNumber,
@@ -260,8 +283,10 @@ public class PredictionController {
     }
 
     @GetMapping("/actual/knockout/reset")
-    public ActualKnockoutResult resetActualKnockoutResult(@RequestParam String round,
+    public ActualKnockoutResult resetActualKnockoutResult(@RequestParam String adminUsername,
+                                                          @RequestParam String round,
                                                           @RequestParam int matchNumber) {
+        requireAdmin(adminUsername);
         return predictionService.resetActualKnockoutResult(round, matchNumber);
     }
     @GetMapping("/group-tiebreak/save")
@@ -277,5 +302,13 @@ public class PredictionController {
                                                 @RequestParam String code,
                                                 @RequestParam String group) {
         return predictionService.getGroupTieBreakRanking(username, code, group);
+    }
+    private void requireAdmin(String username) {
+        AppUser user = appUserRepository.findByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+
+        if (!"ADMIN".equals(user.getRole())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Admin access required");
+        }
     }
 }

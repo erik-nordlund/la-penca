@@ -10,6 +10,8 @@ import com.penca.lapenca.repository.PartyMemberRepository;
 import com.penca.lapenca.service.PartyMemberService;
 import com.penca.lapenca.service.PartyService;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -109,9 +111,11 @@ public class PartyController {
         return "Left party";
     }
 
-    @GetMapping("/party/deadline/set")
-    public Party setPredictionDeadline(@RequestParam String code,
+    @PostMapping("/party/deadline/set")
+    public Party setPredictionDeadline(@RequestParam String adminUsername,
+                                       @RequestParam String code,
                                        @RequestParam String deadline) {
+        requireAdmin(adminUsername);
         return partyService.setPredictionDeadline(
                 code,
                 LocalDateTime.parse(deadline)
@@ -121,5 +125,13 @@ public class PartyController {
     @GetMapping("/party/lock-status")
     public boolean getLockStatus(@RequestParam String code) {
         return partyService.isPredictionLocked(code);
+    }
+    private void requireAdmin(String username) {
+        AppUser user = appUserRepository.findByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+
+        if (!"ADMIN".equals(user.getRole())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Admin access required");
+        }
     }
 }

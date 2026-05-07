@@ -1,43 +1,91 @@
 package com.penca.lapenca.controller;
 
+import com.penca.lapenca.dto.AuthRequestDto;
+import com.penca.lapenca.dto.AuthResponseDto;
 import com.penca.lapenca.entity.AppUser;
 import com.penca.lapenca.repository.AppUserRepository;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
+@RequestMapping("/auth")
 public class AppUserController {
 
     private final AppUserRepository appUserRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public AppUserController(AppUserRepository appUserRepository) {
+    public AppUserController(AppUserRepository appUserRepository,
+                             PasswordEncoder passwordEncoder) {
         this.appUserRepository = appUserRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    @GetMapping("/user/create")
-    public AppUser createUser(@RequestParam String username) {
-        username = username.trim();
+    @PostMapping("/register")
+    public AuthResponseDto register(@RequestBody AuthRequestDto request) {
+        String username = normalize(request.getUsername());
+        String email = normalizeEmail(request.getEmail());
+        String password = request.getPassword();
 
         if (username.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username cannot be empty");
+        }
+
+        if (password == null || password.length() < 6) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password must be at least 6 characters");
         }
 
         if (appUserRepository.existsByUsername(username)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already exists");
         }
 
+        if (!email.isBlank() && appUserRepository.existsByEmail(email)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already exists");
+        }
+
         AppUser user = AppUser.builder()
                 .username(username)
-                .email(username + "@test.com")
-                .password("test123")
+                .email(email.isBlank() ? null : email)
+                .passwordHash(passwordEncoder.encode(password))
                 .role("USER")
                 .totalPoints(0)
                 .build();
 
-        return appUserRepository.save(user);
+        AppUser saved = appUserRepository.save(user);
+
+        return toResponse(saved);
+    }
+
+    @PostMapping("/login")
+    public AuthResponseDto login(@RequestBody AuthRequestDto request) {
+        String username = normalize(request.getUsername());
+        String password = request.getPassword();
+
+        AppUser user = appUserRepository.findByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password"));
+
+        if (!passwordEncoder.matches(password, user.getPasswordHash())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password");
+        }
+
+        return toResponse(user);
+    }
+
+    private AuthResponseDto toResponse(AppUser user) {
+        return new AuthResponseDto(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole()
+        );
+    }
+
+    private String normalize(String value) {
+        return value == null ? "" : value.trim();
+    }
+
+    private String normalizeEmail(String value) {
+        return value == null ? "" : value.trim().toLowerCase();
     }
 }

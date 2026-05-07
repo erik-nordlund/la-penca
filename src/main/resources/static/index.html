@@ -256,10 +256,12 @@
 
         <div id="loginForm" class="form active">
             <h2>Welcome back</h2>
-            <div class="hint">Enter your username to continue your predictions.</div>
+            <div class="hint">Enter your username and password to continue.</div>
 
             <label>Username</label>
             <input id="loginUsername" placeholder="Example: erik" onkeydown="handleEnter(event, login)">
+            <label>Password</label>
+            <input id="loginPassword" type="password" placeholder="Password" onkeydown="handleEnter(event, login)">
 
             <button class="primary-btn" onclick="login()">Continue</button>
             <div id="loginMessage" class="message"></div>
@@ -271,13 +273,18 @@
 
             <label>Username</label>
             <input id="createUsername" placeholder="Choose username" onkeydown="handleEnter(event, createUser)">
+            <label>Email</label>
+            <input id="createEmail" type="email" placeholder="you@example.com">
+
+            <label>Password</label>
+            <input id="createPassword" type="password" placeholder="At least 6 characters" onkeydown="handleEnter(event, createUser)">
 
             <button class="primary-btn" onclick="createUser()">Create account</button>
             <div id="createMessage" class="message"></div>
         </div>
 
         <div class="footer-note">
-            No password yet — simple local username login for the first version.
+            Use your username and password to log in.
         </div>
     </section>
 </div>
@@ -305,48 +312,89 @@
 
     function createUser() {
         const username = document.getElementById("createUsername").value.trim();
-        const message = document.getElementById("createMessage");
-
-        message.className = "message";
-        message.innerText = "";
+        const email = document.getElementById("createEmail").value.trim();
+        const password = document.getElementById("createPassword").value;
 
         if (!username) {
-            message.className = "error";
-            message.innerText = "Skriv ett username.";
+            setMessage("createMessage", "Write a username.", true);
             return;
         }
 
-        fetch(`/user/create?username=${encodeURIComponent(username)}`)
+        if (!password || password.length < 6) {
+            setMessage("createMessage", "Password must be at least 6 characters.", true);
+            return;
+        }
+
+        setMessage("createMessage", "Creating account...");
+
+        fetch("/auth/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                username,
+                email,
+                password
+            })
+        })
             .then(res => {
                 if (!res.ok) {
-                    throw new Error("Username finns redan.");
+                    throw new Error("Could not create account. Username or email may already exist.");
                 }
                 return res.json();
             })
             .then(user => {
                 localStorage.setItem("username", user.username);
+                localStorage.setItem("role", user.role);
                 localStorage.removeItem("partyCode");
+
                 window.location.href = "/party.html";
             })
             .catch(err => {
-                message.className = "error";
-                message.innerText = err.message;
+                setMessage("createMessage", err.message, true);
             });
     }
 
     function login() {
         const username = document.getElementById("loginUsername").value.trim();
+        const password = document.getElementById("loginPassword").value;
 
         if (!username) {
             setMessage("loginMessage", "Write a username first.", true);
             return;
         }
 
-        setMessage("loginMessage", "Logging in...");
-        localStorage.setItem("username", username);
+        if (!password) {
+            setMessage("loginMessage", "Write your password.", true);
+            return;
+        }
 
-        fetch(`/user/party?username=${encodeURIComponent(username)}`)
-            .then(res => res.json())
+        setMessage("loginMessage", "Logging in...");
+
+        fetch("/auth/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                username,
+                password
+            })
+        })
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error("Invalid username or password.");
+                }
+                return res.json();
+            })
+            .then(user => {
+                localStorage.setItem("username", user.username);
+                localStorage.setItem("role", user.role);
+
+                return fetch(`/user/party?username=${encodeURIComponent(user.username)}`);
+            })
+            .then(res => res.ok ? res.json() : null)
             .then(party => {
                 if (party && party.code) {
                     localStorage.setItem("partyCode", party.code);
@@ -356,8 +404,8 @@
                     window.location.href = "/party.html";
                 }
             })
-            .catch(() => {
-                setMessage("loginMessage", "Could not log in.", true);
+            .catch(err => {
+                setMessage("loginMessage", err.message, true);
             });
     }
 </script>

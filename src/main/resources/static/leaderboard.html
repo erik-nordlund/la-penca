@@ -366,7 +366,7 @@
         <a href="/knockout-board.html">Knockout</a>
         <a href="/world-cup.html">World Cup 2026</a>
         <a href="/leaderboard.html" class="active">Leaderboard</a>
-        <a href="/admin-results.html">Admin</a>
+        <a id="adminLink" href="/admin-results.html">Admin</a>
     </div>
 </nav>
 
@@ -650,6 +650,10 @@
         if (page === "knockout") {
             window.location.href = `/knockout-board.html?viewUser=${encodedUser}`;
         }
+    }
+    const adminLink = document.getElementById("adminLink");
+    if (adminLink && localStorage.getItem("role") !== "ADMIN") {
+        adminLink.style.display = "none";
     }
 </script>
 

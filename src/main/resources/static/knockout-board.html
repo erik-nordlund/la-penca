@@ -227,7 +227,10 @@
       font-size: 12px;
       margin-bottom: 10px;
     }
-
+    .links a:hover,
+    .links a.active {
+      color: #7CFC98;
+    }
 
     .score-box {
       background: #222;
@@ -275,11 +278,13 @@
   <div class="logo">🏆 La Penca</div>
   <div class="links">
     <a href="/dashboard.html">Dashboard</a>
+    <a href="/party.html">Party</a>
     <a href="/group.html">Groups</a>
     <a href="/third-place.html">Third place</a>
-    <a href="/knockout-board.html">Knockout</a>
+    <a href="/knockout-board.html" class="active">Knockout</a>
     <a href="/world-cup.html">World Cup 2026</a>
-    <a href="/leaderboard.html">Leaderboard</a>
+    <a href="/leaderboard.html" class="active">Leaderboard</a>
+    <a id="adminLink" href="/admin-results.html">Admin</a>
   </div>
 </nav>
 
@@ -978,6 +983,10 @@
   }
 
   window.addEventListener("resize", drawLines);
+  const adminLink = document.getElementById("adminLink");
+  if (adminLink && localStorage.getItem("role") !== "ADMIN") {
+    adminLink.style.display = "none";
+  }
 </script>
 
 </body>
