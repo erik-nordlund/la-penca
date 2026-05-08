@@ -444,9 +444,11 @@
     </section>
 </main>
 
+<script src="/js/auth.js"></script>
 <script>
     const loggedInUser = localStorage.getItem("username");
     const code = localStorage.getItem("partyCode");
+    const token = localStorage.getItem("token");
 
     const params = new URLSearchParams(window.location.search);
     const viewUser = params.get("viewUser");
@@ -454,7 +456,7 @@
     const username = viewUser || loggedInUser;
     const viewingOtherUser = !!viewUser && viewUser !== loggedInUser;
 
-    if (!loggedInUser) {
+    if (!loggedInUser || !token) {
         window.location.href = "/index.html";
     }
 
@@ -543,9 +545,9 @@
     }
 
     Promise.all([
-        fetch(`/party/lock-status?code=${encodeURIComponent(code)}`).then(res => res.json()),
+        authFetch(`/party/lock-status?code=${encodeURIComponent(code)}`).then(res => res.json()),
 
-        fetch(`/third-place-selection?viewerUsername=${encodeURIComponent(loggedInUser)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`)
+        authFetch(`/third-place-selection?viewerUsername=${encodeURIComponent(loggedInUser)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`)
             .then(res => {
                 if (!res.ok) {
                     throw new Error("You can only view other players' predictions after the deadline.");
@@ -553,7 +555,7 @@
                 return res.json();
             }),
 
-        fetch(`/third-place-teams/saved?viewerUsername=${encodeURIComponent(loggedInUser)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`)
+        authFetch(`/third-place-teams/saved?viewerUsername=${encodeURIComponent(loggedInUser)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`)
             .then(res => {
                 if (!res.ok) {
                     throw new Error("You can only view other players' predictions after the deadline.");
@@ -754,7 +756,7 @@
 
         setMessage("Saving selection...");
 
-        fetch(`/third-place-selection/save?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}&teams=${teamsParam}`)
+        authFetch(`/third-place-selection/save?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}&teams=${teamsParam}`)
             .then(res => {
                 if (!res.ok) {
                     throw new Error("Save failed");

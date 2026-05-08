@@ -509,6 +509,7 @@
     </section>
 </main>
 
+<script src="/js/auth.js"></script>
 <script>
     const adminUsername = localStorage.getItem("username");
     const role = localStorage.getItem("role");
@@ -602,7 +603,7 @@
         list.innerHTML = `<div class="empty-state">Loading Group ${group} matches...</div>`;
         setMessage("matchMessage", "");
 
-        fetch(`/matches/group?group=${encodeURIComponent(group)}`)
+        authFetch(`/matches/group?group=${encodeURIComponent(group)}`)
             .then(res => {
                 if (!res.ok) throw new Error("Could not load matches");
                 return res.json();
@@ -672,7 +673,7 @@
 
         setMessage("matchMessage", "Saving result...");
 
-        fetch(`/actual/match-result?adminUsername=${encodeURIComponent(adminUsername)}&matchId=${encodeURIComponent(matchId)}&homeScore=${encodeURIComponent(homeScore)}&awayScore=${encodeURIComponent(awayScore)}`)
+        authFetch(`/actual/match-result?adminUsername=${encodeURIComponent(adminUsername)}&matchId=${encodeURIComponent(matchId)}&homeScore=${encodeURIComponent(homeScore)}&awayScore=${encodeURIComponent(awayScore)}`)
             .then(res => {
                 if (!res.ok) throw new Error("Save failed");
                 return res.json();
@@ -689,7 +690,7 @@
 
         setMessage("matchMessage", "Resetting match result...");
 
-        fetch(`/actual/match-result/reset?adminUsername=${encodeURIComponent(adminUsername)}&matchId=${encodeURIComponent(matchId)}`)
+        authFetch(`/actual/match-result/reset?adminUsername=${encodeURIComponent(adminUsername)}&matchId=${encodeURIComponent(matchId)}`)
             .then(res => {
                 if (!res.ok) throw new Error("Reset failed");
                 return res.json();
@@ -710,11 +711,11 @@
         setMessage("thirdMessage", "");
 
         Promise.all([
-            fetch("/actual/third-place-teams").then(res => {
+            authFetch("/actual/third-place-teams").then(res => {
                 if (!res.ok) throw new Error("Could not load third-place teams");
                 return res.json();
             }),
-            fetch("/actual/qualified?stage=ROUND_OF_32").then(res => {
+            authFetch("/actual/qualified?stage=ROUND_OF_32").then(res => {
                 if (!res.ok) return [];
                 return res.json();
             })
@@ -809,7 +810,7 @@
 
         setMessage("thirdMessage", "Saving actual Round of 32 teams...");
 
-        fetch(`/actual/round-of-32/save?adminUsername=${encodeURIComponent(adminUsername)}&teams=${teamsParam}`)
+        authFetch(`/actual/round-of-32/save?adminUsername=${encodeURIComponent(adminUsername)}&teams=${teamsParam}`)
             .then(res => {
                 if (!res.ok) throw new Error("Save failed");
                 return res.json();
@@ -848,11 +849,11 @@
         setMessage("knockoutMessage", "");
 
         Promise.all([
-            fetch(`/actual/knockout/round?round=${encodeURIComponent(currentKnockoutRound)}`).then(res => {
+            authFetch(`/actual/knockout/round?round=${encodeURIComponent(currentKnockoutRound)}`).then(res => {
                 if (!res.ok) throw new Error("Could not build round");
                 return res.json();
             }),
-            fetch(`/actual/knockout/results?round=${encodeURIComponent(currentKnockoutRound)}`).then(res => {
+            authFetch(`/actual/knockout/results?round=${encodeURIComponent(currentKnockoutRound)}`).then(res => {
                 if (!res.ok) return [];
                 return res.json();
             })
@@ -935,7 +936,7 @@
 
         setMessage("knockoutMessage", "Saving knockout result...");
 
-        fetch(`/actual/knockout/save?adminUsername=${encodeURIComponent(adminUsername)}&round=${encodeURIComponent(currentKnockoutRound)}&matchNumber=${encodeURIComponent(matchNumber)}&slot=${encodeURIComponent(slot)}&homeTeam=${encodeURIComponent(homeTeam)}&awayTeam=${encodeURIComponent(awayTeam)}&homeScore=${encodeURIComponent(homeScore)}&awayScore=${encodeURIComponent(awayScore)}`)            .then(res => {
+        authFetch(`/actual/knockout/save?adminUsername=${encodeURIComponent(adminUsername)}&round=${encodeURIComponent(currentKnockoutRound)}&matchNumber=${encodeURIComponent(matchNumber)}&slot=${encodeURIComponent(slot)}&homeTeam=${encodeURIComponent(homeTeam)}&awayTeam=${encodeURIComponent(awayTeam)}&homeScore=${encodeURIComponent(homeScore)}&awayScore=${encodeURIComponent(awayScore)}`)            .then(res => {
                 if (!res.ok) throw new Error("Save failed");
                 return res.json();
             })
@@ -953,7 +954,7 @@
 
         setMessage("knockoutMessage", "Resetting knockout result...");
 
-        fetch(`/actual/knockout/reset?adminUsername=${encodeURIComponent(adminUsername)}&round=${encodeURIComponent(currentKnockoutRound)}&matchNumber=${encodeURIComponent(matchNumber)}`)            .then(res => {
+        authFetch(`/actual/knockout/reset?adminUsername=${encodeURIComponent(adminUsername)}&round=${encodeURIComponent(currentKnockoutRound)}&matchNumber=${encodeURIComponent(matchNumber)}`)            .then(res => {
                 if (!res.ok) throw new Error("Reset failed");
                 return res.json();
             })
@@ -971,7 +972,7 @@
 
         setMessage("resetMessage", "Resetting data...");
 
-        fetch(`/actual/reset?adminUsername=${encodeURIComponent(adminUsername)}`)
+        authFetch(`/actual/reset?adminUsername=${encodeURIComponent(adminUsername)}`)
             .then(res => res.text())
             .then(message => {
                 setMessage("resetMessage", message);

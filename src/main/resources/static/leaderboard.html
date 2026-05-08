@@ -451,11 +451,13 @@
     </section>
 </main>
 
+<script src="/js/auth.js"></script>
 <script>
     const username = localStorage.getItem("username");
     const code = localStorage.getItem("partyCode");
+    const token = localStorage.getItem("token");
 
-    if (!username) {
+    if (!username || !token) {
         window.location.href = "/index.html";
     }
 
@@ -468,7 +470,7 @@
         document.getElementById("playerCount").innerText = "No party";
         document.getElementById("myPosition").innerText = "No active party selected.";
     } else {
-        fetch(`/leaderboard?code=${encodeURIComponent(code)}`)
+        authFetch(`/leaderboard?code=${encodeURIComponent(code)}`)
             .then(res => res.json())
             .then(rows => {
                 renderLeaderboard(rows);
@@ -526,7 +528,7 @@
     }
 
     function loadBreakdown(user) {
-        fetch(`/score-breakdown?username=${encodeURIComponent(user)}&code=${encodeURIComponent(code)}`)
+        authFetch(`/score-breakdown?username=${encodeURIComponent(user)}&code=${encodeURIComponent(code)}`)
             .then(res => res.json())
             .then(data => {
                 showBreakdown(user, data);
@@ -615,10 +617,6 @@
 
     function goToDashboard() {
         window.location.href = "/dashboard.html";
-    }
-    function viewPredictions(user) {
-        window.location.href =
-            `/knockout-board.html?viewUser=${encodeURIComponent(user)}`;
     }
     let selectedViewUser = null;
 

@@ -328,6 +328,7 @@
   </div>
 </div>
 
+<script src="/js/auth.js"></script>
 <script>
   const loggedInUser = localStorage.getItem("username");
   const code = localStorage.getItem("partyCode");
@@ -337,7 +338,9 @@
 
   const username = viewUser || loggedInUser;
   const viewingOtherUser = !!viewUser && viewUser !== loggedInUser;
-  if (!loggedInUser) {
+  const token = localStorage.getItem("token");
+
+  if (!loggedInUser || !token) {
     window.location.href = "/index.html";
   }
 
@@ -425,9 +428,9 @@
 
   function init() {
     Promise.all([
-      fetch(`/party/lock-status?code=${encodeURIComponent(code)}`).then(res => res.json()),
+      authFetch(`/party/lock-status?code=${encodeURIComponent(code)}`).then(res => res.json()),
 
-      fetch(`/round-of-32?viewerUsername=${encodeURIComponent(loggedInUser)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`)
+      authFetch(`/round-of-32?viewerUsername=${encodeURIComponent(loggedInUser)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`)
               .then(res => {
                 if (!res.ok) {
                   throw new Error("Could not load Round of 32.");
@@ -435,7 +438,7 @@
                 return res.json();
               }),
 
-      fetch(`/knockout/predictions?viewerUsername=${encodeURIComponent(loggedInUser)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`)
+      authFetch(`/knockout/predictions?viewerUsername=${encodeURIComponent(loggedInUser)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`)
               .then(res => {
                 if (!res.ok) {
                   throw new Error("You can only view other players' predictions after the deadline.");
@@ -671,7 +674,7 @@
       return;
     }
 
-    fetch(`/knockout/save?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}&round=${roundName}&matchNumber=${matchNumber}&slot=${encodeURIComponent(slot)}&winner=${encodeURIComponent(winner)}`)
+    authFetch(`/knockout/save?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}&round=${roundName}&matchNumber=${matchNumber}&slot=${encodeURIComponent(slot)}&winner=${encodeURIComponent(winner)}`)
             .then(res => {
               if (!res.ok) {
                 throw new Error("Predictions are locked or could not be saved.");
@@ -756,7 +759,7 @@
 
     return Promise.all(
             stages.map(stage =>
-                    fetch(`/actual/qualified?stage=${encodeURIComponent(stage)}`)
+                    authFetch(`/actual/qualified?stage=${encodeURIComponent(stage)}`)
                             .then(res => res.ok ? res.json() : [])
                             .then(data => {
                               actualQualified[stage] = data.map(item => item.team.name);

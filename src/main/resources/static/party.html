@@ -542,6 +542,7 @@
     </div>
 </div>
 
+<script src="/js/auth.js"></script>
 <script>
     const username = localStorage.getItem("username");
     let activePartyCode = localStorage.getItem("partyCode");
@@ -549,8 +550,9 @@
     let parties = [];
     let selectedParty = null;
     let currentMembers = [];
+    const token = localStorage.getItem("token");
 
-    if (!username) {
+    if (!username || !token) {
         window.location.href = "/index.html";
     }
 
@@ -559,7 +561,7 @@
     loadMyParties();
 
     function loadMyParties() {
-        fetch(`/party/my-parties?username=${encodeURIComponent(username)}`)
+        authFetch(`/party/my-parties?username=${encodeURIComponent(username)}`)
             .then(res => res.json())
             .then(data => {
                 parties = data || [];
@@ -668,7 +670,7 @@
     }
 
     function loadMembers(code) {
-        fetch(`/party/members?code=${encodeURIComponent(code)}`)
+        authFetch(`/party/members?code=${encodeURIComponent(code)}`)
             .then(res => res.json())
             .then(members => {
                 renderMembers(members || []);
@@ -797,7 +799,7 @@
 
         setMessage("createMessage", "Creating party...");
 
-        fetch(`/party/create?username=${encodeURIComponent(username)}&name=${encodeURIComponent(name)}&deadline=${encodeURIComponent(deadline)}`)
+        authFetch(`/party/create?username=${encodeURIComponent(username)}&name=${encodeURIComponent(name)}&deadline=${encodeURIComponent(deadline)}`)
             .then(res => {
                 if (!res.ok) throw new Error("Create failed");
                 return res.json();
@@ -824,7 +826,7 @@
 
         setMessage("joinMessage", "Joining party...");
 
-        fetch(`/party/join?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`)
+        authFetch(`/party/join?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`)
             .then(res => {
                 if (!res.ok) {
                     throw new Error("Could not join party. You may already be in this party.");
@@ -857,7 +859,7 @@
     function leaveParty() {
         if (!selectedParty) return;
 
-        fetch(`/party/leave?username=${encodeURIComponent(username)}&code=${encodeURIComponent(selectedParty.code)}`, {
+        authFetch(`/party/leave?username=${encodeURIComponent(username)}&code=${encodeURIComponent(selectedParty.code)}`, {
             method: "POST"
         })
             .then(res => {

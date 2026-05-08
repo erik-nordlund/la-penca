@@ -4,6 +4,7 @@ import com.penca.lapenca.dto.AuthRequestDto;
 import com.penca.lapenca.dto.AuthResponseDto;
 import com.penca.lapenca.entity.AppUser;
 import com.penca.lapenca.repository.AppUserRepository;
+import com.penca.lapenca.security.JwtService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -15,11 +16,14 @@ public class AppUserController {
 
     private final AppUserRepository appUserRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     public AppUserController(AppUserRepository appUserRepository,
-                             PasswordEncoder passwordEncoder) {
+                             PasswordEncoder passwordEncoder,
+                             JwtService jwtService) {
         this.appUserRepository = appUserRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     @PostMapping("/register")
@@ -73,11 +77,18 @@ public class AppUserController {
     }
 
     private AuthResponseDto toResponse(AppUser user) {
+
+        String token = jwtService.generateToken(
+                user.getUsername(),
+                user.getRole()
+        );
+
         return new AuthResponseDto(
                 user.getId(),
                 user.getUsername(),
                 user.getEmail(),
-                user.getRole()
+                user.getRole(),
+                token
         );
     }
 

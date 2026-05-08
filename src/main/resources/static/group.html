@@ -412,6 +412,7 @@
     <section id="matches" class="groups-grid"></section>
 </main>
 
+<script src="/js/auth.js"></script>
 <script>
     const loggedInUser = localStorage.getItem("username");
     const code = localStorage.getItem("partyCode");
@@ -422,7 +423,9 @@
     const username = viewUser || loggedInUser;
     const viewingOtherUser = !!viewUser && viewUser !== loggedInUser;
 
-    if (!loggedInUser) {
+    const token = localStorage.getItem("token");
+
+    if (!loggedInUser || !token) {
         window.location.href = "/index.html";
     }
 
@@ -525,9 +528,9 @@
         localStorage.setItem(tieBreakStorageKey, JSON.stringify([...savedTieBreakGroups]));
     }
     Promise.all([
-        fetch(`/party/lock-status?code=${encodeURIComponent(code)}`).then(res => res.json()),
+        authFetch(`/party/lock-status?code=${encodeURIComponent(code)}`).then(res => res.json()),
 
-        fetch(`/predictions?viewerUsername=${encodeURIComponent(loggedInUser)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`)
+        authFetch(`/predictions?viewerUsername=${encodeURIComponent(loggedInUser)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`)
             .then(res => {
                 if (!res.ok) {
                     throw new Error("You can only view other players' predictions after the deadline.");
@@ -535,7 +538,7 @@
                 return res.json();
             }),
 
-        fetch("/matches").then(res => res.json())
+        authFetch("/matches").then(res => res.json())
     ])
         .then(([locked, predictions, matches]) => {
             predictionsLocked = locked || viewingOtherUser;
@@ -674,7 +677,7 @@
             return;
         }
 
-        fetch(`/prediction/save?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}&matchId=${matchId}&outcome=${outcome}`)
+        authFetch(`/prediction/save?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}&matchId=${matchId}&outcome=${outcome}`)
             .then(res => {
                 if (!res.ok) {
                     throw new Error("Predictions are locked or could not be saved.");
@@ -773,7 +776,7 @@
             box.style.display = "none";
         });
 
-        fetch(`/group-table?viewerUsername=${encodeURIComponent(loggedInUser)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}&group=${encodeURIComponent(group)}`)
+        authFetch(`/group-table?viewerUsername=${encodeURIComponent(loggedInUser)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}&group=${encodeURIComponent(group)}`)
             .then(res => {
                 if (!res.ok) throw new Error("Could not load group table");
                 return res.json();
@@ -922,7 +925,7 @@
         const message = document.getElementById(`tieBreakMessage-${group}`);
         message.innerText = "Saving tie-break order...";
 
-        fetch(`/group-tiebreak/save?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}&group=${encodeURIComponent(group)}&teams=${teamsParam}`)
+        authFetch(`/group-tiebreak/save?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}&group=${encodeURIComponent(group)}&teams=${teamsParam}`)
             .then(res => {
                 if (!res.ok) throw new Error("Save failed");
                 return res.json();
@@ -950,7 +953,7 @@
             });
     }
     function refreshTieButton(group) {
-        fetch(`/group-table?viewerUsername=${encodeURIComponent(loggedInUser)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}&group=${encodeURIComponent(group)}`)
+        authFetch(`/group-table?viewerUsername=${encodeURIComponent(loggedInUser)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}&group=${encodeURIComponent(group)}`)
             .then(res => res.json())
             .then(table => {
                 const button = document.getElementById(`tie-button-${group}`);

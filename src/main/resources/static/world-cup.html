@@ -575,6 +575,7 @@
     <section id="knockoutView" class="hidden"></section>
 </main>
 
+<script src="/js/auth.js"></script>
 <script>
     const groups = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"];
     const knockoutRounds = [
@@ -585,6 +586,11 @@
         { key: "FINAL", title: "Final" },
         { key: "THIRD_PLACE", title: "Third place" }
     ];
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        window.location.href = "/index.html";
+    }
 
     let allMatches = [];
     let groupTables = {};
@@ -597,28 +603,28 @@
 
     function init() {
         Promise.all([
-            fetch("/matches").then(res => res.json()),
+            authFetch("/matches").then(res => res.json()),
 
             ...groups.map(group =>
-                fetch(`/actual/group-table?group=${encodeURIComponent(group)}`)
+                authFetch(`/actual/group-table?group=${encodeURIComponent(group)}`)
                     .then(res => res.ok ? res.json() : [])
                     .then(table => {
                         groupTables[group] = table;
                     })
             ),
 
-            fetch("/actual/third-place-teams")
+            authFetch("/actual/third-place-teams")
                 .then(res => res.ok ? res.json() : [])
                 .then(data => thirdPlaceTeams = data),
 
-            fetch("/actual/qualified?stage=ROUND_OF_32")
+            authFetch("/actual/qualified?stage=ROUND_OF_32")
                 .then(res => res.ok ? res.json() : [])
                 .then(data => {
                     selectedRoundOf32Teams = data.map(item => item.team.name);
                 }),
 
             ...knockoutRounds.map(round =>
-                fetch(`/actual/knockout/round?round=${encodeURIComponent(round.key)}`)
+                authFetch(`/actual/knockout/round?round=${encodeURIComponent(round.key)}`)
                     .then(res => res.ok ? res.json() : [])
                     .then(data => {
                         knockoutData[round.key] = data;
@@ -629,7 +635,7 @@
             ),
 
             ...knockoutRounds.map(round =>
-                fetch(`/actual/knockout/results?round=${encodeURIComponent(round.key)}`)
+                authFetch(`/actual/knockout/results?round=${encodeURIComponent(round.key)}`)
                     .then(res => res.ok ? res.json() : [])
                     .then(data => {
                         knockoutResults[round.key] = data;
@@ -996,23 +1002,6 @@
             <strong>${score ?? ""}</strong>
         </div>
     `;
-    }
-    function teamShort(teamName) {
-        const map = {
-            "South Korea": "KOR",
-            "Czech Republic": "CZE",
-            "South Africa": "RSA",
-            "New Zealand": "NZL",
-            "United States": "USA",
-            "Ivory Coast": "CIV",
-            "Saudi Arabia": "KSA",
-            "DR Congo": "COD",
-            "Cape Verde": "CPV",
-            "Netherlands": "NED",
-            "Switzerland": "SUI"
-        };
-
-        return map[teamName] || teamName;
     }
 
     function findKnockoutResult(roundName, matchNumber) {

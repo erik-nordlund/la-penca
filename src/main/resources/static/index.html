@@ -289,6 +289,7 @@
     </section>
 </div>
 
+<script src="/js/auth.js"></script>
 <script>
     function showTab(tab) {
         document.getElementById("loginTab").classList.toggle("active", tab === "login");
@@ -347,6 +348,7 @@
             .then(user => {
                 localStorage.setItem("username", user.username);
                 localStorage.setItem("role", user.role);
+                localStorage.setItem("token", user.token);
                 localStorage.removeItem("partyCode");
 
                 window.location.href = "/party.html";
@@ -391,8 +393,9 @@
             .then(user => {
                 localStorage.setItem("username", user.username);
                 localStorage.setItem("role", user.role);
+                localStorage.setItem("token", user.token);
 
-                return fetch(`/user/party?username=${encodeURIComponent(user.username)}`);
+                return authFetch(`/user/party?username=${encodeURIComponent(user.username)}`);
             })
             .then(res => res.ok ? res.json() : null)
             .then(party => {

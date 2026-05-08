@@ -475,8 +475,9 @@
 <script>
     const username = localStorage.getItem("username");
     const partyCode = localStorage.getItem("partyCode");
+    const token = localStorage.getItem("token");
 
-    if (!username) {
+    if (!username || !token) {
         window.location.href = "/index.html";
     }
 
@@ -510,6 +511,8 @@
     function logout() {
         localStorage.removeItem("username");
         localStorage.removeItem("partyCode");
+        localStorage.removeItem("role");
+        localStorage.removeItem("token");
         window.location.href = "/index.html";
     }
     const adminLink = document.getElementById("adminLink");
