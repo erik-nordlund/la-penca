@@ -544,8 +544,22 @@
 
     Promise.all([
         fetch(`/party/lock-status?code=${encodeURIComponent(code)}`).then(res => res.json()),
-        fetch(`/third-place-selection?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`).then(res => res.json()),
-        fetch(`/third-place-teams/saved?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`).then(res => res.json())
+
+        fetch(`/third-place-selection?viewerUsername=${encodeURIComponent(loggedInUser)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`)
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error("You can only view other players' predictions after the deadline.");
+                }
+                return res.json();
+            }),
+
+        fetch(`/third-place-teams/saved?viewerUsername=${encodeURIComponent(loggedInUser)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`)
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error("You can only view other players' predictions after the deadline.");
+                }
+                return res.json();
+            })
     ])
         .then(([locked, data, saved]) => {
             predictionsLocked = locked || viewingOtherUser;
@@ -559,9 +573,28 @@
             updateProgress();
             updateFinalList();
 
-            if (savedTeams.length > 0) {
+            if (savedTeams.length > 0 && !viewingOtherUser) {
                 document.getElementById("message").innerText = "Your saved selection has been loaded.";
             }
+        })
+        .catch(err => {
+            predictionsLocked = true;
+            renderLockStatus();
+
+            document.getElementById("lockBadge").innerText = "🔒 View locked";
+            document.getElementById("lockBadge").classList.add("locked");
+            document.getElementById("lockText").innerText =
+                err.message || "You can only view other players' predictions after the deadline.";
+
+            document.getElementById("automatic").innerHTML = "";
+            document.getElementById("finalList").innerHTML = "";
+            document.getElementById("teams").innerHTML = `
+        <div class="empty-state">
+            You can only view other players' predictions after the deadline.
+        </div>
+    `;
+
+            document.getElementById("saveButton").disabled = true;
         });
 
     function renderAutomatic(teams) {

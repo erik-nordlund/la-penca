@@ -283,7 +283,7 @@
     <a href="/third-place.html">Third place</a>
     <a href="/knockout-board.html" class="active">Knockout</a>
     <a href="/world-cup.html">World Cup 2026</a>
-    <a href="/leaderboard.html" class="active">Leaderboard</a>
+    <a href="/leaderboard.html">Leaderboard</a>
     <a id="adminLink" href="/admin-results.html">Admin</a>
   </div>
 </nav>
@@ -426,8 +426,23 @@
   function init() {
     Promise.all([
       fetch(`/party/lock-status?code=${encodeURIComponent(code)}`).then(res => res.json()),
-      fetch(`/round-of-32?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`).then(res => res.json()),
-      fetch(`/knockout/predictions?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`).then(res => res.json()),
+
+      fetch(`/round-of-32?viewerUsername=${encodeURIComponent(loggedInUser)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`)
+              .then(res => {
+                if (!res.ok) {
+                  throw new Error("Could not load Round of 32.");
+                }
+                return res.json();
+              }),
+
+      fetch(`/knockout/predictions?viewerUsername=${encodeURIComponent(loggedInUser)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`)
+              .then(res => {
+                if (!res.ok) {
+                  throw new Error("You can only view other players' predictions after the deadline.");
+                }
+                return res.json();
+              }),
+
       loadActualQualified()
     ])
             .then(([locked, roundOf32, predictions]) => {
@@ -445,6 +460,23 @@
               });
 
               renderBracket();
+            })
+            .catch(err => {
+              predictionsLocked = true;
+              renderLockStatus();
+
+              document.getElementById("lockBadge").innerText = "🔒 View locked";
+              document.getElementById("lockBadge").classList.add("locked");
+              document.getElementById("lockMessage").innerText =
+                      err.message || "You can only view other players' predictions after the deadline.";
+
+              document.getElementById("leftSide").innerHTML = "";
+              document.getElementById("rightSide").innerHTML = "";
+              document.getElementById("finalBox").innerHTML = "";
+              document.getElementById("thirdPlaceBox").innerHTML = "";
+              document.getElementById("champion").innerText = "";
+              document.getElementById("knockoutScoreSummary").innerHTML = "";
+              document.getElementById("lines").innerHTML = "";
             });
   }
 

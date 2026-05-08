@@ -32,9 +32,11 @@ public class PredictionController {
         return predictionService.savePrediction(username, code, matchId, outcome);
     }
     @GetMapping("/group-table")
-    public List<GroupTableRow> getGroupTable(@RequestParam String username,
+    public List<GroupTableRow> getGroupTable(@RequestParam String viewerUsername,
+                                             @RequestParam String username,
                                              @RequestParam String code,
                                              @RequestParam String group) {
+        predictionService.validateCanViewPredictions(viewerUsername, username, code);
         return predictionService.calculateGroupTable(username, code, group);
     }
     @GetMapping("/qualified-teams")
@@ -67,8 +69,10 @@ public class PredictionController {
         return predictionService.autoPredictGroup(username, code, group);
     }
     @GetMapping("/third-place-selection")
-    public ThirdPlaceSelectionDto getThirdPlaceSelection(@RequestParam String username,
+    public ThirdPlaceSelectionDto getThirdPlaceSelection(@RequestParam String viewerUsername,
+                                                         @RequestParam String username,
                                                          @RequestParam String code) {
+        predictionService.validateCanViewPredictions(viewerUsername, username, code);
         return predictionService.getThirdPlaceSelection(username, code);
     }
     @GetMapping("/third-place-selection/save")
@@ -92,8 +96,10 @@ public class PredictionController {
         return predictionService.findMatchingThirdPlaceRule(username, code);
     }
     @GetMapping("/round-of-32")
-    public List<KnockoutMatchDto> getRoundOf32(@RequestParam String username,
+    public List<KnockoutMatchDto> getRoundOf32(@RequestParam String viewerUsername,
+                                               @RequestParam String username,
                                                @RequestParam String code) {
+        predictionService.validateCanViewPredictions(viewerUsername, username, code);
         return predictionService.buildRoundOf32(username, code);
     }
     @GetMapping("/knockout/save")
@@ -144,20 +150,22 @@ public class PredictionController {
         return predictionService.getFullBracket(username, code);
     }
     @GetMapping("/predictions")
-    public List<Prediction> getPredictions(@RequestParam String username,
+    public List<Prediction> getPredictions(@RequestParam String viewerUsername,
+                                           @RequestParam String username,
                                            @RequestParam String code) {
-        return predictionService.getPredictions(username, code);
+        return predictionService.getPredictions(viewerUsername, username, code);
     }
     @GetMapping("/knockout/predictions")
-    public List<KnockoutPrediction> getKnockoutPredictions(@RequestParam String username,
+    public List<KnockoutPrediction> getKnockoutPredictions(@RequestParam String viewerUsername,
+                                                           @RequestParam String username,
                                                            @RequestParam String code) {
-        return predictionService.getKnockoutPredictions(username, code);
+        return predictionService.getKnockoutPredictions(viewerUsername, username, code);
     }
     @GetMapping("/third-place-teams/saved")
-    public List<ThirdPlaceTeamDto> getSavedThirdPlaceTeams(
-            @RequestParam String username,
-            @RequestParam String code
-    ) {
+    public List<ThirdPlaceTeamDto> getSavedThirdPlaceTeams(@RequestParam String viewerUsername,
+                                                           @RequestParam String username,
+                                                           @RequestParam String code) {
+        predictionService.validateCanViewPredictions(viewerUsername, username, code);
         return predictionService.getSavedThirdPlaceTeams(username, code);
     }
     @GetMapping("/score")

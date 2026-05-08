@@ -281,6 +281,15 @@
             color: #ff8b8b;
             font-size: 14px;
         }
+        .empty-state {
+            grid-column: 1 / -1;
+            background: rgba(239,68,68,0.12);
+            border: 1px solid rgba(239,68,68,0.35);
+            color: #ff8b8b;
+            border-radius: 18px;
+            padding: 18px;
+            font-weight: bold;
+        }
         .group-table-box {
             margin-top: 14px;
             padding: 12px;
@@ -517,7 +526,15 @@
     }
     Promise.all([
         fetch(`/party/lock-status?code=${encodeURIComponent(code)}`).then(res => res.json()),
-        fetch(`/predictions?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`).then(res => res.json()),
+
+        fetch(`/predictions?viewerUsername=${encodeURIComponent(loggedInUser)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`)
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error("You can only view other players' predictions after the deadline.");
+                }
+                return res.json();
+            }),
+
         fetch("/matches").then(res => res.json())
     ])
         .then(([locked, predictions, matches]) => {
@@ -532,6 +549,17 @@
             allGroupMatches = matches.filter(m => m.stage === "GROUP");
             renderMatches(allGroupMatches);
             updateProgress();
+        })
+        .catch(err => {
+            predictionsLocked = true;
+            renderLockStatus();
+            showMessage(err.message || "Could not load predictions.", true);
+
+            document.getElementById("matches").innerHTML = `
+            <div class="empty-state">
+                You can only view other players' predictions after the deadline.
+            </div>
+        `;
         });
 
     function renderLockStatus() {
@@ -745,7 +773,7 @@
             box.style.display = "none";
         });
 
-        fetch(`/group-table?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}&group=${encodeURIComponent(group)}`)
+        fetch(`/group-table?viewerUsername=${encodeURIComponent(loggedInUser)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}&group=${encodeURIComponent(group)}`)
             .then(res => {
                 if (!res.ok) throw new Error("Could not load group table");
                 return res.json();
@@ -922,7 +950,7 @@
             });
     }
     function refreshTieButton(group) {
-        fetch(`/group-table?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}&group=${encodeURIComponent(group)}`)
+        fetch(`/group-table?viewerUsername=${encodeURIComponent(loggedInUser)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}&group=${encodeURIComponent(group)}`)
             .then(res => res.json())
             .then(table => {
                 const button = document.getElementById(`tie-button-${group}`);

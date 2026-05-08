@@ -889,23 +889,28 @@ public class PredictionService {
                 champion
         );
     }
-    public List<Prediction> getPredictions(String username, String code) {
-        AppUser user = appUserRepository.findByUsername(username)
+    public List<Prediction> getPredictions(String viewerUsername, String targetUsername, String code) {
+        validateCanViewPredictions(viewerUsername, targetUsername, code);
+
+        AppUser targetUser = appUserRepository.findByUsername(targetUsername)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Party party = partyRepository.findByCode(code)
                 .orElseThrow(() -> new RuntimeException("Party not found"));
 
-        return predictionRepository.findByUserAndParty(user, party);
+        return predictionRepository.findByUserAndParty(targetUser, party);
     }
-    public List<KnockoutPrediction> getKnockoutPredictions(String username, String code) {
-        AppUser user = appUserRepository.findByUsername(username)
+
+    public List<KnockoutPrediction> getKnockoutPredictions(String viewerUsername, String targetUsername, String code) {
+        validateCanViewPredictions(viewerUsername, targetUsername, code);
+
+        AppUser targetUser = appUserRepository.findByUsername(targetUsername)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Party party = partyRepository.findByCode(code)
                 .orElseThrow(() -> new RuntimeException("Party not found"));
 
-        return knockoutPredictionRepository.findByUserAndParty(user, party);
+        return knockoutPredictionRepository.findByUserAndParty(targetUser, party);
     }
     public List<ThirdPlaceTeamDto> getSavedThirdPlaceTeams(String username, String code) {
 
@@ -1227,6 +1232,28 @@ public class PredictionService {
             throw new ResponseStatusException(
                     HttpStatus.FORBIDDEN,
                     "Predictions are locked for this party"
+            );
+        }
+    }
+    public void validateCanViewPredictions(String viewerUsername, String targetUsername, String code) {
+        AppUser viewer = appUserRepository.findByUsername(viewerUsername)
+                .orElseThrow(() -> new RuntimeException("Viewer not found"));
+
+        AppUser targetUser = appUserRepository.findByUsername(targetUsername)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Party party = partyRepository.findByCode(code)
+                .orElseThrow(() -> new RuntimeException("Party not found"));
+
+        if (viewer.getId().equals(targetUser.getId())) {
+            return;
+        }
+
+        if (party.getPredictionDeadline() == null ||
+                !LocalDateTime.now().isAfter(party.getPredictionDeadline())) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "You can only view other users' predictions after the party deadline"
             );
         }
     }
