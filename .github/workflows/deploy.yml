@@ -18,7 +18,9 @@ jobs:
           distribution: 'temurin'
 
       - name: Build JAR
-        run: ./mvnw clean package -DskipTests
+        run: |
+          chmod +x mvnw
+          ./mvnw clean package -DskipTests
 
       - name: Copy JAR to EC2
         uses: appleboy/scp-action@master
