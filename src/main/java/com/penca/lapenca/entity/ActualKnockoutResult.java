@@ -31,6 +31,10 @@ public class ActualKnockoutResult {
 
     private Integer awayScore;
 
+    private Integer homePenaltyScore;
+
+    private Integer awayPenaltyScore;
+
     private boolean played;
 
     @ManyToOne

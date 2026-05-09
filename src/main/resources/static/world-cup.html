@@ -390,7 +390,7 @@
         .wc-bracket-wrap {
             position: relative;
             min-width: 1780px;
-            height: 900px;
+            height: 1180px;
             margin-top: 36px;
             background: rgba(31,31,31,0.35);
             border-radius: 18px;
@@ -410,10 +410,11 @@
             position: relative;
             z-index: 3;
             display: grid;
-            grid-template-columns: 640px 300px 640px;
-            gap: 80px;
+            grid-template-columns: 600px 300px 600px;
+            gap: 40px;
             height: 100%;
-            padding: 25px 50px;
+            padding: 25px 30px;
+            justify-content: center;
         }
 
         .wc-side {
@@ -425,7 +426,7 @@
 
         .wc-round {
             display: grid;
-            grid-template-rows: repeat(16, 52px);
+            grid-template-rows: repeat(16, 68px);
             position: relative;
         }
 
@@ -443,7 +444,7 @@
             border: 1px solid #444;
             border-radius: 10px;
             padding: 6px;
-            min-height: 70px;
+            min-height: 84px;
             width: 130px;
             box-sizing: border-box;
             align-self: center;
@@ -451,16 +452,16 @@
 
         .wc-team {
             display: grid;
-            grid-template-columns: 1fr auto;
+            grid-template-columns: minmax(0, 1fr) auto;
             align-items: center;
-            gap: 6px;
-            padding: 6px;
+            gap: 5px;
+            padding: 5px;
             margin-top: 4px;
             border-radius: 7px;
             background: #0d6efd;
             color: white;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 11px;
         }
 
         .wc-team.winner {
@@ -981,14 +982,14 @@
 
         card.innerHTML = `
         <div class="slot">${match.slot || "Waiting..."}</div>
-        ${renderWcTeam(match.homeTeam, result?.homeScore, result?.winner?.name)}
-        ${renderWcTeam(match.awayTeam, result?.awayScore, result?.winner?.name)}
+        ${renderWcTeam(match.homeTeam, result, "home")}
+        ${renderWcTeam(match.awayTeam, result, "away")}
     `;
 
         return card;
     }
 
-    function renderWcTeam(teamName, score, winnerName) {
+    function renderWcTeam(teamName, result, side) {
         if (!teamName) {
             return `<div class="wc-team placeholder">Waiting...</div>`;
         }
@@ -996,10 +997,25 @@
         const flagUrl = getFlagUrl(teamName);
         const flag = flagUrl ? `<img src="${flagUrl}" class="flag">` : "";
 
+        const winnerName = result?.winner?.name;
+        const score = side === "home" ? result?.homeScore : result?.awayScore;
+        const penaltyScore = side === "home" ? result?.homePenaltyScore : result?.awayPenaltyScore;
+
+        let scoreText = score ?? "";
+
+        if (
+            result?.homePenaltyScore !== null &&
+            result?.homePenaltyScore !== undefined &&
+            result?.awayPenaltyScore !== null &&
+            result?.awayPenaltyScore !== undefined
+        ) {
+            scoreText += ` (${penaltyScore})`;
+        }
+
         return `
         <div class="wc-team ${winnerName === teamName ? "winner" : ""}" title="${teamName}">
             <span class="team-label">${flag} ${teamShort(teamName)}</span>
-            <strong>${score ?? ""}</strong>
+            <strong>${scoreText}</strong>
         </div>
     `;
     }
@@ -1240,9 +1256,9 @@
         const wrapRect = wrap.getBoundingClientRect();
 
         const fromCenterX = fromRect.left + fromRect.width / 2 - wrapRect.left;
-        const fromCenterY = fromRect.top + fromRect.height / 2 - wrapRect.top;
+        const fromCenterY = Math.round(fromRect.top + fromRect.height / 2 - wrapRect.top);
         const toCenterX = toRect.left + toRect.width / 2 - wrapRect.left;
-        const toCenterY = toRect.top + toRect.height / 2 - wrapRect.top;
+        const toCenterY = Math.round(toRect.top + toRect.height / 2 - wrapRect.top);
 
         let startX;
         let endX;
@@ -1255,9 +1271,15 @@
             endX = toRect.right - wrapRect.left;
         }
 
-        const startY = fromCenterY;
-        const endY = toCenterY;
-        const midX = startX + (endX - startX) / 2;
+        let startY = fromCenterY;
+        let endY = toCenterY;
+
+        if (toId === "wc-FINAL-1") {
+            startY = toCenterY;
+            endY = toCenterY;
+        }
+
+        const midX = Math.round(startX + (endX - startX) / 2);
 
         const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
         path.setAttribute("d", `M ${startX} ${startY} H ${midX} V ${endY} H ${endX}`);

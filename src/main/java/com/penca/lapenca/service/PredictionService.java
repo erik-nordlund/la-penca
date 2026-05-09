@@ -1617,11 +1617,9 @@ public class PredictionService {
                                                          String homeTeamName,
                                                          String awayTeamName,
                                                          int homeScore,
-                                                         int awayScore) {
-        if (homeScore == awayScore) {
-            throw new RuntimeException("Knockout matches cannot end in a draw");
-        }
-
+                                                         int awayScore,
+                                                         Integer homePenaltyScore,
+                                                         Integer awayPenaltyScore) {
         clearActualFutureRounds(roundName);
 
         Team homeTeam = teamRepository.findByName(homeTeamName)
@@ -1630,7 +1628,27 @@ public class PredictionService {
         Team awayTeam = teamRepository.findByName(awayTeamName)
                 .orElseThrow(() -> new RuntimeException("Away team not found: " + awayTeamName));
 
-        Team winner = homeScore > awayScore ? homeTeam : awayTeam;
+        Team winner;
+
+        if (homeScore > awayScore) {
+            winner = homeTeam;
+            homePenaltyScore = null;
+            awayPenaltyScore = null;
+        } else if (awayScore > homeScore) {
+            winner = awayTeam;
+            homePenaltyScore = null;
+            awayPenaltyScore = null;
+        } else {
+            if (homePenaltyScore == null || awayPenaltyScore == null) {
+                throw new RuntimeException("Penalty score is required when knockout match is tied");
+            }
+
+            if (homePenaltyScore.equals(awayPenaltyScore)) {
+                throw new RuntimeException("Penalty score cannot be tied");
+            }
+
+            winner = homePenaltyScore > awayPenaltyScore ? homeTeam : awayTeam;
+        }
 
         ActualKnockoutResult result = actualKnockoutResultRepository
                 .findByRoundNameAndMatchNumber(roundName, matchNumber)
@@ -1644,6 +1662,8 @@ public class PredictionService {
         result.setAwayTeam(awayTeam);
         result.setHomeScore(homeScore);
         result.setAwayScore(awayScore);
+        result.setHomePenaltyScore(homePenaltyScore);
+        result.setAwayPenaltyScore(awayPenaltyScore);
         result.setPlayed(true);
         result.setWinner(winner);
 
@@ -1765,6 +1785,8 @@ public class PredictionService {
 
         result.setHomeScore(null);
         result.setAwayScore(null);
+        result.setHomePenaltyScore(null);
+        result.setAwayPenaltyScore(null);
         result.setPlayed(false);
         result.setWinner(null);
 

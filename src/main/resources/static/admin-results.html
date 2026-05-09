@@ -882,6 +882,9 @@
             const saved = results.find(r => r.matchNumber === matchNumber);
             const homeScore = saved?.homeScore ?? "";
             const awayScore = saved?.awayScore ?? "";
+            const homePenaltyScore = saved?.homePenaltyScore ?? "";
+            const awayPenaltyScore = saved?.awayPenaltyScore ?? "";
+            const penaltiesVisible = homeScore !== "" && awayScore !== "" && Number(homeScore) === Number(awayScore);
             const played = saved?.played === true;
             const winnerName = saved?.winner?.name;
 
@@ -893,13 +896,26 @@
 
                 <div class="score-row">
                     <strong>${match.homeTeam}</strong>
-                    <input id="ko-home-${matchNumber}" type="number" value="${homeScore}" placeholder="0">
+                    <input id="ko-home-${matchNumber}" type="number" value="${homeScore}" placeholder="0" oninput="togglePenaltyBox(${matchNumber})">
                 </div>
 
                 <div class="score-row">
                     <strong>${match.awayTeam}</strong>
-                    <input id="ko-away-${matchNumber}" type="number" value="${awayScore}" placeholder="0">
+                    <input id="ko-away-${matchNumber}" type="number" value="${awayScore}" placeholder="0" oninput="togglePenaltyBox(${matchNumber})">
                 </div>
+                <div id="penalty-box-${matchNumber}" style="display:${penaltiesVisible ? "block" : "none"}; margin-top:10px;">
+    <div class="muted" style="margin-bottom:8px;">Penalty shootout</div>
+
+    <div class="score-row">
+        <strong>${match.homeTeam} pens</strong>
+        <input id="ko-home-pen-${matchNumber}" type="number" value="${homePenaltyScore}" placeholder="0">
+    </div>
+
+    <div class="score-row">
+        <strong>${match.awayTeam} pens</strong>
+        <input id="ko-away-pen-${matchNumber}" type="number" value="${awayPenaltyScore}" placeholder="0">
+    </div>
+</div>
 
                 ${winnerName ? `<div class="winner-text">Winner: ${winnerName}</div>` : ""}
 
@@ -929,19 +945,42 @@
             return;
         }
 
+        let url = `/actual/knockout/save?adminUsername=${encodeURIComponent(adminUsername)}&round=${encodeURIComponent(currentKnockoutRound)}&matchNumber=${encodeURIComponent(matchNumber)}&slot=${encodeURIComponent(slot)}&homeTeam=${encodeURIComponent(homeTeam)}&awayTeam=${encodeURIComponent(awayTeam)}&homeScore=${encodeURIComponent(homeScore)}&awayScore=${encodeURIComponent(awayScore)}`;
+
         if (Number(homeScore) === Number(awayScore)) {
-            setMessage("knockoutMessage", "Knockout matches cannot end in a draw.", true);
-            return;
+            const homePenaltyScore = document.getElementById(`ko-home-pen-${matchNumber}`).value.trim();
+            const awayPenaltyScore = document.getElementById(`ko-away-pen-${matchNumber}`).value.trim();
+
+            if (homePenaltyScore === "" || awayPenaltyScore === "") {
+                setMessage("knockoutMessage", "Enter penalty score when the match is tied.", true);
+                return;
+            }
+
+            if (Number(homePenaltyScore) === Number(awayPenaltyScore)) {
+                setMessage("knockoutMessage", "Penalty score cannot be tied.", true);
+                return;
+            }
+
+            url += `&homePenaltyScore=${encodeURIComponent(homePenaltyScore)}&awayPenaltyScore=${encodeURIComponent(awayPenaltyScore)}`;
         }
 
         setMessage("knockoutMessage", "Saving knockout result...");
 
-        authFetch(`/actual/knockout/save?adminUsername=${encodeURIComponent(adminUsername)}&round=${encodeURIComponent(currentKnockoutRound)}&matchNumber=${encodeURIComponent(matchNumber)}&slot=${encodeURIComponent(slot)}&homeTeam=${encodeURIComponent(homeTeam)}&awayTeam=${encodeURIComponent(awayTeam)}&homeScore=${encodeURIComponent(homeScore)}&awayScore=${encodeURIComponent(awayScore)}`)            .then(res => {
+        authFetch(url)
+            .then(res => {
                 if (!res.ok) throw new Error("Save failed");
                 return res.json();
             })
             .then(data => {
-                setMessage("knockoutMessage", `Saved: ${data.homeTeam.name} ${data.homeScore} - ${data.awayScore} ${data.awayTeam.name}. Winner: ${data.winner.name}`);
+                let message = `Saved: ${data.homeTeam.name} ${data.homeScore} - ${data.awayScore} ${data.awayTeam.name}`;
+
+                if (data.homePenaltyScore !== null && data.awayPenaltyScore !== null) {
+                    message += ` (${data.homePenaltyScore} - ${data.awayPenaltyScore} pens)`;
+                }
+
+                message += `. Winner: ${data.winner.name}`;
+
+                setMessage("knockoutMessage", message);
                 loadKnockoutBracket();
             })
             .catch(() => {
@@ -1003,6 +1042,25 @@
     const adminLink = document.getElementById("adminLink");
     if (adminLink && localStorage.getItem("role") !== "ADMIN") {
         adminLink.style.display = "none";
+    }
+    function togglePenaltyBox(matchNumber) {
+        const homeScore = document.getElementById(`ko-home-${matchNumber}`).value.trim();
+        const awayScore = document.getElementById(`ko-away-${matchNumber}`).value.trim();
+        const box = document.getElementById(`penalty-box-${matchNumber}`);
+
+        if (!box) return;
+
+        if (homeScore !== "" && awayScore !== "" && Number(homeScore) === Number(awayScore)) {
+            box.style.display = "block";
+        } else {
+            box.style.display = "none";
+
+            const homePen = document.getElementById(`ko-home-pen-${matchNumber}`);
+            const awayPen = document.getElementById(`ko-away-pen-${matchNumber}`);
+
+            if (homePen) homePen.value = "";
+            if (awayPen) awayPen.value = "";
+        }
     }
 </script>
 

@@ -277,7 +277,9 @@ public class PredictionController {
                                                          @RequestParam String homeTeam,
                                                          @RequestParam String awayTeam,
                                                          @RequestParam int homeScore,
-                                                         @RequestParam int awayScore) {
+                                                         @RequestParam int awayScore,
+                                                         @RequestParam(required = false) Integer homePenaltyScore,
+                                                         @RequestParam(required = false) Integer awayPenaltyScore) {
         requireAdmin(adminUsername);
         return predictionService.saveActualKnockoutResult(
                 round,
@@ -286,7 +288,9 @@ public class PredictionController {
                 homeTeam,
                 awayTeam,
                 homeScore,
-                awayScore
+                awayScore,
+                homePenaltyScore,
+                awayPenaltyScore
         );
     }
 
