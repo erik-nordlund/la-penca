@@ -39,6 +39,8 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           command_timeout: 5m
           script: |
+            cd /home/ec2-user/la-penca
+            docker build -t la-penca .
             docker stop lapenca-app || true
             docker rm lapenca-app || true
-            docker run -d --name lapenca-app --network lapenca-network -p 8080:8080 --restart unless-stopped -e JDBC_DATABASE_URL=jdbc:postgresql://lapenca-db:5432/lapenca -e DB_USERNAME=postgres -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} -e PORT=8080 la-penca
+            docker run -d --name lapenca-app --network lapenca-network -p 8080:8080 --restart unless-stopped -e JDBC_DATABASE_URL=jdbc:postgresql://lapenca-db:5432/lapenca -e DB_USERNAME=postgres -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} -e JWT_SECRET=${{ secrets.JWT_SECRET }} -e PORT=8080 la-penca
