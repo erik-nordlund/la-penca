@@ -27,6 +27,7 @@ jobs:
           echo "${{ secrets.EC2_KEY }}" > key.pem
           chmod 600 key.pem
           scp -i key.pem -o StrictHostKeyChecking=no target/la-penca-0.0.1-SNAPSHOT.jar ec2-user@${{ secrets.EC2_HOST }}:/home/ec2-user/la-penca/target/
+          scp -i key.pem -o StrictHostKeyChecking=no Dockerfile ec2-user@${{ secrets.EC2_HOST }}:/home/ec2-user/la-penca/
           rm key.pem
 
       - name: Restart app on EC2
@@ -35,7 +36,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
-          command_timeout: 5m
+          command_timeout: 20m
           script: |
             cd /home/ec2-user/la-penca
             docker build -t la-penca .
