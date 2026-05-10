@@ -374,9 +374,9 @@
     <div class="links">
         <a href="/dashboard.html">Dashboard</a>
         <a href="/party.html">Party</a>
-        <a href="/group.html" class="active">Groups</a>
-        <a href="/third-place.html">Third place</a>
-        <a href="/knockout-board.html">Knockout</a>
+        <a href="/group.html" class="active">Group predictions</a>
+        <a href="/third-place.html">Third-place teams prediction</a>
+        <a href="/knockout-board.html">Knockout predictions</a>
         <a href="/world-cup.html">World Cup 2026</a>
         <a href="/leaderboard.html">Leaderboard</a>
         <a id="adminLink" href="/admin-results.html">Admin</a>
@@ -405,7 +405,7 @@
 
         <div class="toolbar-actions">
             <button class="secondary-btn" onclick="scrollToTop()">Back to top</button>
-            <button class="primary-btn" onclick="goToThirdPlace()">Continue to third place</button>
+            <button id="continueBtn" class="primary-btn" onclick="goToThirdPlace()">Continue to third-place teams</button>
         </div>
     </section>
 
@@ -424,6 +424,8 @@
     const viewingOtherUser = !!viewUser && viewUser !== loggedInUser;
 
     const token = localStorage.getItem("token");
+    const groups = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"];
+
 
     if (!loggedInUser || !token) {
         window.location.href = "/index.html";
@@ -744,6 +746,11 @@
             return;
         }
 
+        if (!validateCanContinueToThirdPlace()) {
+            scrollToTop();
+            return;
+        }
+
         window.location.href = "/third-place.html";
     }
 
@@ -1036,6 +1043,43 @@
     const adminLink = document.getElementById("adminLink");
     if (adminLink && localStorage.getItem("role") !== "ADMIN") {
         adminLink.style.display = "none";
+    }
+
+    function getMissingPredictionGroups() {
+        return groups.filter(group => {
+            const groupMatches = allGroupMatches.filter(m => m.homeTeam.groupName === group);
+            return groupMatches.some(match => !selected[match.id]);
+        });
+    }
+
+    function getUnsolvedTieBreakGroups() {
+        return groups.filter(group => {
+            const groupMatches = allGroupMatches.filter(m => m.homeTeam.groupName === group);
+            const allGroupPredictionsSaved = groupMatches.length > 0 && groupMatches.every(match => selected[match.id]);
+
+            if (!allGroupPredictionsSaved) return false;
+
+            const button = document.getElementById(`tie-button-${group}`);
+            return button && button.innerText.includes("Fix tie-break");
+        });
+    }
+
+    function validateCanContinueToThirdPlace() {
+        const missingGroups = getMissingPredictionGroups();
+
+        if (missingGroups.length > 0) {
+            showMessage(`You must fill in all matches first. Missing groups: ${missingGroups.join(", ")}.`, true);
+            return false;
+        }
+
+        const unsolvedTieGroups = getUnsolvedTieBreakGroups();
+
+        if (unsolvedTieGroups.length > 0) {
+            showMessage(`You must decide the tie-break order first. Groups: ${unsolvedTieGroups.join(", ")}.`, true);
+            return false;
+        }
+
+        return true;
     }
 </script>
 
