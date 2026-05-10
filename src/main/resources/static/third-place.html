@@ -544,60 +544,64 @@
         return `<img src="${flagUrl}" class="flag"> ${teamName}`;
     }
 
-    Promise.all([
-        authFetch(`/party/lock-status?code=${encodeURIComponent(code)}`).then(res => res.json()),
+    validateGroupPredictionsBeforeLoading().then(canLoad => {
+        if (!canLoad) return;
 
-        authFetch(`/third-place-selection?viewerUsername=${encodeURIComponent(loggedInUser)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`)
-            .then(res => {
-                if (!res.ok) {
-                    throw new Error("You can only view other players' predictions after the deadline.");
-                }
-                return res.json();
-            }),
+        Promise.all([
+            authFetch(`/party/lock-status?code=${encodeURIComponent(code)}`).then(res => res.json()),
 
-        authFetch(`/third-place-teams/saved?viewerUsername=${encodeURIComponent(loggedInUser)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`)
-            .then(res => {
-                if (!res.ok) {
-                    throw new Error("You can only view other players' predictions after the deadline.");
+            authFetch(`/third-place-selection?viewerUsername=${encodeURIComponent(loggedInUser)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`)
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error("You can only view other players' predictions after the deadline.");
+                    }
+                    return res.json();
+                }),
+
+            authFetch(`/third-place-teams/saved?viewerUsername=${encodeURIComponent(loggedInUser)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`)
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error("You can only view other players' predictions after the deadline.");
+                    }
+                    return res.json();
+                })
+        ])
+            .then(([locked, data, saved]) => {
+                predictionsLocked = locked || viewingOtherUser;
+                renderLockStatus();
+
+                savedTeams = saved.map(t => t.teamName);
+                remainingSlots = data.remainingSlots;
+
+                renderAutomatic(data.qualifiedAutomatically);
+                renderChoices(data.tiedTeams);
+                updateProgress();
+                updateFinalList();
+
+                if (savedTeams.length > 0 && !viewingOtherUser) {
+                    document.getElementById("message").innerText = "Your saved selection has been loaded.";
                 }
-                return res.json();
             })
-    ])
-        .then(([locked, data, saved]) => {
-            predictionsLocked = locked || viewingOtherUser;
-            renderLockStatus();
+            .catch(err => {
+                predictionsLocked = true;
+                renderLockStatus();
 
-            savedTeams = saved.map(t => t.teamName);
-            remainingSlots = data.remainingSlots;
+                document.getElementById("lockBadge").innerText = "🔒 View locked";
+                document.getElementById("lockBadge").classList.add("locked");
+                document.getElementById("lockText").innerText =
+                    err.message || "You can only view other players' predictions after the deadline.";
 
-            renderAutomatic(data.qualifiedAutomatically);
-            renderChoices(data.tiedTeams);
-            updateProgress();
-            updateFinalList();
+                document.getElementById("automatic").innerHTML = "";
+                document.getElementById("finalList").innerHTML = "";
+                document.getElementById("teams").innerHTML = `
+                <div class="empty-state">
+                    You can only view other players' predictions after the deadline.
+                </div>
+            `;
 
-            if (savedTeams.length > 0 && !viewingOtherUser) {
-                document.getElementById("message").innerText = "Your saved selection has been loaded.";
-            }
-        })
-        .catch(err => {
-            predictionsLocked = true;
-            renderLockStatus();
-
-            document.getElementById("lockBadge").innerText = "🔒 View locked";
-            document.getElementById("lockBadge").classList.add("locked");
-            document.getElementById("lockText").innerText =
-                err.message || "You can only view other players' predictions after the deadline.";
-
-            document.getElementById("automatic").innerHTML = "";
-            document.getElementById("finalList").innerHTML = "";
-            document.getElementById("teams").innerHTML = `
-        <div class="empty-state">
-            You can only view other players' predictions after the deadline.
-        </div>
-    `;
-
-            document.getElementById("saveButton").disabled = true;
-        });
+                document.getElementById("saveButton").disabled = true;
+            });
+    });
 
     function renderAutomatic(teams) {
         const automatic = document.getElementById("automatic");
@@ -826,6 +830,40 @@
     const adminLink = document.getElementById("adminLink");
     if (adminLink && localStorage.getItem("role") !== "ADMIN") {
         adminLink.style.display = "none";
+    }
+    function validateGroupPredictionsBeforeLoading() {
+        if (viewingOtherUser) return Promise.resolve(true);
+
+        return Promise.all([
+            authFetch(`/predictions?viewerUsername=${encodeURIComponent(loggedInUser)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`)
+                .then(res => res.ok ? res.json() : []),
+
+            authFetch("/matches")
+                .then(res => res.ok ? res.json() : [])
+        ])
+            .then(([predictions, matches]) => {
+                const groupMatches = matches.filter(m => m.stage === "GROUP");
+                const predictedMatchIds = predictions.map(p => p.match.id);
+
+                const missingGroups = [...new Set(
+                    groupMatches
+                        .filter(match => !predictedMatchIds.includes(match.id))
+                        .map(match => match.homeTeam.groupName)
+                )];
+
+                if (missingGroups.length > 0) {
+                    document.getElementById("teams").innerHTML = `
+                    <div class="empty-state">
+                        You must fill in all group predictions first. Missing groups: ${missingGroups.join(", ")}.
+                    </div>
+                `;
+                    document.getElementById("saveButton").disabled = true;
+                    setMessage(`Go back and finish all group predictions first. Missing groups: ${missingGroups.join(", ")}.`, true);
+                    return false;
+                }
+
+                return true;
+            });
     }
 </script>
 

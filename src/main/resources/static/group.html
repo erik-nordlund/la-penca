@@ -375,7 +375,9 @@
         <a href="/dashboard.html">Dashboard</a>
         <a href="/party.html">Party</a>
         <a href="/group.html" class="active">Group predictions</a>
-        <a href="/third-place.html">Third-place teams prediction</a>
+        <a href="#" onclick="handleThirdPlaceNavigation(event)">
+            Third-place teams prediction
+        </a>
         <a href="/knockout-board.html">Knockout predictions</a>
         <a href="/world-cup.html">World Cup 2026</a>
         <a href="/leaderboard.html">Leaderboard</a>
@@ -1080,6 +1082,21 @@
         }
 
         return true;
+    }
+    function handleThirdPlaceNavigation(event) {
+        event.preventDefault();
+
+        if (viewingOtherUser) {
+            window.location.href = `/third-place.html?viewUser=${encodeURIComponent(username)}`;
+            return;
+        }
+
+        if (!validateCanContinueToThirdPlace()) {
+            scrollToTop();
+            return;
+        }
+
+        window.location.href = "/third-place.html";
     }
 </script>
 
