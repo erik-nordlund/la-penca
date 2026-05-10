@@ -9,6 +9,7 @@ import com.penca.lapenca.repository.AppUserRepository;
 import com.penca.lapenca.repository.PartyMemberRepository;
 import com.penca.lapenca.service.PartyMemberService;
 import com.penca.lapenca.service.PartyService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
@@ -63,13 +64,13 @@ public class PartyController {
     }
 
     @GetMapping("/user/party")
-    public Party getUserParty(@RequestParam String username) {
+    public ResponseEntity<Party> getUserParty(@RequestParam String username) {
         AppUser user = appUserRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         return partyMemberRepository.findFirstByUser(user)
-                .map(PartyMember::getParty)
-                .orElse(null);
+                .map(member -> ResponseEntity.ok(member.getParty()))
+                .orElseGet(() -> ResponseEntity.noContent().build());
     }
 
     @GetMapping("/party/my-parties")

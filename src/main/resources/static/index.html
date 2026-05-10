@@ -397,7 +397,11 @@
 
                 return authFetch(`/user/party?username=${encodeURIComponent(user.username)}`);
             })
-            .then(res => res.ok ? res.json() : null)
+            .then(res => {
+                if (res.status === 204) return null;
+                if (!res.ok) return null;
+                return res.json();
+            })
             .then(party => {
                 if (party && party.code) {
                     localStorage.setItem("partyCode", party.code);
