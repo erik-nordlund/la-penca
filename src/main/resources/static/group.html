@@ -1257,6 +1257,9 @@
     if (mobileAdminLink && localStorage.getItem("role") !== "ADMIN") {
         mobileAdminLink.style.display = "none";
     }
+    function escapeJs(value) {
+        return value.replaceAll("'", "\\'");
+    }
     function moveTeamUp(group, teamName) {
         moveTeamByDirection(group, teamName, -1);
     }
