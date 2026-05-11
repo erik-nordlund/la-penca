@@ -37,16 +37,12 @@ public class PartyController {
 
     @GetMapping("/party/create")
     public Party createParty(@RequestParam String username,
-                             @RequestParam String name,
-                             @RequestParam String deadline) {
+                             @RequestParam String name) {
 
         AppUser user = appUserRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Party party = partyService.createParty(
-                name.trim(),
-                LocalDateTime.parse(deadline)
-        );
+        Party party = partyService.createParty(name.trim());
 
         PartyMember partyMember = PartyMember.builder()
                 .user(user)

@@ -450,6 +450,7 @@
 
                 <div id="selectedPartyDetails" style="display:none;">
                     <p class="muted" id="partyDeadlineText"></p>
+                    <p class="muted" id="countdownText"></p>
 
                     <div class="party-code-box">
                         <div class="code-label">Party code</div>
@@ -516,13 +517,10 @@
     <div class="modal">
         <button class="close-btn" onclick="closeModals()">×</button>
         <h2>Create a party</h2>
-        <p>Create a private competition. Give it a name and set the prediction deadline.</p>
+        <p>Create a private competition. All parties lock on June 11, 2026 at 20:59.</p>
 
         <label>Party name</label>
         <input id="partyNameInput" placeholder="Example: Erik family party">
-
-        <label>Prediction deadline</label>
-        <input id="deadlineInput" type="datetime-local">
 
         <div class="modal-actions">
             <button class="secondary-btn" onclick="closeModals()">Cancel</button>
@@ -666,7 +664,9 @@
         document.getElementById("partyDeadlineText").innerText =
             selectedParty.predictionDeadline
                 ? `Prediction deadline: ${formatDate(selectedParty.predictionDeadline)}`
-                : "No prediction deadline set.";
+                : "Prediction deadline: June 11, 2026 20:59.";
+
+        updateCountdown();
     }
 
     function loadMembers(code) {
@@ -759,9 +759,6 @@
     function openCreateModal() {
         document.getElementById("createModal").classList.add("show");
 
-        if (!document.getElementById("deadlineInput").value) {
-            document.getElementById("deadlineInput").value = "2026-06-11T18:00";
-        }
     }
 
     function closeModals() {
@@ -785,21 +782,15 @@
 
     function createParty() {
         const name = document.getElementById("partyNameInput").value.trim();
-        const deadline = document.getElementById("deadlineInput").value;
 
         if (!name) {
             setMessage("createMessage", "Enter a party name.", true);
             return;
         }
 
-        if (!deadline) {
-            setMessage("createMessage", "Choose a prediction deadline.", true);
-            return;
-        }
-
         setMessage("createMessage", "Creating party...");
 
-        authFetch(`/party/create?username=${encodeURIComponent(username)}&name=${encodeURIComponent(name)}&deadline=${encodeURIComponent(deadline)}`)
+        authFetch(`/party/create?username=${encodeURIComponent(username)}&name=${encodeURIComponent(name)}`)
             .then(res => {
                 if (!res.ok) throw new Error("Create failed");
                 return res.json();
@@ -929,6 +920,27 @@
     if (adminLink && localStorage.getItem("role") !== "ADMIN") {
         adminLink.style.display = "none";
     }
+    function updateCountdown() {
+        const countdown = document.getElementById("countdownText");
+        if (!countdown) return;
+
+        const deadlineValue = selectedParty?.predictionDeadline || "2026-06-11T20:59:00";
+        const deadline = new Date(deadlineValue);
+        const now = new Date();
+        const diff = deadline - now;
+
+        if (diff <= 0) {
+            countdown.innerText = "🔒 Predictions are locked.";
+            return;
+        }
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((diff / (1000 * 60)) % 60);
+
+        countdown.innerText = `⏳ Predictions lock in ${days} days, ${hours} hours and ${minutes} minutes.`;
+    }
+    setInterval(updateCountdown, 60000);
 </script>
 
 </body>

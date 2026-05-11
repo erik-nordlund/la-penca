@@ -17,12 +17,15 @@ public class PartyService {
         this.partyRepository = partyRepository;
     }
 
-    public Party createParty(String name, LocalDateTime deadline) {
+    private static final LocalDateTime DEFAULT_PREDICTION_DEADLINE =
+            LocalDateTime.of(2026, 6, 11, 20, 59);
+
+    public Party createParty(String name) {
         Party party = Party.builder()
                 .code(generateUniquePartyCode())
                 .name(name)
                 .createdAt(LocalDateTime.now())
-                .predictionDeadline(deadline)
+                .predictionDeadline(DEFAULT_PREDICTION_DEADLINE)
                 .build();
 
         return partyRepository.save(party);
