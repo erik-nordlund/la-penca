@@ -16,7 +16,7 @@
                     radial-gradient(circle at bottom right, rgba(13,110,253,0.14), transparent 35%),
                     #0f0f0f;
             color: white;
-            overflow-x: auto;
+            overflow-x: hidden;
         }
 
         .navbar {
@@ -291,26 +291,6 @@
             text-align: center;
         }
 
-        .played-pill {
-            border-radius: 999px;
-            padding: 7px 11px;
-            font-size: 12px;
-            font-weight: bold;
-            background: rgba(34,197,94,0.16);
-            border: 1px solid rgba(124,252,152,0.35);
-            color: #7CFC98;
-        }
-
-        .unplayed-pill {
-            border-radius: 999px;
-            padding: 7px 11px;
-            font-size: 12px;
-            font-weight: bold;
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.14);
-            color: #aaa;
-        }
-
         .knockout-section h2 {
             color: #7CFC98;
             margin: 0 0 14px;
@@ -389,8 +369,13 @@
             min-width: 62px;
             text-align: center;
         }
+        #knockoutView {
+            overflow-x: auto;
+            padding-bottom: 18px;
+        }
         .wc-bracket-wrap {
             position: relative;
+            width: 1780px;
             min-width: 1780px;
             height: 1180px;
             margin-top: 36px;
@@ -563,11 +548,18 @@
                 text-align: left;
             }
 
+            #knockoutView {
+                margin-left: -18px;
+                margin-right: -18px;
+                padding-left: 18px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
             .wc-bracket-wrap {
-                margin-top: 34px;
+                width: 1500px;
                 min-width: 1500px;
-                height: 1180px;
-                overflow: visible;
+                margin-left: 0;
             }
 
             .wc-bracket-wrap::before {

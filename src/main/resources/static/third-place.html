@@ -147,6 +147,18 @@
             gap: 22px;
             align-items: start;
         }
+        .auto-card {
+            grid-column: 1;
+            grid-row: 1;
+        }
+        .final-card {
+            grid-column: 1;
+            grid-row: 2;
+        }
+        .choice-card {
+            grid-column: 2;
+            grid-row: 1 / span 2;
+        }
 
         .card {
             background: rgba(31,31,31,0.94);
@@ -154,10 +166,6 @@
             border-radius: 22px;
             padding: 22px;
             box-shadow: 0 14px 45px rgba(0,0,0,0.28);
-        }
-
-        .card + .card {
-            margin-top: 20px;
         }
 
         .card-title {
@@ -396,54 +404,24 @@
         }
 
         @media (max-width: 750px) {
-            .hero,
-            .toolbar {
-                display: block;
-            }
-
-            .info {
-                justify-content: flex-start;
-                margin-top: 18px;
-            }
-
-            h1 {
-                font-size: 38px;
-            }
-
-            .subtitle {
-                font-size: 16px;
-            }
-
-            .toolbar-actions {
-                margin-top: 14px;
-                display: grid;
-                gap: 10px;
-            }
-
-            .primary-btn,
-            .secondary-btn {
-                width: 100%;
-            }
-
-            .card-title {
-                align-items: flex-start;
-                flex-direction: column;
-            }
-            .layout > div {
+            .layout {
                 display: flex;
                 flex-direction: column;
             }
 
-            .layout > div .card:first-child {
+            .choice-card {
                 order: 1;
+                width: 100%;
             }
 
-            .layout > div .card:last-child {
-                order: 3;
-            }
-
-            .layout > .card {
+            .auto-card {
                 order: 2;
+                width: 100%;
+            }
+
+            .final-card {
+                order: 3;
+                width: 100%;
             }
         }
 
@@ -525,35 +503,8 @@
     </section>
 
     <section class="layout">
-        <div>
-            <div class="card">
-                <div class="card-title">
-                    <h2>Automatically qualified</h2>
-                    <span id="automaticCount" class="status-pill status-ok">0 teams</span>
-                </div>
 
-                <p class="muted">
-                    These teams are already through because they are above the tie line.
-                </p>
-
-                <div id="automatic" class="teams-list"></div>
-            </div>
-
-            <div class="card">
-                <div class="card-title">
-                    <h2>Final qualified list</h2>
-                    <span id="finalCount" class="status-pill status-pending">0/8</span>
-                </div>
-
-                <p class="muted">
-                    This is the list that will be saved and used to build your knockout bracket.
-                </p>
-
-                <div id="finalList" class="teams-list"></div>
-            </div>
-        </div>
-
-        <div class="card">
+        <div class="card choice-card">
             <div class="card-title">
                 <h2>Choose between tied teams</h2>
                 <span id="choiceStatus" class="status-pill status-pending">Waiting</span>
@@ -565,6 +516,33 @@
 
             <div id="teams" class="selection-grid"></div>
         </div>
+
+        <div class="card auto-card">
+            <div class="card-title">
+                <h2>Automatically qualified</h2>
+                <span id="automaticCount" class="status-pill status-ok">0 teams</span>
+            </div>
+
+            <p class="muted">
+                These teams are already through because they are above the tie line.
+            </p>
+
+            <div id="automatic" class="teams-list"></div>
+        </div>
+
+        <div class="card final-card">
+            <div class="card-title">
+                <h2>Final qualified list</h2>
+                <span id="finalCount" class="status-pill status-pending">0/8</span>
+            </div>
+
+            <p class="muted">
+                This is the list that will be saved and used to build your knockout bracket.
+            </p>
+
+            <div id="finalList" class="teams-list"></div>
+        </div>
+
     </section>
 </main>
 
