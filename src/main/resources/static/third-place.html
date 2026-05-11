@@ -429,6 +429,22 @@
                 align-items: flex-start;
                 flex-direction: column;
             }
+            .layout > div {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .layout > div .card:first-child {
+                order: 1;
+            }
+
+            .layout > div .card:last-child {
+                order: 3;
+            }
+
+            .layout > .card {
+                order: 2;
+            }
         }
 
         @media (max-width: 480px) {
