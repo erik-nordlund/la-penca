@@ -619,6 +619,10 @@
                 </div>
             `;
 
+            byGroup[group].sort((a, b) => {
+                return new Date(a.matchDate) - new Date(b.matchDate);
+            });
+
             byGroup[group].forEach(match => {
                 card.appendChild(createMatchRow(match));
             });
