@@ -366,6 +366,50 @@
             gap: 12px;
             margin-top: 16px;
         }
+        .countdown-card {
+            max-width: 780px;
+            margin: 0 0 32px;
+            padding: 20px 24px;
+            border-radius: 22px;
+            background: rgba(31,31,31,0.94);
+            border: 1px solid rgba(124,252,152,0.25);
+            box-shadow: 0 18px 55px rgba(0,0,0,0.32);
+        }
+
+        .countdown-label {
+            color: #aaa;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .countdown-timer {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .countdown-unit {
+            min-width: 90px;
+            padding: 12px;
+            border-radius: 16px;
+            background: #111;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .countdown-number {
+            display: block;
+            font-size: 34px;
+            font-weight: bold;
+            color: #7CFC98;
+        }
+
+        .countdown-word {
+            color: #aaa;
+            font-size: 12px;
+            font-weight: bold;
+        }
 
         @media (max-width: 1000px) {
             .page {
@@ -417,6 +461,28 @@
         👤 Logged in as <strong id="username">...</strong>
     </div>
 
+    <div class="countdown-card">
+        <div class="countdown-label">⏳ Time until predictions lock</div>
+        <div class="countdown-timer">
+            <div class="countdown-unit">
+                <span id="countdownDays" class="countdown-number">--</span>
+                <span class="countdown-word">days</span>
+            </div>
+            <div class="countdown-unit">
+                <span id="countdownHours" class="countdown-number">--</span>
+                <span class="countdown-word">hours</span>
+            </div>
+            <div class="countdown-unit">
+                <span id="countdownMinutes" class="countdown-number">--</span>
+                <span class="countdown-word">minutes</span>
+            </div>
+            <div class="countdown-unit">
+                <span id="countdownSeconds" class="countdown-number">--</span>
+                <span class="countdown-word">seconds</span>
+            </div>
+        </div>
+    </div>
+
     <section class="layout">
         <div>
             <section class="card">
@@ -450,7 +516,6 @@
 
                 <div id="selectedPartyDetails" style="display:none;">
                     <p class="muted" id="partyDeadlineText"></p>
-                    <p class="muted" id="countdownText"></p>
 
                     <div class="party-code-box">
                         <div class="code-label">Party code</div>
@@ -920,27 +985,46 @@
     if (adminLink && localStorage.getItem("role") !== "ADMIN") {
         adminLink.style.display = "none";
     }
-    function updateCountdown() {
-        const countdown = document.getElementById("countdownText");
-        if (!countdown) return;
 
+    function updateCountdown() {
         const deadlineValue = selectedParty?.predictionDeadline || "2026-06-11T20:59:00";
         const deadline = new Date(deadlineValue);
         const now = new Date();
         const diff = deadline - now;
 
+        const daysEl = document.getElementById("countdownDays");
+        const hoursEl = document.getElementById("countdownHours");
+        const minutesEl = document.getElementById("countdownMinutes");
+        const secondsEl = document.getElementById("countdownSeconds");
+        const textEl = document.getElementById("countdownText");
+
+        if (!daysEl || !hoursEl || !minutesEl || !secondsEl) return;
+
         if (diff <= 0) {
-            countdown.innerText = "🔒 Predictions are locked.";
+            daysEl.innerText = "0";
+            hoursEl.innerText = "0";
+            minutesEl.innerText = "0";
+            secondsEl.innerText = "0";
+            if (textEl) textEl.innerText = "🔒 Predictions are locked.";
             return;
         }
 
         const days = Math.floor(diff / (1000 * 60 * 60 * 24));
         const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
         const minutes = Math.floor((diff / (1000 * 60)) % 60);
+        const seconds = Math.floor((diff / 1000) % 60);
 
-        countdown.innerText = `⏳ Predictions lock in ${days} days, ${hours} hours and ${minutes} minutes.`;
+        daysEl.innerText = days;
+        hoursEl.innerText = hours;
+        minutesEl.innerText = minutes;
+        secondsEl.innerText = seconds;
+
+        if (textEl) {
+            textEl.innerText = "Make sure to finish all predictions before the deadline.";
+        }
     }
-    setInterval(updateCountdown, 60000);
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
 </script>
 
 </body>
