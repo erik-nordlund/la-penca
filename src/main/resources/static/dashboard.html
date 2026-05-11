@@ -282,6 +282,20 @@
             color: #aaa;
             text-align: center;
         }
+        .menu-btn {
+            display: none;
+            border: 1px solid rgba(255,255,255,0.14);
+            background: #151515;
+            color: white;
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .mobile-menu {
+            display: none;
+        }
 
         @media (max-width: 1000px) {
             .navbar {
@@ -321,6 +335,45 @@
             .progress-item {
                 align-items: flex-start;
                 flex-direction: column;
+            }
+        }
+        @media (max-width: 850px) {
+            .menu-btn {
+                display: block;
+            }
+
+            .mobile-menu {
+                position: fixed;
+                top: 64px;
+                right: 14px;
+                width: 270px;
+                background: rgba(31,31,31,0.98);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 16px;
+                padding: 10px 18px;
+                z-index: 100;
+                box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+            }
+
+            .mobile-menu.show {
+                display: block;
+            }
+            .mobile-menu a {
+                display: block;
+                color: #d7d7d7;
+                text-decoration: none;
+                font-weight: bold;
+                padding: 14px 0;
+                border-bottom: 1px solid rgba(255,255,255,0.08);
+            }
+
+            .mobile-menu a:last-child {
+                border-bottom: none;
+            }
+
+            .mobile-menu a:hover,
+            .mobile-menu a.active {
+                color: #7CFC98;
             }
         }
 
@@ -374,7 +427,20 @@
         <a href="/leaderboard.html">Leaderboard</a>
         <a id="adminLink" href="/admin-results.html">Admin</a>
     </div>
+
+    <button class="menu-btn" onclick="toggleMobileMenu()">☰</button>
 </nav>
+
+<div id="mobileMenu" class="mobile-menu">
+    <a href="/dashboard.html" class="active">Dashboard</a>
+    <a href="/party.html">Party</a>
+    <a href="/group.html">Group predictions</a>
+    <a href="/third-place.html">Third-place teams prediction</a>
+    <a href="/knockout-board.html">Knockout predictions</a>
+    <a href="/world-cup.html">World Cup 2026</a>
+    <a href="/leaderboard.html">Leaderboard</a>
+    <a id="mobileAdminLink" href="/admin-results.html">Admin</a>
+</div>
 
 <main class="page">
     <section class="hero">
@@ -576,6 +642,28 @@
     const adminLink = document.getElementById("adminLink");
     if (adminLink && localStorage.getItem("role") !== "ADMIN") {
         adminLink.style.display = "none";
+    }
+    function toggleMobileMenu() {
+        document.getElementById("mobileMenu").classList.toggle("show");
+    }
+
+    window.addEventListener("click", function(event) {
+        const menu = document.getElementById("mobileMenu");
+        const button = document.querySelector(".menu-btn");
+
+        if (
+            menu.classList.contains("show") &&
+            !menu.contains(event.target) &&
+            !button.contains(event.target)
+        ) {
+            menu.classList.remove("show");
+        }
+    });
+
+    const mobileAdminLink = document.getElementById("mobileAdminLink");
+
+    if (mobileAdminLink && localStorage.getItem("role") !== "ADMIN") {
+        mobileAdminLink.style.display = "none";
     }
 </script>
 

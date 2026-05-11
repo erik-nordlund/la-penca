@@ -331,6 +331,34 @@
             margin-right: 6px;
             vertical-align: middle;
         }
+        .menu-btn {
+            display: none;
+            border: 1px solid rgba(255,255,255,0.14);
+            background: #151515;
+            color: white;
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .mobile-menu {
+            display: none;
+        }
+        .mobile-rank-buttons {
+            display: none;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .mobile-rank-buttons button {
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.16);
+            background: #151515;
+            color: white;
+            font-weight: bold;
+        }
 
         @media (max-width: 1300px) {
             .groups-grid {
@@ -377,6 +405,46 @@
                 grid-column: 1 / -1;
                 justify-content: center;
             }
+            .menu-btn {
+                display: block;
+            }
+
+            .mobile-menu {
+                position: fixed;
+                top: 64px;
+                right: 14px;
+                width: 270px;
+                background: rgba(31,31,31,0.98);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 16px;
+                padding: 10px 18px;
+                z-index: 100;
+                box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+            }
+
+            .mobile-menu.show {
+                display: block;
+            }
+            .mobile-menu a {
+                display: block;
+                color: #d7d7d7;
+                text-decoration: none;
+                font-weight: bold;
+                padding: 14px 0;
+                border-bottom: 1px solid rgba(255,255,255,0.08);
+            }
+
+            .mobile-menu a:last-child {
+                border-bottom: none;
+            }
+
+            .mobile-menu a:hover,
+            .mobile-menu a.active {
+                color: #7CFC98;
+            }
+            .mobile-rank-buttons {
+                display: flex;
+            }
         }
         @media (max-width: 480px) {
             .page {
@@ -419,15 +487,26 @@
         <a href="/dashboard.html">Dashboard</a>
         <a href="/party.html">Party</a>
         <a href="/group.html" class="active">Group predictions</a>
-        <a href="#" onclick="handleThirdPlaceNavigation(event)">
-            Third-place teams prediction
-        </a>
+        <a href="#" onclick="handleThirdPlaceNavigation(event)">Third-place teams prediction</a>
         <a href="/knockout-board.html">Knockout predictions</a>
         <a href="/world-cup.html">World Cup 2026</a>
         <a href="/leaderboard.html">Leaderboard</a>
         <a id="adminLink" href="/admin-results.html">Admin</a>
     </div>
+
+    <button class="menu-btn" onclick="toggleMobileMenu()">☰</button>
 </nav>
+
+<div id="mobileMenu" class="mobile-menu">
+    <a href="/dashboard.html">Dashboard</a>
+    <a href="/party.html">Party</a>
+    <a href="/group.html" class="active">Group predictions</a>
+    <a href="/third-place.html">Third-place teams prediction</a>
+    <a href="/knockout-board.html">Knockout predictions</a>
+    <a href="/world-cup.html">World Cup 2026</a>
+    <a href="/leaderboard.html">Leaderboard</a>
+    <a id="mobileAdminLink" href="/admin-results.html">Admin</a>
+</div>
 
 <main class="page">
     <section class="hero">
@@ -869,7 +948,7 @@
                 border-radius:12px;
                 margin-bottom:12px;
             ">
-                ⚠️ Tie-break needed. Drag the teams into the correct order, then save.
+                ⚠️ Tie-break needed. Drag the teams or use ↑ / ↓ on mobile, then save.
             </div>
         ` : ""}
         <table class="group-table">
@@ -944,7 +1023,17 @@
 
             tr.innerHTML = `
             <td>${index + 1}</td>
-            <td>${rowCanMove ? "☰ " : ""}<strong>${row.teamName}</strong></td>
+           <td>
+    ${rowCanMove ? "☰ " : ""}
+    <strong>${row.teamName}</strong>
+
+    ${rowCanMove ? `
+        <div class="mobile-rank-buttons">
+            <button type="button" onclick="moveTeamUp('${group}', '${escapeJs(row.teamName)}')">↑</button>
+            <button type="button" onclick="moveTeamDown('${group}', '${escapeJs(row.teamName)}')">↓</button>
+        </div>
+    ` : ""}
+</td>
             <td>${row.played}</td>
             <td>${row.wins}</td>
             <td>${row.draws}</td>
@@ -1145,6 +1234,62 @@
         }
 
         window.location.href = "/third-place.html";
+    }
+    function toggleMobileMenu() {
+        document.getElementById("mobileMenu").classList.toggle("show");
+    }
+
+    window.addEventListener("click", function(event) {
+        const menu = document.getElementById("mobileMenu");
+        const button = document.querySelector(".menu-btn");
+
+        if (
+            menu.classList.contains("show") &&
+            !menu.contains(event.target) &&
+            !button.contains(event.target)
+        ) {
+            menu.classList.remove("show");
+        }
+    });
+
+    const mobileAdminLink = document.getElementById("mobileAdminLink");
+
+    if (mobileAdminLink && localStorage.getItem("role") !== "ADMIN") {
+        mobileAdminLink.style.display = "none";
+    }
+    function moveTeamUp(group, teamName) {
+        moveTeamByDirection(group, teamName, -1);
+    }
+
+    function moveTeamDown(group, teamName) {
+        moveTeamByDirection(group, teamName, 1);
+    }
+
+    function moveTeamByDirection(group, teamName, direction) {
+        if (predictionsLocked || viewingOtherUser) {
+            showMessage("Predictions are locked.", true);
+            return;
+        }
+
+        const index = currentGroupTable.findIndex(row => row.teamName === teamName);
+        const targetIndex = index + direction;
+
+        if (index < 0 || targetIndex < 0 || targetIndex >= currentGroupTable.length) {
+            return;
+        }
+
+        const currentRow = currentGroupTable[index];
+        const targetRow = currentGroupTable[targetIndex];
+
+        if (currentRow.points !== targetRow.points) {
+            return;
+        }
+
+        const temp = currentGroupTable[index];
+        currentGroupTable[index] = currentGroupTable[targetIndex];
+        currentGroupTable[targetIndex] = temp;
+
+        renderGroupTable(group, currentGroupTable);
     }
 </script>
 
