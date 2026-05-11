@@ -1,12 +1,25 @@
 package com.penca.lapenca.security;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class JwtServiceTest {
 
-    private final JwtService jwtService = new JwtService();
+    private JwtService jwtService;
+
+    @BeforeEach
+    void setUp() {
+        jwtService = new JwtService();
+
+        ReflectionTestUtils.setField(
+                jwtService,
+                "secret",
+                "this-is-a-test-secret-key-that-is-long-enough-for-jwt-signing"
+        );
+    }
 
     @Test
     void generatedTokenShouldBeValidForSameUsername() {

@@ -2,6 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Group Predictions - La Penca</title>
     <style>
         * { box-sizing: border-box; }
@@ -353,7 +354,16 @@
 
             .toolbar { display: block; }
 
-            .toolbar-actions { margin-top: 14px; }
+            .toolbar-actions {
+                margin-top: 14px;
+                display: grid;
+                grid-template-columns: 1fr;
+            }
+
+            .primary-btn,
+            .secondary-btn {
+                width: 100%;
+            }
 
             .links { display: none; }
 
@@ -363,7 +373,41 @@
 
             .vs { display: none; }
 
-            .pick-buttons { grid-column: 1 / -1; }
+            .pick-buttons {
+                grid-column: 1 / -1;
+                justify-content: center;
+            }
+        }
+        @media (max-width: 480px) {
+            .page {
+                padding: 26px 14px 55px;
+            }
+
+            h1 {
+                font-size: 34px;
+            }
+
+            .group-card {
+                padding: 14px;
+            }
+
+            .match {
+                gap: 8px;
+            }
+
+            .pick {
+                width: 42px;
+                height: 36px;
+            }
+
+            .group-table {
+                font-size: 12px;
+            }
+
+            .group-table th,
+            .group-table td {
+                padding: 6px;
+            }
         }
     </style>
 </head>

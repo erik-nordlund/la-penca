@@ -2,6 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>La Penca</title>
     <style>
         * {
@@ -199,20 +200,57 @@
         @media (max-width: 900px) {
             .page {
                 grid-template-columns: 1fr;
-                padding: 35px 20px;
+                gap: 28px;
+                padding: 28px 18px;
+                align-items: start;
+            }
+
+            .hero {
+                max-width: none;
             }
 
             h1 {
                 font-size: 46px;
             }
 
-            .panel {
-                justify-self: stretch;
-                max-width: none;
+            .subtitle {
+                font-size: 17px;
+                margin-bottom: 22px;
             }
 
             .features {
                 grid-template-columns: 1fr;
+                gap: 12px;
+                margin-top: 22px;
+            }
+
+            .panel {
+                justify-self: stretch;
+                max-width: none;
+                padding: 22px;
+                border-radius: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page {
+                padding: 24px 16px;
+            }
+
+            h1 {
+                font-size: 42px;
+            }
+
+            .badge {
+                font-size: 12px;
+            }
+
+            .feature {
+                padding: 14px;
+            }
+
+            .panel {
+                padding: 20px;
             }
         }
     </style>

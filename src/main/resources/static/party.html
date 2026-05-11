@@ -2,6 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Party - La Penca</title>
     <style>
         * { box-sizing: border-box; }
@@ -42,6 +43,7 @@
         .page {
             padding: 55px 70px;
             max-width: 1400px;
+            margin: 0 auto;
         }
 
         .badge {
@@ -424,12 +426,20 @@
         }
 
         @media (max-width: 1000px) {
+            .navbar {
+                padding: 14px 18px;
+            }
+
             .page {
-                padding: 35px 20px;
+                padding: 32px 18px 55px;
             }
 
             h1 {
                 font-size: 42px;
+            }
+
+            .subtitle {
+                font-size: 16px;
             }
 
             .links {
@@ -443,12 +453,79 @@
             .actions {
                 grid-template-columns: 1fr;
             }
+
+            .card {
+                padding: 20px;
+                border-radius: 20px;
+            }
+
+            .card-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
             .countdown-card {
                 display: block;
+                padding: 24px 20px;
+                margin-bottom: 28px;
+            }
+
+            .countdown-label {
+                font-size: 28px;
             }
 
             .countdown-timer {
                 margin-top: 18px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page {
+                padding: 26px 14px 50px;
+            }
+
+            h1 {
+                font-size: 34px;
+            }
+
+            h2 {
+                font-size: 22px;
+            }
+
+            .user-pill {
+                margin-bottom: 24px;
+            }
+
+            .countdown-timer {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .countdown-unit {
+                min-width: 0;
+            }
+
+            .countdown-number {
+                font-size: 28px;
+            }
+
+            .code-value {
+                font-size: 30px;
+                letter-spacing: 3px;
+                word-break: break-word;
+            }
+
+            .party-row,
+            .member-row {
+                grid-template-columns: 1fr;
+            }
+
+            .modal {
+                padding: 22px;
+            }
+
+            .modal-actions {
+                grid-template-columns: 1fr;
             }
         }
     </style>

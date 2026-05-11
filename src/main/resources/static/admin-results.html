@@ -2,6 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Results - La Penca</title>
     <style>
         * { box-sizing: border-box; }
@@ -387,13 +388,99 @@
         .hidden { display: none; }
 
         @media (max-width: 1000px) {
-            .page { padding: 30px 18px 60px; }
-            .layout { grid-template-columns: 1fr; }
-            h1 { font-size: 40px; }
-            .links { display: none; }
-            .group-buttons, .tabs, .round-buttons { grid-template-columns: 1fr; }
-            .match-top, .match-actions, .team-row { grid-template-columns: 1fr; }
-            .team.away { text-align: left; }
+            .navbar {
+                padding: 14px 18px;
+            }
+
+            .page {
+                padding: 28px 16px 60px;
+            }
+
+            h1 {
+                font-size: 40px;
+            }
+
+            .subtitle {
+                font-size: 16px;
+            }
+
+            .links {
+                display: none;
+            }
+
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                grid-template-columns: 1fr;
+            }
+
+            .group-buttons {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .round-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .match-top,
+            .match-actions,
+            .team-row {
+                grid-template-columns: 1fr;
+            }
+
+            .team.away {
+                text-align: left;
+            }
+
+            .knockout-grid {
+                grid-template-columns: 1fr;
+                overflow-x: visible;
+            }
+
+            .round-column {
+                min-width: 0;
+            }
+
+            .card {
+                padding: 20px;
+                border-radius: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 36px;
+            }
+
+            .page {
+                padding: 24px 14px 55px;
+            }
+
+            .group-buttons,
+            .round-buttons {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .card-title {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .score-row {
+                grid-template-columns: 1fr;
+            }
+
+            .knockout-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .primary-btn,
+            .secondary-btn,
+            .danger-btn {
+                width: 100%;
+            }
         }
     </style>
 </head>

@@ -2,6 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>World Cup 2026 - La Penca</title>
     <style>
         * { box-sizing: border-box; }
@@ -15,6 +16,7 @@
                     radial-gradient(circle at bottom right, rgba(13,110,253,0.14), transparent 35%),
                     #0f0f0f;
             color: white;
+            overflow-x: auto;
         }
 
         .navbar {
@@ -503,12 +505,16 @@
                 grid-template-columns: 1fr;
             }
 
-            .knockout-grid {
-                grid-template-columns: repeat(2, minmax(260px, 1fr));
+            .groups-grid {
+                grid-template-columns: 1fr;
             }
         }
 
         @media (max-width: 850px) {
+            .navbar {
+                padding: 14px 18px;
+            }
+
             .page {
                 padding: 30px 18px 60px;
             }
@@ -517,9 +523,11 @@
                 font-size: 38px;
             }
 
-            .tabs,
-            .groups-grid,
-            .knockout-grid {
+            .subtitle {
+                font-size: 16px;
+            }
+
+            .tabs {
                 grid-template-columns: 1fr;
             }
 
@@ -530,6 +538,7 @@
             .match-row {
                 grid-template-columns: 1fr;
                 text-align: left;
+                padding: 16px;
             }
 
             .match-team.away {
@@ -538,6 +547,52 @@
 
             .score {
                 text-align: left;
+            }
+
+            .wc-bracket-wrap {
+                margin-top: 34px;
+                min-width: 1500px;
+                height: 1180px;
+                overflow: visible;
+            }
+
+            .wc-bracket-wrap::before {
+                content: "Swipe sideways to view the full bracket →";
+                position: absolute;
+                top: -24px;
+                left: 0;
+                color: #aaa;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page {
+                padding: 24px 14px 55px;
+            }
+
+            h1 {
+                font-size: 34px;
+            }
+
+            .badge {
+                font-size: 12px;
+            }
+
+            .group-card,
+            .side-card,
+            .match-row {
+                border-radius: 16px;
+            }
+
+            th,
+            td {
+                padding: 8px 6px;
+                font-size: 12px;
+            }
+
+            .team-cell {
+                gap: 6px;
             }
         }
     </style>

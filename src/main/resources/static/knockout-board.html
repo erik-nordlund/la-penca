@@ -2,14 +2,19 @@
 <html>
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Knockout Board - La Penca</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       font-family: Arial, sans-serif;
       background: #111;
       color: white;
-      overflow: auto;
+      overflow-x: auto;
     }
 
     .navbar {
@@ -269,6 +274,70 @@
       border-radius: 3px;
       margin-right: 6px;
       vertical-align: middle;
+    }
+    @media (max-width: 900px) {
+      .navbar {
+        padding: 14px 18px;
+      }
+
+      .links {
+        display: none;
+      }
+
+      .page {
+        padding: 24px 14px 55px;
+      }
+
+      .topbar {
+        display: block;
+      }
+
+      h1 {
+        font-size: 36px;
+        margin-top: 8px;
+      }
+
+      .bracket-wrap {
+        margin-top: 28px;
+        min-width: 1500px;
+        height: 980px;
+      }
+
+      .bracket-wrap::before {
+        content: "Swipe sideways to view the full bracket →";
+        position: absolute;
+        top: -22px;
+        left: 0;
+        color: #aaa;
+        font-size: 13px;
+      }
+
+      .score-summary {
+        margin-top: 22px;
+        padding: 16px;
+      }
+
+      .score-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .page {
+        padding: 22px 12px 50px;
+      }
+
+      h1 {
+        font-size: 32px;
+      }
+
+      .badge {
+        font-size: 12px;
+      }
+
+      .score-summary h2 {
+        font-size: 22px;
+      }
     }
   </style>
 </head>

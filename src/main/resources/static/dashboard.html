@@ -2,6 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - La Penca</title>
     <style>
         * { box-sizing: border-box; }
@@ -24,6 +25,10 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid rgba(255,255,255,0.1);
+
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
         .logo {
@@ -279,8 +284,12 @@
         }
 
         @media (max-width: 1000px) {
+            .navbar {
+                padding: 14px 18px;
+            }
+
             .page {
-                padding: 35px 20px;
+                padding: 32px 18px 55px;
             }
 
             .grid {
@@ -291,6 +300,10 @@
                 font-size: 42px;
             }
 
+            .subtitle {
+                font-size: 16px;
+            }
+
             .links {
                 display: none;
             }
@@ -298,6 +311,51 @@
             .actions,
             .info-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 20px;
+                border-radius: 20px;
+            }
+
+            .progress-item {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page {
+                padding: 26px 14px 50px;
+            }
+
+            h1 {
+                font-size: 36px;
+            }
+
+            h2 {
+                font-size: 22px;
+            }
+
+            .card-title {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .info-value {
+                font-size: 20px;
+                word-break: break-word;
+            }
+
+            .leader-row {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 6px;
+            }
+
+            .primary-btn,
+            .danger-btn {
+                width: 100%;
             }
         }
     </style>
