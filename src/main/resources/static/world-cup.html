@@ -705,9 +705,11 @@
         { key: "FINAL", title: "Final" },
         { key: "THIRD_PLACE", title: "Third place" }
     ];
+    const username = localStorage.getItem("username");
     const token = localStorage.getItem("token");
+    const refreshToken = localStorage.getItem("refreshToken");
 
-    if (!token) {
+    if (!username || (!token && !refreshToken)) {
         window.location.href = "/index.html";
     }
 

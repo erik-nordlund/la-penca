@@ -549,10 +549,10 @@
     const viewingOtherUser = !!viewUser && viewUser !== loggedInUser;
 
     const token = localStorage.getItem("token");
+    const refreshToken = localStorage.getItem("refreshToken");
     const groups = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"];
 
-
-    if (!loggedInUser || !token) {
+    if (!loggedInUser || (!token && !refreshToken)) {
         window.location.href = "/index.html";
     }
 

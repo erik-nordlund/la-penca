@@ -475,8 +475,9 @@
   const username = viewUser || loggedInUser;
   const viewingOtherUser = !!viewUser && viewUser !== loggedInUser;
   const token = localStorage.getItem("token");
+  const refreshToken = localStorage.getItem("refreshToken");
 
-  if (!loggedInUser || !token) {
+  if (!loggedInUser || (!token && !refreshToken)) {
     window.location.href = "/index.html";
   }
 

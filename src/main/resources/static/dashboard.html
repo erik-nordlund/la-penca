@@ -595,13 +595,14 @@
         </div>
     </section>
 </main>
-
+<script src="/js/auth.js"></script>
 <script>
     const username = localStorage.getItem("username");
     const partyCode = localStorage.getItem("partyCode");
     const token = localStorage.getItem("token");
+    const refreshToken = localStorage.getItem("refreshToken");
 
-    if (!username || !token) {
+    if (!username || (!token && !refreshToken)) {
         window.location.href = "/index.html";
     }
 
@@ -633,11 +634,19 @@
     }
 
     function logout() {
-        localStorage.removeItem("username");
-        localStorage.removeItem("partyCode");
-        localStorage.removeItem("role");
-        localStorage.removeItem("token");
-        window.location.href = "/index.html";
+        const refreshToken = localStorage.getItem("refreshToken");
+
+        if (refreshToken) {
+            fetch("/auth/logout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ refreshToken })
+            }).finally(logoutAndRedirect);
+        } else {
+            logoutAndRedirect();
+        }
     }
     const adminLink = document.getElementById("adminLink");
     if (adminLink && localStorage.getItem("role") !== "ADMIN") {

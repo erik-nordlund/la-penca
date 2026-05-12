@@ -570,6 +570,7 @@
     const loggedInUser = localStorage.getItem("username");
     const code = localStorage.getItem("partyCode");
     const token = localStorage.getItem("token");
+    const refreshToken = localStorage.getItem("refreshToken");
 
     const params = new URLSearchParams(window.location.search);
     const viewUser = params.get("viewUser");
@@ -577,7 +578,7 @@
     const username = viewUser || loggedInUser;
     const viewingOtherUser = !!viewUser && viewUser !== loggedInUser;
 
-    if (!loggedInUser || !token) {
+    if (!loggedInUser || (!token && !refreshToken)) {
         window.location.href = "/index.html";
     }
 

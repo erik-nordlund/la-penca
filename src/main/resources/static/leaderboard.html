@@ -591,8 +591,9 @@
     const username = localStorage.getItem("username");
     const code = localStorage.getItem("partyCode");
     const token = localStorage.getItem("token");
+    const refreshToken = localStorage.getItem("refreshToken");
 
-    if (!username || !token) {
+    if (!username || (!token && !refreshToken)) {
         window.location.href = "/index.html";
     }
 

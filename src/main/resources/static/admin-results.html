@@ -665,6 +665,7 @@
 <script src="/js/auth.js"></script>
 <script>
     const token = localStorage.getItem("token");
+    const refreshToken = localStorage.getItem("refreshToken");
     const role = localStorage.getItem("role");
 
     let currentGroup = "A";
@@ -680,7 +681,7 @@
         { value: "THIRD_PLACE", label: "Third place" }
     ];
 
-    if (!token) {
+    if (!token && !refreshToken) {
         window.location.href = "/index.html";
     }
 

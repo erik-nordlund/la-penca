@@ -378,15 +378,21 @@
             })
         })
             .then(res => {
+                if (res.status === 429) {
+                    throw new Error("Too many attempts. Try again soon.");
+                }
+
                 if (!res.ok) {
                     throw new Error("Could not create account. Username or email may already exist.");
                 }
+
                 return res.json();
             })
             .then(user => {
                 localStorage.setItem("username", user.username);
                 localStorage.setItem("role", user.role);
                 localStorage.setItem("token", user.token);
+                localStorage.setItem("refreshToken", user.refreshToken);
                 localStorage.removeItem("partyCode");
 
                 window.location.href = "/party.html";
@@ -423,15 +429,21 @@
             })
         })
             .then(res => {
+                if (res.status === 429) {
+                    throw new Error("Too many login attempts. Try again soon.");
+                }
+
                 if (!res.ok) {
                     throw new Error("Invalid username or password.");
                 }
+
                 return res.json();
             })
             .then(user => {
                 localStorage.setItem("username", user.username);
                 localStorage.setItem("role", user.role);
                 localStorage.setItem("token", user.token);
+                localStorage.setItem("refreshToken", user.refreshToken);
 
                 return authFetch(`/user/party`);
             })

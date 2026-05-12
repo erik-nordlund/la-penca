@@ -2,9 +2,11 @@ package com.penca.lapenca.controller;
 
 import com.penca.lapenca.dto.AuthRequestDto;
 import com.penca.lapenca.dto.AuthResponseDto;
+import com.penca.lapenca.dto.RefreshRequestDto;
 import com.penca.lapenca.entity.AppUser;
 import com.penca.lapenca.repository.AppUserRepository;
 import com.penca.lapenca.security.JwtService;
+import com.penca.lapenca.security.RefreshTokenService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -17,13 +19,16 @@ public class AppUserController {
     private final AppUserRepository appUserRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final RefreshTokenService refreshTokenService;
 
     public AppUserController(AppUserRepository appUserRepository,
                              PasswordEncoder passwordEncoder,
-                             JwtService jwtService) {
+                             JwtService jwtService,
+                             RefreshTokenService refreshTokenService) {
         this.appUserRepository = appUserRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.refreshTokenService = refreshTokenService;
     }
 
     @PostMapping("/register")
@@ -75,20 +80,49 @@ public class AppUserController {
 
         return toResponse(user);
     }
+    @PostMapping("/refresh")
+    public AuthResponseDto refresh(@RequestBody RefreshRequestDto request) {
 
-    private AuthResponseDto toResponse(AppUser user) {
+        AppUser user = refreshTokenService.validateRefreshToken(request.getRefreshToken());
 
-        String token = jwtService.generateToken(
+        String accessToken = jwtService.generateToken(
                 user.getUsername(),
                 user.getRole()
         );
+
+        String newRefreshToken = refreshTokenService.createRefreshToken(user).getToken();
 
         return new AuthResponseDto(
                 user.getId(),
                 user.getUsername(),
                 user.getEmail(),
                 user.getRole(),
-                token
+                accessToken,
+                newRefreshToken
+        );
+    }
+
+    @PostMapping("/logout")
+    public String logout(@RequestBody RefreshRequestDto request) {
+        refreshTokenService.revokeRefreshToken(request.getRefreshToken());
+        return "Logged out";
+    }
+
+    private AuthResponseDto toResponse(AppUser user) {
+        String token = jwtService.generateToken(
+                user.getUsername(),
+                user.getRole()
+        );
+
+        String refreshToken = refreshTokenService.createRefreshToken(user).getToken();
+
+        return new AuthResponseDto(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole(),
+                token,
+                refreshToken
         );
     }
 
