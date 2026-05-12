@@ -810,7 +810,9 @@
       return;
     }
 
-    authFetch(`/knockout/save?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}&round=${roundName}&matchNumber=${matchNumber}&slot=${encodeURIComponent(slot)}&winner=${encodeURIComponent(winner)}`)
+    authFetch(`/knockout/save?code=${encodeURIComponent(code)}&round=${roundName}&matchNumber=${matchNumber}&slot=${encodeURIComponent(slot)}&winner=${encodeURIComponent(winner)}`, {
+      method: "POST"
+    })
             .then(res => {
               if (!res.ok) {
                 throw new Error("Predictions are locked or could not be saved.");

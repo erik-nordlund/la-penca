@@ -2,13 +2,12 @@ package com.penca.lapenca.controller;
 
 import com.penca.lapenca.dto.*;
 import com.penca.lapenca.entity.*;
-import com.penca.lapenca.repository.AppUserRepository;
 import com.penca.lapenca.service.PredictionService;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 
@@ -16,20 +15,17 @@ import java.util.List;
 public class PredictionController {
 
     private final PredictionService predictionService;
-    private final AppUserRepository appUserRepository;
 
-    public PredictionController(PredictionService predictionService,
-                                AppUserRepository appUserRepository) {
+    public PredictionController(PredictionService predictionService) {
         this.predictionService = predictionService;
-        this.appUserRepository = appUserRepository;
     }
 
-    @GetMapping("/prediction/save")
-    public Prediction savePrediction(@RequestParam String username,
+    @PostMapping("/prediction/save")
+    public Prediction savePrediction(Authentication authentication,
                                      @RequestParam String code,
                                      @RequestParam Long matchId,
                                      @RequestParam MatchOutcome outcome) {
-        return predictionService.savePrediction(username, code, matchId, outcome);
+        return predictionService.savePrediction(authentication.getName(), code, matchId, outcome);
     }
     @GetMapping("/group-table")
     public List<GroupTableRow> getGroupTable(@RequestParam String viewerUsername,
@@ -62,11 +58,11 @@ public class PredictionController {
                                                          @RequestParam String code) {
         return predictionService.getAllThirdPlaceTeams(username, code);
     }
-    @GetMapping("/prediction/auto-group")
-    public List<Prediction> autoPredictGroup(@RequestParam String username,
+    @PostMapping("/prediction/auto-group")
+    public List<Prediction> autoPredictGroup(Authentication authentication,
                                              @RequestParam String code,
                                              @RequestParam String group) {
-        return predictionService.autoPredictGroup(username, code, group);
+        return predictionService.autoPredictGroup(authentication.getName(), code, group);
     }
     @GetMapping("/third-place-selection")
     public ThirdPlaceSelectionDto getThirdPlaceSelection(@RequestParam String viewerUsername,
@@ -75,12 +71,13 @@ public class PredictionController {
         predictionService.validateCanViewPredictions(viewerUsername, username, code);
         return predictionService.getThirdPlaceSelection(username, code);
     }
-    @GetMapping("/third-place-selection/save")
-    public List<String> saveQualifiedThirdPlaceTeams(@RequestParam String username,
+    @PostMapping("/third-place-selection/save")
+    public List<String> saveQualifiedThirdPlaceTeams(Authentication authentication,
                                                      @RequestParam String code,
                                                      @RequestParam List<String> teams) {
-        return predictionService.saveQualifiedThirdPlaceTeams(username, code, teams);
+        return predictionService.saveQualifiedThirdPlaceTeams(authentication.getName(), code, teams);
     }
+
     @GetMapping("/qualified-teams-overview")
     public QualifiedTeamsOverviewDto getQualifiedTeamsOverview(@RequestParam String username,
                                                                @RequestParam String code) {
@@ -102,30 +99,39 @@ public class PredictionController {
         predictionService.validateCanViewPredictions(viewerUsername, username, code);
         return predictionService.buildRoundOf32(username, code);
     }
-    @GetMapping("/knockout/save")
-    public KnockoutPrediction saveKnockoutPrediction(@RequestParam String username,
+    @PostMapping("/knockout/save")
+    public KnockoutPrediction saveKnockoutPrediction(Authentication authentication,
                                                      @RequestParam String code,
                                                      @RequestParam String round,
                                                      @RequestParam int matchNumber,
                                                      @RequestParam String slot,
                                                      @RequestParam String winner) {
-        return predictionService.saveKnockoutPrediction(username, code, round, matchNumber, slot, winner);
+        return predictionService.saveKnockoutPrediction(
+                authentication.getName(),
+                code,
+                round,
+                matchNumber,
+                slot,
+                winner
+        );
     }
-    @GetMapping("/knockout/auto-round-of-32")
-    public List<KnockoutPrediction> autoPickRoundOf32HomeTeams(@RequestParam String username,
+
+    @PostMapping("/knockout/auto-round-of-32")
+    public List<KnockoutPrediction> autoPickRoundOf32HomeTeams(Authentication authentication,
                                                                @RequestParam String code) {
-        return predictionService.autoPickRoundOf32HomeTeams(username, code);
+        return predictionService.autoPickRoundOf32HomeTeams(authentication.getName(), code);
     }
+
     @GetMapping("/round-of-16")
     public List<KnockoutMatchDto> getRoundOf16(@RequestParam String username,
                                                @RequestParam String code) {
         return predictionService.buildRoundOf16(username, code);
     }
-    @GetMapping("/knockout/auto-round")
-    public List<KnockoutPrediction> autoPickRound(@RequestParam String username,
+    @PostMapping("/knockout/auto-round")
+    public List<KnockoutPrediction> autoPickRound(Authentication authentication,
                                                   @RequestParam String code,
                                                   @RequestParam String round) {
-        return predictionService.autoPickRound(username, code, round);
+        return predictionService.autoPickRound(authentication.getName(), code, round);
     }
     @GetMapping("/quarter-finals")
     public List<KnockoutMatchDto> getQuarterFinals(@RequestParam String username,
@@ -173,19 +179,15 @@ public class PredictionController {
                         @RequestParam String code) {
         return predictionService.calculateUserScore(username, code);
     }
-    @GetMapping("/actual/qualified/add")
-    public ActualQualifiedTeam addActualQualifiedTeam(@RequestParam String adminUsername,
-                                                      @RequestParam String team,
+    @PostMapping("/actual/qualified/add")
+    public ActualQualifiedTeam addActualQualifiedTeam(@RequestParam String team,
                                                       @RequestParam String stage) {
-        requireAdmin(adminUsername);
         return predictionService.addActualQualifiedTeam(team, stage);
     }
-    @GetMapping("/actual/match-result")
-    public Match setActualMatchResult(@RequestParam String adminUsername,
-                                      @RequestParam Long matchId,
+    @PostMapping("/actual/match-result")
+    public Match setActualMatchResult(@RequestParam Long matchId,
                                       @RequestParam int homeScore,
                                       @RequestParam int awayScore) {
-        requireAdmin(adminUsername);
         return predictionService.setActualMatchResult(matchId, homeScore, awayScore);
     }
     @GetMapping("/leaderboard")
@@ -197,9 +199,8 @@ public class PredictionController {
                                                      @RequestParam String code) {
         return predictionService.buildThirdPlaceMatch(username, code);
     }
-    @GetMapping("/actual/reset")
-    public String resetActualData(@RequestParam String adminUsername) {
-        requireAdmin(adminUsername);
+    @PostMapping("/actual/reset")
+    public String resetActualData() {
         return predictionService.resetActualData();
     }
     @GetMapping("/score-breakdown")
@@ -207,21 +208,19 @@ public class PredictionController {
                                                @RequestParam String code) {
         return predictionService.calculateUserScoreBreakdown(username, code);
     }
-    @GetMapping("/actual/match-result/reset")
-    public Match resetActualMatchResult(@RequestParam String adminUsername,
-                                        @RequestParam Long matchId) {
-        requireAdmin(adminUsername);
+    @PostMapping("/actual/match-result/reset")
+    public Match resetActualMatchResult(@RequestParam Long matchId) {
         return predictionService.resetActualMatchResult(matchId);
     }
 
     @GetMapping("/matches/group")
     public List<Match> getGroupMatches(@RequestParam String group) {
+
         return predictionService.getGroupMatches(group);
     }
-    @GetMapping("/actual/group/reset")
-    public String resetActualGroupResults(@RequestParam String adminUsername,
-                                          @RequestParam String group) {
-        requireAdmin(adminUsername);
+
+    @PostMapping("/actual/group/reset")
+    public String resetActualGroupResults(@RequestParam String group) {
         return predictionService.resetActualGroupResults(group);
     }
     @GetMapping("/actual/group-table")
@@ -234,10 +233,8 @@ public class PredictionController {
         return predictionService.getActualThirdPlaceTeams();
     }
 
-    @GetMapping("/actual/round-of-32/save")
-    public List<ActualQualifiedTeam> saveActualRoundOf32Teams(@RequestParam String adminUsername,
-                                                              @RequestParam List<String> teams) {
-        requireAdmin(adminUsername);
+    @PostMapping("/actual/round-of-32/save")
+    public List<ActualQualifiedTeam> saveActualRoundOf32Teams(@RequestParam List<String> teams) {
         return predictionService.saveActualRoundOf32Teams(teams);
     }
 
@@ -246,17 +243,13 @@ public class PredictionController {
         return predictionService.getActualQualifiedTeamsByStage(stage);
     }
 
-    @GetMapping("/actual/qualified/reset-stage")
-    public String resetActualQualifiedTeamsByStage(@RequestParam String adminUsername,
-                                                   @RequestParam String stage) {
-        requireAdmin(adminUsername);
+    @PostMapping("/actual/qualified/reset-stage")
+    public String resetActualQualifiedTeamsByStage(@RequestParam String stage) {
         return predictionService.resetActualQualifiedTeamsByStage(stage);
     }
 
-    @GetMapping("/actual/qualified/delete")
-    public String deleteActualQualifiedTeam(@RequestParam String adminUsername,
-                                            @RequestParam Long id) {
-        requireAdmin(adminUsername);
+    @PostMapping("/actual/qualified/delete")
+    public String deleteActualQualifiedTeam(@RequestParam Long id) {
         return predictionService.deleteActualQualifiedTeam(id);
     }
     @GetMapping("/actual/knockout/round")
@@ -269,9 +262,8 @@ public class PredictionController {
         return predictionService.getActualKnockoutResults(round);
     }
 
-    @GetMapping("/actual/knockout/save")
-    public ActualKnockoutResult saveActualKnockoutResult(@RequestParam String adminUsername,
-                                                         @RequestParam String round,
+    @PostMapping("/actual/knockout/save")
+    public ActualKnockoutResult saveActualKnockoutResult(@RequestParam String round,
                                                          @RequestParam int matchNumber,
                                                          @RequestParam String slot,
                                                          @RequestParam String homeTeam,
@@ -280,7 +272,6 @@ public class PredictionController {
                                                          @RequestParam int awayScore,
                                                          @RequestParam(required = false) Integer homePenaltyScore,
                                                          @RequestParam(required = false) Integer awayPenaltyScore) {
-        requireAdmin(adminUsername);
         return predictionService.saveActualKnockoutResult(
                 round,
                 matchNumber,
@@ -294,19 +285,22 @@ public class PredictionController {
         );
     }
 
-    @GetMapping("/actual/knockout/reset")
-    public ActualKnockoutResult resetActualKnockoutResult(@RequestParam String adminUsername,
-                                                          @RequestParam String round,
+    @PostMapping("/actual/knockout/reset")
+    public ActualKnockoutResult resetActualKnockoutResult(@RequestParam String round,
                                                           @RequestParam int matchNumber) {
-        requireAdmin(adminUsername);
         return predictionService.resetActualKnockoutResult(round, matchNumber);
     }
-    @GetMapping("/group-tiebreak/save")
-    public List<GroupTieBreakRanking> saveGroupTieBreakRanking(@RequestParam String username,
+    @PostMapping("/group-tiebreak/save")
+    public List<GroupTieBreakRanking> saveGroupTieBreakRanking(Authentication authentication,
                                                                @RequestParam String code,
                                                                @RequestParam String group,
                                                                @RequestParam List<String> teams) {
-        return predictionService.saveGroupTieBreakRanking(username, code, group, teams);
+        return predictionService.saveGroupTieBreakRanking(
+                authentication.getName(),
+                code,
+                group,
+                teams
+        );
     }
 
     @GetMapping("/group-tiebreak")
@@ -314,13 +308,5 @@ public class PredictionController {
                                                 @RequestParam String code,
                                                 @RequestParam String group) {
         return predictionService.getGroupTieBreakRanking(username, code, group);
-    }
-    private void requireAdmin(String username) {
-        AppUser user = appUserRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
-
-        if (!"ADMIN".equals(user.getRole())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Admin access required");
-        }
     }
 }

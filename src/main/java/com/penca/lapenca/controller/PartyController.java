@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.security.core.Authentication;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,11 +36,11 @@ public class PartyController {
         this.partyMemberRepository = partyMemberRepository;
     }
 
-    @GetMapping("/party/create")
-    public Party createParty(@RequestParam String username,
+    @PostMapping("/party/create")
+    public Party createParty(Authentication authentication,
                              @RequestParam String name) {
 
-        AppUser user = appUserRepository.findByUsername(username)
+        AppUser user = appUserRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Party party = partyService.createParty(name.trim());
@@ -54,14 +55,15 @@ public class PartyController {
         return party;
     }
 
-    @GetMapping("/party/join")
-    public PartyMember joinParty(@RequestParam String username, @RequestParam String code) {
-        return partyMemberService.joinParty(username, code);
+    @PostMapping("/party/join")
+    public PartyMember joinParty(Authentication authentication,
+                                 @RequestParam String code) {
+        return partyMemberService.joinParty(authentication.getName(), code);
     }
 
     @GetMapping("/user/party")
-    public ResponseEntity<Party> getUserParty(@RequestParam String username) {
-        AppUser user = appUserRepository.findByUsername(username)
+    public ResponseEntity<Party> getUserParty(Authentication authentication) {
+        AppUser user = appUserRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         return partyMemberRepository.findFirstByUser(user)
@@ -70,8 +72,8 @@ public class PartyController {
     }
 
     @GetMapping("/party/my-parties")
-    public List<PartyDto> getMyParties(@RequestParam String username) {
-        AppUser user = appUserRepository.findByUsername(username)
+    public List<PartyDto> getMyParties(Authentication authentication) {
+        AppUser user = appUserRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         return partyMemberRepository.findByUser(user)
@@ -102,17 +104,15 @@ public class PartyController {
     }
 
     @PostMapping("/party/leave")
-    public String leaveParty(@RequestParam String username,
+    public String leaveParty(Authentication authentication,
                              @RequestParam String code) {
-        partyMemberService.leaveParty(username, code);
+        partyMemberService.leaveParty(authentication.getName(), code);
         return "Left party";
     }
 
     @PostMapping("/party/deadline/set")
-    public Party setPredictionDeadline(@RequestParam String adminUsername,
-                                       @RequestParam String code,
+    public Party setPredictionDeadline(@RequestParam String code,
                                        @RequestParam String deadline) {
-        requireAdmin(adminUsername);
         return partyService.setPredictionDeadline(
                 code,
                 LocalDateTime.parse(deadline)
@@ -120,15 +120,8 @@ public class PartyController {
     }
 
     @GetMapping("/party/lock-status")
-    public boolean getLockStatus(@RequestParam String code) {
+    public boolean getLockStatus(@RequestParam String code)
+    {
         return partyService.isPredictionLocked(code);
-    }
-    private void requireAdmin(String username) {
-        AppUser user = appUserRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
-
-        if (!"ADMIN".equals(user.getRole())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Admin access required");
-        }
     }
 }

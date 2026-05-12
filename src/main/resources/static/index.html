@@ -433,7 +433,7 @@
                 localStorage.setItem("role", user.role);
                 localStorage.setItem("token", user.token);
 
-                return authFetch(`/user/party?username=${encodeURIComponent(user.username)}`);
+                return authFetch(`/user/party`);
             })
             .then(res => {
                 if (res.status === 204) return null;

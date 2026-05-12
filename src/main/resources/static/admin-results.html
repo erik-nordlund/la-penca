@@ -664,7 +664,7 @@
 
 <script src="/js/auth.js"></script>
 <script>
-    const adminUsername = localStorage.getItem("username");
+    const token = localStorage.getItem("token");
     const role = localStorage.getItem("role");
 
     let currentGroup = "A";
@@ -680,7 +680,7 @@
         { value: "THIRD_PLACE", label: "Third place" }
     ];
 
-    if (!adminUsername) {
+    if (!token) {
         window.location.href = "/index.html";
     }
 
@@ -826,7 +826,9 @@
 
         setMessage("matchMessage", "Saving result...");
 
-        authFetch(`/actual/match-result?adminUsername=${encodeURIComponent(adminUsername)}&matchId=${encodeURIComponent(matchId)}&homeScore=${encodeURIComponent(homeScore)}&awayScore=${encodeURIComponent(awayScore)}`)
+        authFetch(`/actual/match-result?matchId=${encodeURIComponent(matchId)}&homeScore=${encodeURIComponent(homeScore)}&awayScore=${encodeURIComponent(awayScore)}`, {
+            method: "POST"
+        })
             .then(res => {
                 if (!res.ok) throw new Error("Save failed");
                 return res.json();
@@ -843,7 +845,9 @@
 
         setMessage("matchMessage", "Resetting match result...");
 
-        authFetch(`/actual/match-result/reset?adminUsername=${encodeURIComponent(adminUsername)}&matchId=${encodeURIComponent(matchId)}`)
+        authFetch(`/actual/match-result/reset?matchId=${encodeURIComponent(matchId)}`, {
+            method: "POST"
+        })
             .then(res => {
                 if (!res.ok) throw new Error("Reset failed");
                 return res.json();
@@ -963,7 +967,9 @@
 
         setMessage("thirdMessage", "Saving actual Round of 32 teams...");
 
-        authFetch(`/actual/round-of-32/save?adminUsername=${encodeURIComponent(adminUsername)}&teams=${teamsParam}`)
+        authFetch(`/actual/round-of-32/save?teams=${teamsParam}`, {
+            method: "POST"
+        })
             .then(res => {
                 if (!res.ok) throw new Error("Save failed");
                 return res.json();
@@ -1098,8 +1104,7 @@
             return;
         }
 
-        let url = `/actual/knockout/save?adminUsername=${encodeURIComponent(adminUsername)}&round=${encodeURIComponent(currentKnockoutRound)}&matchNumber=${encodeURIComponent(matchNumber)}&slot=${encodeURIComponent(slot)}&homeTeam=${encodeURIComponent(homeTeam)}&awayTeam=${encodeURIComponent(awayTeam)}&homeScore=${encodeURIComponent(homeScore)}&awayScore=${encodeURIComponent(awayScore)}`;
-
+        let url = `/actual/knockout/save?round=${encodeURIComponent(currentKnockoutRound)}&matchNumber=${encodeURIComponent(matchNumber)}&slot=${encodeURIComponent(slot)}&homeTeam=${encodeURIComponent(homeTeam)}&awayTeam=${encodeURIComponent(awayTeam)}&homeScore=${encodeURIComponent(homeScore)}&awayScore=${encodeURIComponent(awayScore)}`;
         if (Number(homeScore) === Number(awayScore)) {
             const homePenaltyScore = document.getElementById(`ko-home-pen-${matchNumber}`).value.trim();
             const awayPenaltyScore = document.getElementById(`ko-away-pen-${matchNumber}`).value.trim();
@@ -1119,7 +1124,9 @@
 
         setMessage("knockoutMessage", "Saving knockout result...");
 
-        authFetch(url)
+        authFetch(url, {
+            method: "POST"
+        })
             .then(res => {
                 if (!res.ok) throw new Error("Save failed");
                 return res.json();
@@ -1146,7 +1153,10 @@
 
         setMessage("knockoutMessage", "Resetting knockout result...");
 
-        authFetch(`/actual/knockout/reset?adminUsername=${encodeURIComponent(adminUsername)}&round=${encodeURIComponent(currentKnockoutRound)}&matchNumber=${encodeURIComponent(matchNumber)}`)            .then(res => {
+        authFetch(`/actual/knockout/reset?round=${encodeURIComponent(currentKnockoutRound)}&matchNumber=${encodeURIComponent(matchNumber)}`, {
+            method: "POST"
+        })
+            .then(res => {
                 if (!res.ok) throw new Error("Reset failed");
                 return res.json();
             })
@@ -1164,7 +1174,9 @@
 
         setMessage("resetMessage", "Resetting data...");
 
-        authFetch(`/actual/reset?adminUsername=${encodeURIComponent(adminUsername)}`)
+        authFetch(`/actual/reset`, {
+            method: "POST"
+        })
             .then(res => res.text())
             .then(message => {
                 setMessage("resetMessage", message);

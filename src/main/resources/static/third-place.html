@@ -881,7 +881,9 @@
 
         setMessage("Saving selection...");
 
-        authFetch(`/third-place-selection/save?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}&teams=${teamsParam}`)
+        authFetch(`/third-place-selection/save?code=${encodeURIComponent(code)}&teams=${teamsParam}`, {
+            method: "POST"
+        })
             .then(res => {
                 if (!res.ok) {
                     throw new Error("Save failed");

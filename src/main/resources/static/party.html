@@ -789,7 +789,7 @@
     loadMyParties();
 
     function loadMyParties() {
-        authFetch(`/party/my-parties?username=${encodeURIComponent(username)}`)
+        authFetch(`/party/my-parties`)
             .then(res => res.json())
             .then(data => {
                 parties = data || [];
@@ -1020,7 +1020,9 @@
 
         setMessage("createMessage", "Creating party...");
 
-        authFetch(`/party/create?username=${encodeURIComponent(username)}&name=${encodeURIComponent(name)}`)
+        authFetch(`/party/create?name=${encodeURIComponent(name)}`, {
+            method: "POST"
+        })
             .then(res => {
                 if (!res.ok) throw new Error("Create failed");
                 return res.json();
@@ -1047,7 +1049,9 @@
 
         setMessage("joinMessage", "Joining party...");
 
-        authFetch(`/party/join?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`)
+        authFetch(`/party/join?code=${encodeURIComponent(code)}`, {
+            method: "POST"
+        })
             .then(res => {
                 if (!res.ok) {
                     throw new Error("Could not join party. You may already be in this party.");
@@ -1080,7 +1084,7 @@
     function leaveParty() {
         if (!selectedParty) return;
 
-        authFetch(`/party/leave?username=${encodeURIComponent(username)}&code=${encodeURIComponent(selectedParty.code)}`, {
+        authFetch(`/party/leave?code=${encodeURIComponent(selectedParty.code)}`, {
             method: "POST"
         })
             .then(res => {

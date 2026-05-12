@@ -501,7 +501,7 @@
     <a href="/dashboard.html">Dashboard</a>
     <a href="/party.html">Party</a>
     <a href="/group.html" class="active">Group predictions</a>
-    <a href="/third-place.html">Third-place teams prediction</a>
+    <a href="#" onclick="handleThirdPlaceNavigation(event)">Third-place teams prediction</a>
     <a href="/knockout-board.html">Knockout predictions</a>
     <a href="/world-cup.html">World Cup 2026</a>
     <a href="/leaderboard.html">Leaderboard</a>
@@ -808,7 +808,9 @@
             return;
         }
 
-        authFetch(`/prediction/save?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}&matchId=${matchId}&outcome=${outcome}`)
+        authFetch(`/prediction/save?code=${encodeURIComponent(code)}&matchId=${matchId}&outcome=${outcome}`, {
+            method: "POST"
+        })
             .then(res => {
                 if (!res.ok) {
                     throw new Error("Predictions are locked or could not be saved.");
@@ -819,9 +821,13 @@
                 selected[matchId] = outcome;
 
                 const matchDiv = document.getElementById(`match-${matchId}`);
+
                 matchDiv.querySelectorAll(".pick").forEach(btn => {
-                    btn.classList.remove("selected");
+                    btn.classList.remove("selected", "correct-pick", "wrong-pick");
                 });
+
+                matchDiv.classList.remove("correct-result", "wrong-result");
+                matchDiv.classList.add(getResultClass(allGroupMatches.find(m => m.id === matchId)));
 
                 const buttons = matchDiv.querySelectorAll(".pick");
                 if (outcome === "HOME_WIN") buttons[0].classList.add("selected");
@@ -1071,7 +1077,9 @@
         const message = document.getElementById(`tieBreakMessage-${group}`);
         message.innerText = "Saving tie-break order...";
 
-        authFetch(`/group-tiebreak/save?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}&group=${encodeURIComponent(group)}&teams=${teamsParam}`)
+        authFetch(`/group-tiebreak/save?code=${encodeURIComponent(code)}&group=${encodeURIComponent(group)}&teams=${teamsParam}`, {
+            method: "POST"
+        })
             .then(res => {
                 if (!res.ok) throw new Error("Save failed");
                 return res.json();
