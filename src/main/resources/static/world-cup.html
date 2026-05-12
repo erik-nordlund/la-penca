@@ -723,8 +723,14 @@
     init();
 
     function init() {
+        document.getElementById("groupsView").innerHTML =
+            `<div class="empty-state">Loading World Cup data...</div>`;
+
         Promise.all([
-            authFetch("/matches").then(res => res.json()),
+            authFetch("/matches").then(res => {
+                if (!res.ok) throw new Error("Could not load matches");
+                return res.json();
+            }),
 
             ...groups.map(group =>
                 authFetch(`/actual/group-table?group=${encodeURIComponent(group)}`)

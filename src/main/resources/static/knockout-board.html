@@ -811,6 +811,12 @@
       return;
     }
 
+    const matchCard = document.getElementById(`${roundName}-${matchNumber}`);
+    const buttons = matchCard ? matchCard.querySelectorAll(".team") : [];
+
+    buttons.forEach(btn => btn.disabled = true);
+    document.getElementById("lockMessage").innerText = "Saving...";
+
     authFetch(`/knockout/save?code=${encodeURIComponent(code)}&round=${roundName}&matchNumber=${matchNumber}&slot=${encodeURIComponent(slot)}&winner=${encodeURIComponent(winner)}`, {
       method: "POST"
     })
@@ -829,10 +835,22 @@
 
               saved[roundName][matchNumber] = winner;
 
+              document.getElementById("lockMessage").innerText = "Saved!";
               renderBracket();
+
+              setTimeout(() => {
+                if (!predictionsLocked && !viewingOtherUser) {
+                  document.getElementById("lockMessage").innerText = "";
+                }
+              }, 900);
             })
             .catch(err => {
               document.getElementById("lockMessage").innerText = err.message;
+            })
+            .finally(() => {
+              if (!predictionsLocked && !viewingOtherUser) {
+                buttons.forEach(btn => btn.disabled = false);
+              }
             });
   }
 

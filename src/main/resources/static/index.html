@@ -301,7 +301,7 @@
             <label>Password</label>
             <input id="loginPassword" type="password" placeholder="Password" onkeydown="handleEnter(event, login)">
 
-            <button class="primary-btn" onclick="login()">Continue</button>
+            <button id="loginButton" class="primary-btn" onclick="login()">Continue</button>
             <div id="loginMessage" class="message"></div>
         </div>
 
@@ -317,7 +317,7 @@
             <label>Password</label>
             <input id="createPassword" type="password" placeholder="At least 6 characters" onkeydown="handleEnter(event, createUser)">
 
-            <button class="primary-btn" onclick="createUser()">Create account</button>
+            <button id="createButton" class="primary-btn" onclick="createUser()">Create account</button>
             <div id="createMessage" class="message"></div>
         </div>
 
@@ -353,6 +353,7 @@
         const username = document.getElementById("createUsername").value.trim();
         const email = document.getElementById("createEmail").value.trim();
         const password = document.getElementById("createPassword").value;
+        const button = document.getElementById("createButton");
 
         if (!username) {
             setMessage("createMessage", "Write a username.", true);
@@ -364,6 +365,8 @@
             return;
         }
 
+        button.disabled = true;
+        button.innerText = "Creating...";
         setMessage("createMessage", "Creating account...");
 
         fetch("/auth/register", {
@@ -399,12 +402,17 @@
             })
             .catch(err => {
                 setMessage("createMessage", err.message, true);
+            })
+            .finally(() => {
+                button.disabled = false;
+                button.innerText = "Create account";
             });
     }
 
     function login() {
         const username = document.getElementById("loginUsername").value.trim();
         const password = document.getElementById("loginPassword").value;
+        const button = document.getElementById("loginButton");
 
         if (!username) {
             setMessage("loginMessage", "Write a username first.", true);
@@ -416,6 +424,8 @@
             return;
         }
 
+        button.disabled = true;
+        button.innerText = "Logging in...";
         setMessage("loginMessage", "Logging in...");
 
         fetch("/auth/login", {
@@ -463,6 +473,10 @@
             })
             .catch(err => {
                 setMessage("loginMessage", err.message, true);
+            })
+            .finally(() => {
+                button.disabled = false;
+                button.innerText = "Continue";
             });
     }
 </script>

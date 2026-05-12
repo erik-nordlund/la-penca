@@ -868,10 +868,13 @@
     }
 
     function saveSelection() {
+        const button = document.getElementById("saveButton");
+
         if (predictionsLocked) {
             setMessage("Predictions are locked for this party.", true);
             return;
         }
+
         if (selectedTeams.length !== remainingSlots) {
             setMessage(`You must choose exactly ${remainingSlots} team(s).`, true);
             return;
@@ -880,6 +883,8 @@
         const allQualifiedTeams = automaticTeams.concat(selectedTeams);
         const teamsParam = allQualifiedTeams.map(encodeURIComponent).join(",");
 
+        button.disabled = true;
+        button.innerText = "Saving...";
         setMessage("Saving selection...");
 
         authFetch(`/third-place-selection/save?code=${encodeURIComponent(code)}&teams=${teamsParam}`, {
@@ -896,6 +901,12 @@
             })
             .catch(() => {
                 setMessage("Could not save selection.", true);
+            })
+            .finally(() => {
+                if (!viewingOtherUser && !predictionsLocked) {
+                    button.disabled = false;
+                    button.innerText = "Save and continue";
+                }
             });
     }
 

@@ -611,7 +611,7 @@
                 <div id="thirdMessage" class="message"></div>
                 <div id="thirdPlaceList" class="list"></div>
 
-                <button class="primary-btn" style="width:100%; margin-top:18px;" onclick="saveActualRoundOf32()">
+                <button id="saveRoundOf32Button" class="primary-btn" style="width:100%; margin-top:18px;" onclick="saveActualRoundOf32()">
                     Save actual Round of 32 teams
                 </button>
             </div>
@@ -655,7 +655,7 @@
 
                 <p class="muted">Removes all actual qualified teams and clears all match results.</p>
 
-                <button class="danger-btn" style="width:100%;" onclick="resetActualData()">Reset actual data</button>
+                <button class="danger-btn" style="width:100%;" onclick="resetActualData(event)">Reset actual data</button>
                 <div id="resetMessage" class="message"></div>
             </div>
         </aside>
@@ -964,8 +964,11 @@
             return;
         }
 
+        const button = document.getElementById("saveRoundOf32Button");
         const teamsParam = selectedThirdPlaceTeams.map(encodeURIComponent).join(",");
 
+        button.disabled = true;
+        button.innerText = "Saving...";
         setMessage("thirdMessage", "Saving actual Round of 32 teams...");
 
         authFetch(`/actual/round-of-32/save?teams=${teamsParam}`, {
@@ -981,6 +984,10 @@
             })
             .catch(() => {
                 setMessage("thirdMessage", "Could not save actual Round of 32 teams.", true);
+            })
+            .finally(() => {
+                button.disabled = false;
+                button.innerText = "Save actual Round of 32 teams";
             });
     }
 
@@ -1170,21 +1177,32 @@
             });
     }
 
-    function resetActualData() {
+    function resetActualData(event) {
         if (!confirm("Are you sure? This removes all actual qualified teams and all match results.")) return;
 
+        const button = event.target;
+
+        button.disabled = true;
+        button.innerText = "Resetting...";
         setMessage("resetMessage", "Resetting data...");
 
         authFetch(`/actual/reset`, {
             method: "POST"
         })
-            .then(res => res.text())
+            .then(res => {
+                if (!res.ok) throw new Error("Reset failed");
+                return res.text();
+            })
             .then(message => {
                 setMessage("resetMessage", message);
                 selectedThirdPlaceTeams = [];
                 loadGroupMatches(currentGroup);
             })
-            .catch(() => setMessage("resetMessage", "Could not reset actual data.", true));
+            .catch(() => setMessage("resetMessage", "Could not reset actual data.", true))
+            .finally(() => {
+                button.disabled = false;
+                button.innerText = "Reset actual data";
+            });
     }
 
     function formatStage(stage) {

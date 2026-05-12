@@ -653,7 +653,7 @@
 
                 <div style="display:flex; gap:6px;">
     <button class="details-btn"
-        onclick="loadBreakdown('${row.username}')">📊</button>
+        onclick="loadBreakdown('${row.username}', event)">📊</button>
 
     <button class="details-btn"
     onclick="openPredictionModal('${row.username}')">👀</button>
@@ -663,11 +663,27 @@
         });
     }
 
-    function loadBreakdown(user) {
+    function loadBreakdown(user, event) {
+        const button = event.currentTarget;
+        const originalText = button.innerText;
+
+        button.disabled = true;
+        button.innerText = "...";
+
         authFetch(`/score-breakdown?username=${encodeURIComponent(user)}&code=${encodeURIComponent(code)}`)
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error("Could not load score breakdown.");
+                return res.json();
+            })
             .then(data => {
                 showBreakdown(user, data);
+            })
+            .catch(() => {
+                alert("Could not load score breakdown.");
+            })
+            .finally(() => {
+                button.disabled = false;
+                button.innerText = originalText;
             });
     }
 

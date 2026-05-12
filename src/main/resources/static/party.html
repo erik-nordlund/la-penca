@@ -736,7 +736,7 @@
 
         <div class="modal-actions">
             <button class="secondary-btn" onclick="closeModals()">Cancel</button>
-            <button class="primary-btn" onclick="joinParty()">Join party</button>
+            <button id="joinPartyButton" class="primary-btn" onclick="joinParty()">Join party</button>
         </div>
 
         <div id="joinMessage" class="message"></div>
@@ -754,7 +754,7 @@
 
         <div class="modal-actions">
             <button class="secondary-btn" onclick="closeModals()">Cancel</button>
-            <button class="primary-btn" onclick="createParty()">Create party</button>
+            <button id="createPartyButton" class="primary-btn" onclick="createParty()">Create party</button>
         </div>
 
         <div id="createMessage" class="message"></div>
@@ -1013,12 +1013,15 @@
 
     function createParty() {
         const name = document.getElementById("partyNameInput").value.trim();
+        const button = document.getElementById("createPartyButton");
 
         if (!name) {
             setMessage("createMessage", "Enter a party name.", true);
             return;
         }
 
+        button.disabled = true;
+        button.innerText = "Creating...";
         setMessage("createMessage", "Creating party...");
 
         authFetch(`/party/create?name=${encodeURIComponent(name)}`, {
@@ -1037,17 +1040,24 @@
             })
             .catch(() => {
                 setMessage("createMessage", "Could not create party.", true);
+            })
+            .finally(() => {
+                button.disabled = false;
+                button.innerText = "Create party";
             });
     }
 
     function joinParty() {
         const code = document.getElementById("partyCodeInput").value.trim().toUpperCase();
+        const button = document.getElementById("joinPartyButton");
 
         if (!code) {
             setMessage("joinMessage", "Enter a party code first.", true);
             return;
         }
 
+        button.disabled = true;
+        button.innerText = "Joining...";
         setMessage("joinMessage", "Joining party...");
 
         authFetch(`/party/join?code=${encodeURIComponent(code)}`, {
@@ -1068,6 +1078,10 @@
             })
             .catch(err => {
                 setMessage("joinMessage", err.message, true);
+            })
+            .finally(() => {
+                button.disabled = false;
+                button.innerText = "Join party";
             });
     }
 

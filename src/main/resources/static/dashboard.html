@@ -590,7 +590,7 @@
                     You are logged in locally on this browser.
                 </p>
 
-                <button class="danger-btn" onclick="logout()">Log out</button>
+                <button id="logoutButton" class="danger-btn" onclick="logout()">Log out</button>
             </div>
         </div>
     </section>
@@ -634,7 +634,11 @@
     }
 
     function logout() {
+        const button = document.getElementById("logoutButton");
         const refreshToken = localStorage.getItem("refreshToken");
+
+        button.disabled = true;
+        button.innerText = "Logging out...";
 
         if (refreshToken) {
             fetch("/auth/logout", {
@@ -643,11 +647,13 @@
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({ refreshToken })
-            }).finally(logoutAndRedirect);
+            })
+                .finally(logoutAndRedirect);
         } else {
             logoutAndRedirect();
         }
     }
+
     const adminLink = document.getElementById("adminLink");
     if (adminLink && localStorage.getItem("role") !== "ADMIN") {
         adminLink.style.display = "none";
