@@ -14,7 +14,7 @@
       font-family: Arial, sans-serif;
       background: #111;
       color: white;
-      overflow-x: auto;
+      overflow-x: hidden;
     }
 
     .navbar {
@@ -179,24 +179,40 @@
     }
 
     .center {
-      display: flex;
-      flex-direction: column;
+      display: grid;
+      grid-template-rows: repeat(16, 68px);
       align-items: center;
-      justify-content: center;
-      gap: 18px;
+      justify-items: center;
+      height: 100%;
     }
 
     .trophy {
+      grid-row: 6;
       font-size: 54px;
       opacity: 0.85;
+      align-self: end;
     }
 
     .champion {
+      grid-row: 7;
       color: #7CFC98;
       font-size: 20px;
       font-weight: bold;
       text-align: center;
       min-height: 28px;
+      align-self: start;
+      white-space: nowrap;
+    }
+
+    .final-center {
+      grid-row: 8 / span 2;
+      align-self: center;
+      transform: translateY(-10px);
+    }
+
+    .third-center {
+      grid-row: 10 / span 2;
+      align-self: center;
     }
 
     .center-box {
@@ -212,7 +228,7 @@
       text-align: center;
       color: #aaa;
       font-weight: bold;
-      margin-bottom: 8px;
+      margin-bottom: 5px;
     }
 
     .line {
@@ -367,6 +383,11 @@
       color: #aaa;
       font-size: 13px;
       margin-top: 8px;
+    }
+    .bracket-scroll {
+      overflow-x: auto;
+      padding-bottom: 18px;
+      -webkit-overflow-scrolling: touch;
     }
 
     @media (max-width: 900px) {
@@ -539,7 +560,8 @@
   <div class="swipe-hint" data-i18n="swipeBracketHint">
     Swipe sideways to view the full bracket →
   </div>
-  <div class="bracket-wrap" id="bracketWrap">
+  <div class="bracket-scroll">
+    <div class="bracket-wrap" id="bracketWrap">
     <svg id="lines"></svg>
 
     <div class="bracket">
@@ -549,12 +571,12 @@
         <div class="trophy">🏆</div>
         <div id="champion" class="champion"></div>
 
-        <div class="center-box">
+        <div class="center-box final-center">
           <div class="center-label" data-i18n="final">Final</div>
           <div id="finalBox"></div>
         </div>
 
-        <div class="center-box">
+        <div class="center-box third-center">
           <div class="center-label" data-i18n="thirdPlaceMatch">Third place</div>
           <div id="thirdPlaceBox"></div>
         </div>
@@ -563,7 +585,9 @@
 
       <div class="side right" id="rightSide"></div>
     </div>
+    </div>
   </div>
+
   <div class="score-summary">
     <h2 data-i18n="knockoutScoreOverview">Knockout score overview</h2>
     <div id="knockoutScoreSummary" class="score-grid"></div>
@@ -1271,11 +1295,12 @@
     const wrapRect = wrap.getBoundingClientRect();
 
     const fromCenterX = fromRect.left + fromRect.width / 2 - wrapRect.left;
-    const fromCenterY = fromRect.top + fromRect.height / 2 - wrapRect.top;
+    const fromCenterY = Math.round(fromRect.top + fromRect.height / 2 - wrapRect.top);
     const toCenterX = toRect.left + toRect.width / 2 - wrapRect.left;
-    const toCenterY = toRect.top + toRect.height / 2 - wrapRect.top;
+    const toCenterY = Math.round(toRect.top + toRect.height / 2 - wrapRect.top);
 
-    let startX, endX;
+    let startX;
+    let endX;
 
     if (fromCenterX < toCenterX) {
       startX = fromRect.right - wrapRect.left;
@@ -1285,12 +1310,17 @@
       endX = toRect.right - wrapRect.left;
     }
 
-    const startY = fromCenterY;
-    const endY = toCenterY;
-    const midX = startX + (endX - startX) / 2;
+    let startY = fromCenterY;
+    let endY = toCenterY;
+
+    if (toId === "FINAL-1") {
+      startY = fromCenterY;
+      endY = fromCenterY;
+    }
+
+    const midX = Math.round(startX + (endX - startX) / 2);
 
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-
     path.setAttribute("d", `M ${startX} ${startY} H ${midX} V ${endY} H ${endX}`);
     path.setAttribute("class", "line");
 
