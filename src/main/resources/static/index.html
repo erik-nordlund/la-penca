@@ -65,7 +65,8 @@
             margin-top: 30px;
         }
 
-        .feature {
+        .feature,
+        .language-card {
             background: rgba(255,255,255,0.06);
             border: 1px solid rgba(255,255,255,0.1);
             border-radius: 16px;
@@ -80,6 +81,57 @@
         .feature span {
             color: #aaa;
             font-size: 14px;
+        }
+
+        .language-card {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 14px;
+            align-items: center;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 16px;
+        }
+
+        .language-title {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .language-subtitle {
+            color: #aaa;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .language-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .language-buttons button {
+            padding: 11px 22px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.16);
+            background: #151515;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            min-width: 110px;
+            transition: all 0.2s ease;
+        }
+
+        .language-buttons button:hover {
+            filter: brightness(1.08);
+        }
+
+        .language-buttons button.active {
+            border: none;
+            background: linear-gradient(135deg, #0d6efd, #22c55e);
+            color: white;
+            box-shadow: 0 0 18px rgba(34,197,94,0.25);
         }
 
         .panel {
@@ -172,8 +224,15 @@
             font-size: 15px;
         }
 
-        .primary-btn:hover {
+        .primary-btn:hover,
+        .language-buttons button:hover {
             filter: brightness(1.08);
+        }
+
+        button:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            filter: none;
         }
 
         .message {
@@ -230,6 +289,20 @@
                 padding: 22px;
                 border-radius: 20px;
             }
+
+            .language-card {
+                grid-template-columns: 1fr;
+            }
+
+            .language-buttons {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .language-buttons button {
+                width: 100%;
+                min-width: 0;
+            }
         }
 
         @media (max-width: 480px) {
@@ -245,7 +318,8 @@
                 font-size: 12px;
             }
 
-            .feature {
+            .feature,
+            .language-card {
                 padding: 14px;
             }
 
@@ -259,76 +333,99 @@
 
 <div class="page">
     <section class="hero">
-        <div class="badge">🏆 World Cup Prediction Game</div>
+        <div class="badge" data-i18n="badge">🏆 World Cup Prediction Game</div>
         <h1>La Penca</h1>
-        <p class="subtitle">
+        <p class="subtitle" data-i18n="subtitle">
             Create your own World Cup predictions, compete with your family,
             follow the knockout bracket and climb the leaderboard.
         </p>
 
         <div class="features">
             <div class="feature">
-                <strong>⚽ Group predictions</strong>
-                <span>Predict every group match and build your table.</span>
+                <strong data-i18n="featureGroupsTitle">⚽ Group predictions</strong>
+                <span data-i18n="featureGroupsText">Predict every group match and build your table.</span>
             </div>
+
             <div class="feature">
-                <strong>🏆 Knockout bracket</strong>
-                <span>Pick winners from Round of 32 to the final.</span>
+                <strong data-i18n="featureKnockoutTitle">🏆 Knockout bracket</strong>
+                <span data-i18n="featureKnockoutText">Pick winners from Round of 32 to the final.</span>
             </div>
+
             <div class="feature">
-                <strong>🥉 Third place</strong>
-                <span>Select qualified third-place teams.</span>
+                <strong data-i18n="featureThirdTitle">🥉 Third place</strong>
+                <span data-i18n="featureThirdText">Select qualified third-place teams.</span>
             </div>
+
             <div class="feature">
-                <strong>📊 Leaderboard</strong>
-                <span>Track points inside your private party.</span>
+                <strong data-i18n="featureLeaderboardTitle">📊 Leaderboard</strong>
+                <span data-i18n="featureLeaderboardText">Track points inside your private party.</span>
+            </div>
+
+            <div class="language-card">
+                <div>
+                    <div class="language-title">🌐 Language / Idioma</div>
+                    <div style="color:#aaa; margin-top:4px;">
+                        Choose the language for La Penca.
+                    </div>
+                </div>
+
+                <div class="language-buttons">
+                    <button id="lang-en" onclick="setLanguage('en')">English</button>
+                    <button id="lang-es" onclick="setLanguage('es')">Español</button>
+                </div>
             </div>
         </div>
     </section>
 
     <section class="panel">
         <div class="tabs">
-            <button id="loginTab" class="tab active" onclick="showTab('login')">Login</button>
-            <button id="createTab" class="tab" onclick="showTab('create')">Create</button>
+            <button id="loginTab" class="tab active" onclick="showTab('login')" data-i18n="loginTab">Login</button>
+            <button id="createTab" class="tab" onclick="showTab('create')" data-i18n="createTab">Create</button>
         </div>
 
         <div id="loginForm" class="form active">
-            <h2>Welcome back</h2>
-            <div class="hint">Enter your username and password to continue.</div>
+            <h2 data-i18n="welcomeBack">Welcome back</h2>
+            <div class="hint" data-i18n="loginHint">Enter your username and password to continue.</div>
 
-            <label>Username</label>
-            <input id="loginUsername" placeholder="Example: erik" onkeydown="handleEnter(event, login)">
-            <label>Password</label>
-            <input id="loginPassword" type="password" placeholder="Password" onkeydown="handleEnter(event, login)">
+            <label data-i18n="username">Username</label>
+            <input id="loginUsername" data-i18n-placeholder="usernamePlaceholder" placeholder="Example: erik" onkeydown="handleEnter(event, login)">
 
-            <button id="loginButton" class="primary-btn" onclick="login()">Continue</button>
+            <label data-i18n="password">Password</label>
+            <input id="loginPassword" type="password" data-i18n-placeholder="passwordPlaceholder" placeholder="Password" onkeydown="handleEnter(event, login)">
+
+            <button id="loginButton" class="primary-btn" onclick="login()" data-i18n="continue">Continue</button>
             <div id="loginMessage" class="message"></div>
         </div>
 
         <div id="createForm" class="form">
-            <h2>Create account</h2>
-            <div class="hint">Choose a username and start your La Penca journey.</div>
+            <h2 data-i18n="createAccount">Create account</h2>
+            <div class="hint" data-i18n="createHint">Choose a username and start your La Penca journey.</div>
 
-            <label>Username</label>
-            <input id="createUsername" placeholder="Choose username" onkeydown="handleEnter(event, createUser)">
-            <label>Email</label>
-            <input id="createEmail" type="email" placeholder="you@example.com">
+            <label data-i18n="username">Username</label>
+            <input id="createUsername" data-i18n-placeholder="chooseUsernamePlaceholder" placeholder="Choose username" onkeydown="handleEnter(event, createUser)">
 
-            <label>Password</label>
-            <input id="createPassword" type="password" placeholder="At least 6 characters" onkeydown="handleEnter(event, createUser)">
+            <label data-i18n="email">Email</label>
+            <input id="createEmail" type="email" data-i18n-placeholder="emailPlaceholder" placeholder="you@example.com">
 
-            <button id="createButton" class="primary-btn" onclick="createUser()">Create account</button>
+            <label data-i18n="password">Password</label>
+            <input id="createPassword" type="password" data-i18n-placeholder="createPasswordPlaceholder" placeholder="At least 6 characters" onkeydown="handleEnter(event, createUser)">
+
+            <button id="createButton" class="primary-btn" onclick="createUser()" data-i18n="createAccount">Create account</button>
             <div id="createMessage" class="message"></div>
         </div>
 
-        <div class="footer-note">
+        <div class="footer-note" data-i18n="footerNote">
             Use your username and password to log in.
         </div>
     </section>
 </div>
 
 <script src="/js/auth.js"></script>
+<script src="/js/i18n.js"></script>
 <script>
+    applyLanguage();
+    updateLanguageButtons();
+
     function showTab(tab) {
         document.getElementById("loginTab").classList.toggle("active", tab === "login");
         document.getElementById("createTab").classList.toggle("active", tab === "create");
@@ -356,18 +453,18 @@
         const button = document.getElementById("createButton");
 
         if (!username) {
-            setMessage("createMessage", "Write a username.", true);
+            setMessage("createMessage", t("writeUsername"), true);
             return;
         }
 
         if (!password || password.length < 6) {
-            setMessage("createMessage", "Password must be at least 6 characters.", true);
+            setMessage("createMessage", t("passwordMin"), true);
             return;
         }
 
         button.disabled = true;
-        button.innerText = "Creating...";
-        setMessage("createMessage", "Creating account...");
+        button.innerText = t("creating");
+        setMessage("createMessage", t("creatingAccount"));
 
         fetch("/auth/register", {
             method: "POST",
@@ -382,11 +479,11 @@
         })
             .then(res => {
                 if (res.status === 429) {
-                    throw new Error("Too many attempts. Try again soon.");
+                    throw new Error(t("tooManyAttempts"));
                 }
 
                 if (!res.ok) {
-                    throw new Error("Could not create account. Username or email may already exist.");
+                    throw new Error(t("createFailed"));
                 }
 
                 return res.json();
@@ -405,7 +502,7 @@
             })
             .finally(() => {
                 button.disabled = false;
-                button.innerText = "Create account";
+                button.innerText = t("createAccount");
             });
     }
 
@@ -415,18 +512,18 @@
         const button = document.getElementById("loginButton");
 
         if (!username) {
-            setMessage("loginMessage", "Write a username first.", true);
+            setMessage("loginMessage", t("writeUsernameFirst"), true);
             return;
         }
 
         if (!password) {
-            setMessage("loginMessage", "Write your password.", true);
+            setMessage("loginMessage", t("writePassword"), true);
             return;
         }
 
         button.disabled = true;
-        button.innerText = "Logging in...";
-        setMessage("loginMessage", "Logging in...");
+        button.innerText = t("loggingIn");
+        setMessage("loginMessage", t("loggingIn"));
 
         fetch("/auth/login", {
             method: "POST",
@@ -440,11 +537,11 @@
         })
             .then(res => {
                 if (res.status === 429) {
-                    throw new Error("Too many login attempts. Try again soon.");
+                    throw new Error(t("tooManyLoginAttempts"));
                 }
 
                 if (!res.ok) {
-                    throw new Error("Invalid username or password.");
+                    throw new Error(t("invalidLogin"));
                 }
 
                 return res.json();
@@ -476,8 +573,17 @@
             })
             .finally(() => {
                 button.disabled = false;
-                button.innerText = "Continue";
+                button.innerText = t("continue");
             });
+    }
+    function updateLanguageButtons() {
+        const currentLang = getLanguage();
+
+        document.getElementById("lang-en")
+            .classList.toggle("active", currentLang === "en");
+
+        document.getElementById("lang-es")
+            .classList.toggle("active", currentLang === "es");
     }
 </script>
 

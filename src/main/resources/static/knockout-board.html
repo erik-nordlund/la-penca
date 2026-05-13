@@ -289,6 +289,65 @@
     .mobile-menu {
       display: none;
     }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .nav-language-buttons {
+      display: flex;
+      gap: 4px;
+      padding: 4px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .nav-language-buttons button {
+      border: none;
+      border-radius: 999px;
+      background: transparent;
+      color: #aaa;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 12px;
+      padding: 7px 11px;
+    }
+
+    .nav-language-buttons button.active {
+      background: linear-gradient(135deg, #0d6efd, #22c55e);
+      color: white;
+    }
+
+    .mobile-language-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 14px 0;
+    }
+
+    .mobile-language-buttons button {
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: #151515;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .mobile-language-buttons button.active {
+      border: none;
+      background: linear-gradient(135deg, #0d6efd, #22c55e);
+      color: white;
+    }
+    .swipe-hint {
+      display: none;
+      color: #aaa;
+      font-size: 13px;
+      margin-top: 8px;
+    }
 
     @media (max-width: 900px) {
       .navbar {
@@ -318,15 +377,6 @@
         height: 980px;
       }
 
-      .bracket-wrap::before {
-        content: "Swipe sideways to view the full bracket →";
-        position: absolute;
-        top: -22px;
-        left: 0;
-        color: #aaa;
-        font-size: 13px;
-      }
-
       .score-summary {
         margin-top: 22px;
         padding: 16px;
@@ -334,6 +384,12 @@
 
       .score-grid {
         grid-template-columns: 1fr;
+      }
+      .nav-language-buttons {
+        display: none;
+      }
+      .swipe-hint {
+        display: block;
       }
     }
     @media (max-width: 850px) {
@@ -399,40 +455,56 @@
 
 <nav class="navbar">
   <div class="logo">🏆 La Penca</div>
-  <div class="links">
-    <a href="/dashboard.html">Dashboard</a>
-    <a href="/party.html">Party</a>
-    <a href="/group.html">Group predictions</a>
-    <a href="/third-place.html">Third-place teams prediction</a>
-    <a href="/knockout-board.html" class="active">Knockout predictions</a>
-    <a href="/world-cup.html">World Cup 2026</a>
-    <a href="/leaderboard.html">Leaderboard</a>
-    <a id="adminLink" href="/admin-results.html">Admin</a>
-  </div>
 
-  <button class="menu-btn" onclick="toggleMobileMenu()">☰</button>
+  <div class="nav-right">
+    <div class="links">
+      <a href="/dashboard.html" data-i18n="navDashboard">Dashboard</a>
+      <a href="/party.html" data-i18n="navParty">Party</a>
+      <a href="/group.html" data-i18n="navGroup">Group predictions</a>
+      <a href="/third-place.html" data-i18n="navThird">Third-place teams prediction</a>
+      <a href="/knockout-board.html" class="active" data-i18n="navKnockout">Knockout predictions</a>
+      <a href="/world-cup.html" data-i18n="navWorldCup">World Cup 2026</a>
+      <a href="/leaderboard.html" data-i18n="navLeaderboard">Leaderboard</a>
+      <a id="adminLink" href="/admin-results.html" data-i18n="navAdmin">Admin</a>
+    </div>
+
+    <div class="nav-language-buttons">
+      <button id="lang-en-nav" onclick="setLanguage('en')">EN</button>
+      <button id="lang-es-nav" onclick="setLanguage('es')">ES</button>
+    </div>
+
+    <button class="menu-btn" onclick="toggleMobileMenu()">☰</button>
+  </div>
 </nav>
 
 <div id="mobileMenu" class="mobile-menu">
-  <a href="/dashboard.html">Dashboard</a>
-  <a href="/party.html">Party</a>
-  <a href="/group.html">Group predictions</a>
-  <a href="/third-place.html">Third-place teams prediction</a>
-  <a href="/knockout-board.html" class="active">Knockout predictions</a>
-  <a href="/world-cup.html">World Cup 2026</a>
-  <a href="/leaderboard.html">Leaderboard</a>
-  <a id="mobileAdminLink" href="/admin-results.html">Admin</a>
+  <a href="/dashboard.html" data-i18n="navDashboard">Dashboard</a>
+  <a href="/party.html" data-i18n="navParty">Party</a>
+  <a href="/group.html" data-i18n="navGroup">Group predictions</a>
+  <a href="/third-place.html" data-i18n="navThird">Third-place teams prediction</a>
+  <a href="/knockout-board.html" class="active" data-i18n="navKnockout">Knockout predictions</a>
+  <a href="/world-cup.html" data-i18n="navWorldCup">World Cup 2026</a>
+  <a href="/leaderboard.html" data-i18n="navLeaderboard">Leaderboard</a>
+  <a id="mobileAdminLink" href="/admin-results.html" data-i18n="navAdmin">Admin</a>
+
+  <div class="mobile-language-buttons">
+    <button id="lang-en" onclick="setLanguage('en')">EN</button>
+    <button id="lang-es" onclick="setLanguage('es')">ES</button>
+  </div>
 </div>
 
 <div class="page">
   <div class="topbar">
     <div>
-      <div id="lockBadge" class="badge">🏆 Knockout bracket</div>
-      <h1>Knockout Board</h1>
+      <div id="lockBadge" class="badge" data-i18n="knockoutBadge">🏆 Knockout bracket</div>
+      <h1 data-i18n="knockoutBoardTitle">Knockout Board</h1>
       <div id="lockMessage" class="lock-message"></div>
     </div>
   </div>
 
+  <div class="swipe-hint" data-i18n="swipeBracketHint">
+    Swipe sideways to view the full bracket →
+  </div>
   <div class="bracket-wrap" id="bracketWrap">
     <svg id="lines"></svg>
 
@@ -444,12 +516,12 @@
         <div id="champion" class="champion"></div>
 
         <div class="center-box">
-          <div class="center-label">Final</div>
+          <div class="center-label" data-i18n="final">Final</div>
           <div id="finalBox"></div>
         </div>
 
         <div class="center-box">
-          <div class="center-label">Third place</div>
+          <div class="center-label" data-i18n="thirdPlaceMatch">Third place</div>
           <div id="thirdPlaceBox"></div>
         </div>
       </div>
@@ -459,11 +531,12 @@
     </div>
   </div>
   <div class="score-summary">
-    <h2>Knockout score overview</h2>
+    <h2 data-i18n="knockoutScoreOverview">Knockout score overview</h2>
     <div id="knockoutScoreSummary" class="score-grid"></div>
   </div>
 </div>
 
+<script src="/js/i18n.js"></script>
 <script src="/js/auth.js"></script>
 <script>
   const loggedInUser = localStorage.getItem("username");
@@ -489,6 +562,9 @@
   let saved = {};
   let predictionsLocked = false;
   let actualQualified = {};
+
+  applyLanguage();
+  updateLanguageButtons();
 
   function getFlagUrl(teamName) {
     const map = {
@@ -552,13 +628,28 @@
   }
 
   function teamWithFlag(teamName) {
-    const flagUrl = getFlagUrl(teamName);
+    const cleanName = stripPlacementLabel(teamName);
+    const flagUrl = getFlagUrl(cleanName);
+
+    const translatedName = teamName.includes(": ")
+            ? translatePlacementLabel(teamName)
+            : translateTeam(teamName);
 
     if (!flagUrl) {
-      return teamName;
+      return translatedName;
     }
 
-    return `<img src="${flagUrl}" class="flag"> ${teamName}`;
+    return `<img src="${flagUrl}" class="flag"> ${translatedName}`;
+  }
+  function translatePlacementLabel(value) {
+    return value
+            .replace("Champion: ", `${t("championLabel")}: `)
+            .replace("Runner-up: ", `${t("runnerUpLabel")}: `)
+            .replace("Third: ", `${t("thirdLabel")}: `)
+            .replace("Fourth: ", `${t("fourthLabel")}: `)
+            .replace(/: (.*)$/, function(match, teamName) {
+              return `: ${translateTeam(teamName)}`;
+            });
   }
 
   init();
@@ -570,7 +661,7 @@
       authFetch(`/round-of-32?viewerUsername=${encodeURIComponent(loggedInUser)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`)
               .then(res => {
                 if (!res.ok) {
-                  throw new Error("Could not load Round of 32.");
+                  throw new Error(t("couldNotLoadRound32"));
                 }
                 return res.json();
               }),
@@ -578,7 +669,7 @@
       authFetch(`/knockout/predictions?viewerUsername=${encodeURIComponent(loggedInUser)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`)
               .then(res => {
                 if (!res.ok) {
-                  throw new Error("You can only view other players' predictions after the deadline.");
+                  throw new Error(t("viewAfterDeadlineOnly"));
                 }
                 return res.json();
               }),
@@ -605,10 +696,10 @@
               predictionsLocked = true;
               renderLockStatus();
 
-              document.getElementById("lockBadge").innerText = "🔒 View locked";
+              document.getElementById("lockBadge").innerText = t("viewLocked");
               document.getElementById("lockBadge").classList.add("locked");
               document.getElementById("lockMessage").innerText =
-                      err.message || "You can only view other players' predictions after the deadline.";
+                      err.message || t("viewAfterDeadlineOnly");
 
               document.getElementById("leftSide").innerHTML = "";
               document.getElementById("rightSide").innerHTML = "";
@@ -622,17 +713,16 @@
 
   function renderLockStatus() {
     if (viewingOtherUser) {
-      document.getElementById("lockBadge").innerText = `👀 ${username}'s predictions`;
+      document.getElementById("lockBadge").innerText = `👀 ${username} - ${t("predictions")}`;
       document.getElementById("lockMessage").innerText =
-              `You are viewing ${username}'s knockout bracket.`;
+              `${t("viewingKnockoutBracket")} ${username}.`;
       return;
     }
 
     if (predictionsLocked) {
-      document.getElementById("lockBadge").innerText = "🔒 Predictions locked";
+      document.getElementById("lockBadge").innerText = t("predictionsLockedBadge");
       document.getElementById("lockBadge").classList.add("locked");
-      document.getElementById("lockMessage").innerText =
-              "Deadline passed. You can view your bracket, but you cannot change it.";
+      document.getElementById("lockMessage").innerText = t("deadlinePassedKnockout");
     }
   }
 
@@ -657,7 +747,7 @@
     renderCenterMatch("thirdPlaceBox", "THIRD_PLACE", all.thirdPlace, 1);
 
     const champion = saved["FINAL"]?.[1];
-    document.getElementById("champion").innerText = champion ? `Champion: ${champion}` : "";
+    document.getElementById("champion").innerText = champion ? `${t("champion")}: ${translateTeam(champion)}` : "";
 
     renderScoreSummary();
     setTimeout(drawLines, 50);
@@ -666,10 +756,10 @@
   function buildAllRounds() {
     const r32 = r32Matches;
 
-    const r16 = buildFromPrevious("ROUND_OF_32", "Winner R32", r32, 16);
-    const qf = buildFromPrevious("ROUND_OF_16", "Winner R16", r16, 8);
-    const sf = buildFromPrevious("QUARTER_FINAL", "Winner QF", qf, 4);
-    const finalMatch = buildFromPrevious("SEMI_FINAL", "Winner SF", sf, 2);
+    const r16 = buildFromPrevious("ROUND_OF_32", t("winnerR32"), r32, 16);
+    const qf = buildFromPrevious("ROUND_OF_16", t("winnerR16"), r16, 8);
+    const sf = buildFromPrevious("QUARTER_FINAL", t("winnerQF"), qf, 4);
+    const finalMatch = buildFromPrevious("SEMI_FINAL", t("winnerSF"), sf, 2);
     const thirdPlace = buildThirdPlace(sf);
 
     return { r32, r16, qf, sf, finalMatch, thirdPlace };
@@ -704,7 +794,7 @@
     const loser2 = getLoser("SEMI_FINAL", 2, semiMatches[1]);
 
     return [{
-      slot: "Loser SF-1 vs Loser SF-2",
+      slot: `${t("loserSF")}-1 vs ${t("loserSF")}-2`,
       homeTeam: loser1,
       awayTeam: loser2
     }];
@@ -750,7 +840,7 @@
 
     if (!matches || matches.length === 0) {
       box.appendChild(createMatchCard(roundName, matchNumber, {
-        slot: "Waiting...",
+        slot: t("waiting"),
         homeTeam: null,
         awayTeam: null
       }));
@@ -782,7 +872,7 @@
 
     if (!teamName) {
       btn.classList.add("placeholder");
-      btn.innerText = "Waiting...";
+      btn.innerText = t("waiting");
       btn.disabled = true;
       return btn;
     }
@@ -806,8 +896,7 @@
 
   function saveWinner(roundName, matchNumber, slot, winner) {
     if (predictionsLocked) {
-      document.getElementById("lockMessage").innerText =
-              "Predictions are locked for this party.";
+      document.getElementById("lockMessage").innerText = t("predictionsLockedParty");
       return;
     }
 
@@ -815,14 +904,14 @@
     const buttons = matchCard ? matchCard.querySelectorAll(".team") : [];
 
     buttons.forEach(btn => btn.disabled = true);
-    document.getElementById("lockMessage").innerText = "Saving...";
+    document.getElementById("lockMessage").innerText = t("saving");
 
     authFetch(`/knockout/save?code=${encodeURIComponent(code)}&round=${roundName}&matchNumber=${matchNumber}&slot=${encodeURIComponent(slot)}&winner=${encodeURIComponent(winner)}`, {
       method: "POST"
     })
             .then(res => {
               if (!res.ok) {
-                throw new Error("Predictions are locked or could not be saved.");
+                throw new Error(t("predictionSaveFailed"));
               }
               return res.json();
             })
@@ -835,7 +924,7 @@
 
               saved[roundName][matchNumber] = winner;
 
-              document.getElementById("lockMessage").innerText = "Saved!";
+              document.getElementById("lockMessage").innerText = t("saved");
               renderBracket();
 
               setTimeout(() => {
@@ -948,42 +1037,42 @@
 
     const columns = [
       {
-        title: "Round of 32",
+        title: t("roundOf32"),
         pointsEach: 1,
         maxPoints: 32,
         predictedTeams: getTeamsFromMatches(all.r32),
         actualStage: "ROUND_OF_32"
       },
       {
-        title: "Round of 16",
+        title: t("roundOf16"),
         pointsEach: 2,
         maxPoints: 32,
         predictedTeams: getPredictedWinners("ROUND_OF_32"),
         actualStage: "ROUND_OF_16"
       },
       {
-        title: "Quarter finals",
+        title: t("quarterFinals"),
         pointsEach: 3,
         maxPoints: 24,
         predictedTeams: getPredictedWinners("ROUND_OF_16"),
         actualStage: "QUARTER_FINAL"
       },
       {
-        title: "Semi finals",
+        title: t("semiFinals"),
         pointsEach: 4,
         maxPoints: 16,
         predictedTeams: getPredictedWinners("QUARTER_FINAL"),
         actualStage: "SEMI_FINAL"
       },
       {
-        title: "Final",
+        title: t("final"),
         pointsEach: 5,
         maxPoints: 10,
         predictedTeams: getPredictedWinners("SEMI_FINAL"),
         actualStage: "FINAL"
       },
       {
-        title: "Placements",
+        title: t("placements"),
         pointsEach: null,
         maxPoints: 18,
         predictedTeams: getPlacementPredictions(),
@@ -997,7 +1086,7 @@
 
       let earnedPoints;
 
-      if (column.title === "Placements") {
+      if (column.actualStage === "PLACEMENTS") {
         earnedPoints = calculatePlacementSummaryPoints(column.predictedTeams);
       } else {
         earnedPoints = correctCount * column.pointsEach;
@@ -1010,7 +1099,7 @@
       <h3>${column.title}</h3>
       <div class="score-subtitle">
         ${earnedPoints}/${column.maxPoints} pts
-        ${column.pointsEach ? ` · ${column.pointsEach} pt each` : " · 6/5/4/3 pts"}
+       ${column.pointsEach ? ` · ${column.pointsEach} ${t("pointsEach")}` : ` · ${t("placementPoints")}`}
       </div>
     `;
 
@@ -1200,6 +1289,28 @@
 
   if (mobileAdminLink && localStorage.getItem("role") !== "ADMIN") {
     mobileAdminLink.style.display = "none";
+  }
+  function updateLanguageButtons() {
+    const currentLang = getLanguage();
+
+    const enButton = document.getElementById("lang-en");
+    const esButton = document.getElementById("lang-es");
+
+    const enNavButton = document.getElementById("lang-en-nav");
+    const esNavButton = document.getElementById("lang-es-nav");
+
+    if (enButton) enButton.classList.toggle("active", currentLang === "en");
+    if (esButton) esButton.classList.toggle("active", currentLang === "es");
+
+    if (enNavButton) enNavButton.classList.toggle("active", currentLang === "en");
+    if (esNavButton) esNavButton.classList.toggle("active", currentLang === "es");
+
+    applyLanguage();
+
+    if (r32Matches.length > 0) {
+      renderLockStatus();
+      renderBracket();
+    }
   }
 </script>
 

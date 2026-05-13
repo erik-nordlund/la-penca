@@ -345,6 +345,59 @@
         .mobile-menu {
             display: none;
         }
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .nav-language-buttons {
+            display: flex;
+            gap: 4px;
+            padding: 4px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+
+        .nav-language-buttons button {
+            border: none;
+            border-radius: 999px;
+            background: transparent;
+            color: #aaa;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 7px 11px;
+        }
+
+        .nav-language-buttons button.active {
+            background: linear-gradient(135deg, #0d6efd, #22c55e);
+            color: white;
+        }
+
+        .mobile-language-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            padding: 14px 0;
+        }
+
+        .mobile-language-buttons button {
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.16);
+            background: #151515;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .mobile-language-buttons button.active {
+            border: none;
+            background: linear-gradient(135deg, #0d6efd, #22c55e);
+            color: white;
+        }
         .mobile-rank-buttons {
             display: none;
             gap: 8px;
@@ -445,6 +498,9 @@
             .mobile-rank-buttons {
                 display: flex;
             }
+            .nav-language-buttons {
+                display: none;
+            }
         }
         @media (max-width: 480px) {
             .page {
@@ -483,60 +539,74 @@
 
 <nav class="navbar">
     <div class="logo">🏆 La Penca</div>
-    <div class="links">
-        <a href="/dashboard.html">Dashboard</a>
-        <a href="/party.html">Party</a>
-        <a href="/group.html" class="active">Group predictions</a>
-        <a href="#" onclick="handleThirdPlaceNavigation(event)">Third-place teams prediction</a>
-        <a href="/knockout-board.html">Knockout predictions</a>
-        <a href="/world-cup.html">World Cup 2026</a>
-        <a href="/leaderboard.html">Leaderboard</a>
-        <a id="adminLink" href="/admin-results.html">Admin</a>
-    </div>
 
-    <button class="menu-btn" onclick="toggleMobileMenu()">☰</button>
+    <div class="nav-right">
+        <div class="links">
+            <a href="/dashboard.html" data-i18n="navDashboard">Dashboard</a>
+            <a href="/party.html" data-i18n="navParty">Party</a>
+            <a href="/group.html" class="active" data-i18n="navGroup">Group predictions</a>
+            <a href="#" onclick="handleThirdPlaceNavigation(event)" data-i18n="navThird">Third-place teams prediction</a>
+            <a href="/knockout-board.html" data-i18n="navKnockout">Knockout predictions</a>
+            <a href="/world-cup.html" data-i18n="navWorldCup">World Cup 2026</a>
+            <a href="/leaderboard.html" data-i18n="navLeaderboard">Leaderboard</a>
+            <a id="adminLink" href="/admin-results.html" data-i18n="navAdmin">Admin</a>
+        </div>
+
+        <div class="nav-language-buttons">
+            <button id="lang-en-nav" onclick="setLanguage('en')">EN</button>
+            <button id="lang-es-nav" onclick="setLanguage('es')">ES</button>
+        </div>
+
+        <button class="menu-btn" onclick="toggleMobileMenu()">☰</button>
+    </div>
 </nav>
 
 <div id="mobileMenu" class="mobile-menu">
-    <a href="/dashboard.html">Dashboard</a>
-    <a href="/party.html">Party</a>
-    <a href="/group.html" class="active">Group predictions</a>
-    <a href="#" onclick="handleThirdPlaceNavigation(event)">Third-place teams prediction</a>
-    <a href="/knockout-board.html">Knockout predictions</a>
-    <a href="/world-cup.html">World Cup 2026</a>
-    <a href="/leaderboard.html">Leaderboard</a>
-    <a id="mobileAdminLink" href="/admin-results.html">Admin</a>
+    <a href="/dashboard.html" data-i18n="navDashboard">Dashboard</a>
+    <a href="/party.html" data-i18n="navParty">Party</a>
+    <a href="/group.html" class="active" data-i18n="navGroup">Group predictions</a>
+    <a href="#" onclick="handleThirdPlaceNavigation(event)" data-i18n="navThird">Third-place teams prediction</a>
+    <a href="/knockout-board.html" data-i18n="navKnockout">Knockout predictions</a>
+    <a href="/world-cup.html" data-i18n="navWorldCup">World Cup 2026</a>
+    <a href="/leaderboard.html" data-i18n="navLeaderboard">Leaderboard</a>
+    <a id="mobileAdminLink" href="/admin-results.html" data-i18n="navAdmin">Admin</a>
+
+    <div class="mobile-language-buttons">
+        <button id="lang-en" onclick="setLanguage('en')">English</button>
+        <button id="lang-es" onclick="setLanguage('es')">Español</button>
+    </div>
 </div>
 
 <main class="page">
     <section class="hero">
         <div>
-            <div id="lockBadge" class="badge">⚽ Group stage</div>
-            <h1>Group predictions</h1>
-            <p id="pageSubtitle" class="subtitle">Pick 1, X or 2 for every group match.</p>
+            <div id="lockBadge" class="badge" data-i18n="groupStageBadge">⚽ Group stage</div>
+            <h1 data-i18n="groupPredictionsTitle">Group predictions</h1>
+            <p id="pageSubtitle" class="subtitle" data-i18n="groupPredictionsSubtitle">Pick 1, X or 2 for every group match.</p>
         </div>
 
         <div class="info">
             <div class="pill">👤 <strong id="username">...</strong></div>
-            <div class="pill">👥 Party <strong id="partyCode">...</strong></div>
+            <div class="pill">👥 <span data-i18n="party">Party</span> <strong id="partyCode">...</strong></div>
         </div>
     </section>
 
     <section class="toolbar">
         <div class="progress-text">
-            Progress: <strong id="savedCount">0</strong>/<span id="totalCount">0</span> predictions saved
+            <span data-i18n="progress">Progress</span>: <strong id="savedCount">0</strong>/<span id="totalCount">0</span> <span data-i18n="predictionsSaved">predictions saved</span>
             <div id="saveMessage" class="message"></div>
         </div>
 
         <div class="toolbar-actions">
-            <button class="secondary-btn" onclick="scrollToTop()">Back to top</button>
-            <button id="continueBtn" class="primary-btn" onclick="goToThirdPlace()">Continue to third-place teams</button>
+            <button class="secondary-btn" onclick="scrollToTop()" data-i18n="backToTop">Back to top</button>
+            <button id="continueBtn" class="primary-btn" onclick="goToThirdPlace()" data-i18n="continueThirdPlace">Continue to third-place teams</button>
         </div>
     </section>
 
     <section id="matches" class="groups-grid"></section>
 </main>
 
+<script src="/js/i18n.js"></script>
 <script src="/js/auth.js"></script>
 <script>
     const loggedInUser = localStorage.getItem("username");
@@ -560,8 +630,8 @@
         window.location.href = "/party.html";
     }
 
-    document.getElementById("username").innerText = username || "No user";
-    document.getElementById("partyCode").innerText = code || "No party";
+    document.getElementById("username").innerText = username || t("noUser");
+    document.getElementById("partyCode").innerText = code || t("noParty");
 
     const selected = {};
     let savedPredictions = {};
@@ -570,6 +640,9 @@
     let currentDragTeam = null;
     let currentGroupTable = [];
     let currentGroup = null;
+
+    applyLanguage();
+    updateLanguageButtons();
 
     function getFlagUrl(teamName) {
         const map = {
@@ -636,10 +709,10 @@
         const flagUrl = getFlagUrl(teamName);
 
         if (!flagUrl) {
-            return teamName;
+            return translateTeam(teamName);
         }
 
-        return `<img src="${flagUrl}" class="flag"> ${teamName}`;
+        return `<img src="${flagUrl}" class="flag"> ${translateTeam(teamName)}`;
     }
 
     const tieBreakStorageKey = `tieBreakSaved-${username}-${code}`;
@@ -660,7 +733,7 @@
         authFetch(`/predictions?viewerUsername=${encodeURIComponent(loggedInUser)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`)
             .then(res => {
                 if (!res.ok) {
-                    throw new Error("You can only view other players' predictions after the deadline.");
+                    throw new Error(t("viewAfterDeadlineOnly"));
                 }
                 return res.json();
             }),
@@ -683,13 +756,13 @@
         .catch(err => {
             predictionsLocked = true;
             renderLockStatus();
-            showMessage(err.message || "Could not load predictions.", true);
+            showMessage(err.message || t("couldNotLoadPredictions"), true);
 
             document.getElementById("matches").innerHTML = `
-            <div class="empty-state">
-                You can only view other players' predictions after the deadline.
-            </div>
-        `;
+    <div class="empty-state">
+        ${t("viewAfterDeadlineOnly")}
+    </div>
+`;
         });
 
     function renderLockStatus() {
@@ -698,19 +771,19 @@
         const message = document.getElementById("saveMessage");
 
         if (viewingOtherUser) {
-            badge.innerText = `👀 ${username}'s predictions`;
-            subtitle.innerText = `You are viewing ${username}'s group predictions.`;
+            badge.innerText = `👀 ${username} - ${t("predictions")}`;
+            subtitle.innerText = `${t("viewingUserPredictions")} ${username}.`;
             message.className = "error";
-            message.innerText = "View-only mode. You cannot change another player's predictions.";
+            message.innerText = t("viewOnlyMode");
             return;
         }
 
         if (predictionsLocked) {
-            badge.innerText = "🔒 Predictions locked";
+            badge.innerText = t("predictionsLockedBadge");
             badge.className = "badge locked";
-            subtitle.innerText = "The deadline has passed. You can view your predictions, but you cannot change them.";
+            subtitle.innerText = t("deadlinePassedGroup");
             message.className = "error";
-            message.innerText = "Predictions are locked for this party.";
+            message.innerText = t("predictionsLockedParty");
         }
     }
 
@@ -735,7 +808,7 @@
 
             card.innerHTML = `
                 <div class="group-header">
-                    <div class="group-title">Group ${group}</div>
+                    <div class="group-title">${t("group")} ${group}</div>
                     <div class="group-progress" id="group-progress-${group}">
                         ${savedInGroup}/${totalInGroup}
                     </div>
@@ -755,7 +828,7 @@
             tableButton.className = "secondary-btn";
             tableButton.style.width = "100%";
             tableButton.style.marginTop = "12px";
-            tableButton.innerText = "Open tie-break / table";
+            tableButton.innerText = t("openTieBreakTable");
             tableButton.onclick = () => toggleGroupTable(group);
 
             card.appendChild(tableButton);
@@ -779,7 +852,7 @@
 
         row.innerHTML = `
         <div class="team">${teamWithFlag(match.homeTeam.name)}</div>
-<div class="vs">vs</div>
+<div class="vs">${t("vs")}</div>
 <div class="team away">${teamWithFlag(match.awayTeam.name)}</div>
 
         <div class="pick-buttons">
@@ -804,7 +877,7 @@
 
     function savePrediction(matchId, outcome) {
         if (predictionsLocked) {
-            showMessage("Predictions are locked for this party.", true);
+            showMessage(t("predictionsLockedParty"), true);
             return;
         }
 
@@ -812,14 +885,14 @@
         const buttons = matchDiv.querySelectorAll(".pick");
 
         buttons.forEach(btn => btn.disabled = true);
-        showMessage("Saving...");
+        showMessage(t("saving"));
 
         authFetch(`/prediction/save?code=${encodeURIComponent(code)}&matchId=${matchId}&outcome=${outcome}`, {
             method: "POST"
         })
             .then(res => {
                 if (!res.ok) {
-                    throw new Error("Predictions are locked or could not be saved.");
+                    throw new Error(t("predictionSaveFailed"));
                 }
                 return res.json();
             })
@@ -843,7 +916,7 @@
                 clearTieBreakSaved(matchDiv.dataset.group);
                 refreshTieButton(matchDiv.dataset.group);
 
-                showMessage("Saved!");
+                showMessage(t("saved"));
 
                 setTimeout(() => {
                     if (!predictionsLocked) {
@@ -930,7 +1003,7 @@
 
         authFetch(`/group-table?viewerUsername=${encodeURIComponent(loggedInUser)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}&group=${encodeURIComponent(group)}`)
             .then(res => {
-                if (!res.ok) throw new Error("Could not load group table");
+                if (!res.ok) throw new Error(t("couldNotLoadGroupTable"));
                 return res.json();
             })
             .then(table => {
@@ -939,7 +1012,7 @@
                 renderGroupTable(group, table);
             })
             .catch(() => {
-                showMessage("Could not load group table.", true);
+                showMessage(t("couldNotLoadGroupTable"), true);
             });
     }
 
@@ -954,41 +1027,41 @@
         const wrapper = document.createElement("div");
 
         wrapper.innerHTML = `
-        <h3 style="margin:0 0 10px;">Group ${group} table</h3>
-        ${tieExists && !tieSolved ? `
-            <div style="
-                border:1px solid rgba(255,193,7,0.4);
-                background:rgba(255,193,7,0.12);
-                color:#ffd166;
-                padding:12px;
-                border-radius:12px;
-                margin-bottom:12px;
-            ">
-                ⚠️ Tie-break needed. Drag the teams or use ↑ / ↓ on mobile, then save.
-            </div>
-        ` : ""}
-        <table class="group-table">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Team</th>
-                    <th>P</th>
-                    <th>W</th>
-                    <th>D</th>
-                    <th>L</th>
-                    <th>Pts</th>
-                </tr>
-            </thead>
-            <tbody id="groupTableBody-${group}"></tbody>
-        </table>
+    <h3 style="margin:0 0 10px;">${t("group")} ${group} ${t("table")}</h3>
+    ${tieExists && !tieSolved ? `
+        <div style="
+            border:1px solid rgba(255,193,7,0.4);
+            background:rgba(255,193,7,0.12);
+            color:#ffd166;
+            padding:12px;
+            border-radius:12px;
+            margin-bottom:12px;
+        ">
+            ⚠️ ${t("tieBreakNeeded")}
+        </div>
+    ` : ""}
+    <table class="group-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>${t("team")}</th>
+                <th>P</th>
+                <th>W</th>
+                <th>D</th>
+                <th>L</th>
+                <th>Pts</th>
+            </tr>
+        </thead>
+        <tbody id="groupTableBody-${group}"></tbody>
+    </table>
 
-        ${tieExists ? `
-            <button class="primary-btn" style="width:100%; margin-top:12px;" onclick="saveTieBreakRanking('${group}')">
-                Save tie-break order
-            </button>
-            <div id="tieBreakMessage-${group}" class="message"></div>
-        ` : ""}
-    `;
+    ${tieExists ? `
+        <button class="primary-btn" style="width:100%; margin-top:12px;" onclick="saveTieBreakRanking('${group}')">
+            ${t("saveTieBreakOrder")}
+        </button>
+        <div id="tieBreakMessage-${group}" class="message"></div>
+    ` : ""}
+`;
 
         box.appendChild(wrapper);
 
@@ -1041,7 +1114,7 @@
             <td>${index + 1}</td>
            <td>
     ${rowCanMove ? "☰ " : ""}
-    <strong>${row.teamName}</strong>
+    <strong>${translateTeam(row.teamName)}</strong>
 
     ${rowCanMove ? `
         <div class="mobile-rank-buttons">
@@ -1077,7 +1150,7 @@
 
     function saveTieBreakRanking(group) {
         if (predictionsLocked || viewingOtherUser) {
-            showMessage("Predictions are locked.", true);
+            showMessage(t("predictionsLocked"), true);
             return;
         }
 
@@ -1089,24 +1162,24 @@
 
         if (button) {
             button.disabled = true;
-            button.innerText = "Saving...";
+            button.innerText = t("saving");
         }
 
         message.className = "message";
-        message.innerText = "Saving tie-break order...";
+        message.innerText = t("savingTieBreakOrder");
 
         authFetch(`/group-tiebreak/save?code=${encodeURIComponent(code)}&group=${encodeURIComponent(group)}&teams=${teamsParam}`, {
             method: "POST"
         })
             .then(res => {
-                if (!res.ok) throw new Error("Save failed");
+                if (!res.ok) throw new Error(t("saveFailed"));
                 return res.json();
             })
             .then(() => {
                 markTieBreakSaved(group);
 
                 message.className = "message";
-                message.innerText = "Tie-break order saved.";
+                message.innerText = t("tieBreakOrderSaved");
 
                 refreshTieButton(group);
                 loadGroupTable(group);
@@ -1115,18 +1188,18 @@
                     const newMessage = document.getElementById(`tieBreakMessage-${group}`);
                     if (newMessage) {
                         newMessage.className = "message";
-                        newMessage.innerText = "Tie-break order saved.";
+                        newMessage.innerText = t("tieBreakOrderSaved");
                     }
                 }, 100);
             })
             .catch(() => {
                 message.className = "error";
-                message.innerText = "Could not save tie-break order.";
+                message.innerText = t("couldNotSaveTieBreakOrder");
             })
             .finally(() => {
                 if (button) {
                     button.disabled = false;
-                    button.innerText = "Save tie-break order";
+                    button.innerText = t("saveTieBreakOrder");
                 }
             });
     }
@@ -1142,11 +1215,11 @@
                 const tieSolved = savedTieBreakGroups.has(group);
 
                 if (tieExists && !tieSolved) {
-                    button.innerText = "⚠️ Fix tie-break / table";
+                    button.innerText = `⚠️ ${t("fixTieBreakTable")}`;
                     button.style.borderColor = "rgba(255,193,7,0.7)";
                     button.style.color = "#ffd166";
                 } else {
-                    button.innerText = "Open tie-break / table";
+                    button.innerText = t("openTieBreakTable");
                     button.style.borderColor = "rgba(255,255,255,0.16)";
                     button.style.color = "white";
                 }
@@ -1232,7 +1305,7 @@
             if (!allGroupPredictionsSaved) return false;
 
             const button = document.getElementById(`tie-button-${group}`);
-            return button && button.innerText.includes("Fix tie-break");
+            return button && button.innerText.includes(t("fixTieBreakTable"));
         });
     }
 
@@ -1240,19 +1313,20 @@
         const missingGroups = getMissingPredictionGroups();
 
         if (missingGroups.length > 0) {
-            showMessage(`You must fill in all matches first. Missing groups: ${missingGroups.join(", ")}.`, true);
+            showMessage(`${t("mustFillAllMatches")} ${missingGroups.join(", ")}.`, true);
             return false;
         }
 
         const unsolvedTieGroups = getUnsolvedTieBreakGroups();
 
         if (unsolvedTieGroups.length > 0) {
-            showMessage(`You must decide the tie-break order first. Groups: ${unsolvedTieGroups.join(", ")}.`, true);
+            showMessage(`${t("mustDecideTieBreak")} ${unsolvedTieGroups.join(", ")}.`, true);
             return false;
         }
 
         return true;
     }
+
     function handleThirdPlaceNavigation(event) {
         event.preventDefault();
 
@@ -1303,7 +1377,7 @@
 
     function moveTeamByDirection(group, teamName, direction) {
         if (predictionsLocked || viewingOtherUser) {
-            showMessage("Predictions are locked.", true);
+            showMessage(t("predictionsLocked"), true);
             return;
         }
 
@@ -1326,6 +1400,29 @@
         currentGroupTable[targetIndex] = temp;
 
         renderGroupTable(group, currentGroupTable);
+    }
+    function updateLanguageButtons() {
+        const currentLang = getLanguage();
+
+        const enButton = document.getElementById("lang-en");
+        const esButton = document.getElementById("lang-es");
+
+        const enNavButton = document.getElementById("lang-en-nav");
+        const esNavButton = document.getElementById("lang-es-nav");
+
+        if (enButton) enButton.classList.toggle("active", currentLang === "en");
+        if (esButton) esButton.classList.toggle("active", currentLang === "es");
+
+        if (enNavButton) enNavButton.classList.toggle("active", currentLang === "en");
+        if (esNavButton) esNavButton.classList.toggle("active", currentLang === "es");
+
+        applyLanguage();
+
+        if (allGroupMatches.length > 0) {
+            renderLockStatus();
+            renderMatches(allGroupMatches);
+            updateProgress();
+        }
     }
 </script>
 

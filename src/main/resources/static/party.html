@@ -438,6 +438,36 @@
         .mobile-menu {
             display: none;
         }
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .nav-language-buttons {
+            display: flex;
+            gap: 4px;
+            padding: 4px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+
+        .nav-language-buttons button {
+            border: none;
+            border-radius: 999px;
+            background: transparent;
+            color: #aaa;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 7px 11px;
+        }
+
+        .nav-language-buttons button.active {
+            background: linear-gradient(135deg, #0d6efd, #22c55e);
+            color: white;
+        }
 
         @media (max-width: 1000px) {
             .navbar {
@@ -490,6 +520,9 @@
 
             .countdown-timer {
                 margin-top: 18px;
+            }
+            .nav-language-buttons {
+                display: none;
             }
         }
         @media (max-width: 850px) {
@@ -587,63 +620,76 @@
 
 <nav class="navbar">
     <div class="logo">🏆 La Penca</div>
-    <div class="links">
-        <a href="/dashboard.html">Dashboard</a>
-        <a href="/party.html" class="active">Party</a>
-        <a href="/group.html">Group predictions</a>
-        <a href="/third-place.html">Third-place teams prediction</a>
-        <a href="/knockout-board.html">Knockout predictions</a>
-        <a href="/world-cup.html">World Cup 2026</a>
-        <a href="/leaderboard.html">Leaderboard</a>
-        <a id="adminLink" href="/admin-results.html">Admin</a>
-    </div>
 
-    <button class="menu-btn" onclick="toggleMobileMenu()">☰</button>
+    <div class="nav-right">
+        <div class="links">
+            <a href="/dashboard.html" data-i18n="navDashboard">Dashboard</a>
+            <a href="/party.html" class="active" data-i18n="navParty">Party</a>
+            <a href="/group.html" data-i18n="navGroup">Group predictions</a>
+            <a href="/third-place.html" data-i18n="navThird">Third-place teams prediction</a>
+            <a href="/knockout-board.html" data-i18n="navKnockout">Knockout predictions</a>
+            <a href="/world-cup.html" data-i18n="navWorldCup">World Cup 2026</a>
+            <a href="/leaderboard.html" data-i18n="navLeaderboard">Leaderboard</a>
+            <a id="adminLink" href="/admin-results.html" data-i18n="navAdmin">Admin</a>
+        </div>
+
+        <div class="nav-language-buttons">
+            <button id="lang-en-nav" onclick="setLanguage('en')">EN</button>
+            <button id="lang-es-nav" onclick="setLanguage('es')">ES</button>
+        </div>
+
+        <button class="menu-btn" onclick="toggleMobileMenu()">☰</button>
+    </div>
 </nav>
 
 <div id="mobileMenu" class="mobile-menu">
-    <a href="/dashboard.html">Dashboard</a>
-    <a href="/party.html" class="active">Party</a>
-    <a href="/group.html">Group predictions</a>
-    <a href="/third-place.html">Third-place teams prediction</a>
-    <a href="/knockout-board.html">Knockout predictions</a>
-    <a href="/world-cup.html">World Cup 2026</a>
-    <a href="/leaderboard.html">Leaderboard</a>
-    <a id="mobileAdminLink" href="/admin-results.html">Admin</a>
+    <a href="/dashboard.html" data-i18n="navDashboard">Dashboard</a>
+    <a href="/party.html" class="active" data-i18n="navParty">Party</a>
+    <a href="/group.html" data-i18n="navGroup">Group predictions</a>
+    <a href="/third-place.html" data-i18n="navThird">Third-place teams prediction</a>
+    <a href="/knockout-board.html" data-i18n="navKnockout">Knockout predictions</a>
+    <a href="/world-cup.html" data-i18n="navWorldCup">World Cup 2026</a>
+    <a href="/leaderboard.html" data-i18n="navLeaderboard">Leaderboard</a>
+    <a id="mobileAdminLink" href="/admin-results.html" data-i18n="navAdmin">Admin</a>
+
+    <div class="mobile-language-buttons">
+        <button id="lang-en" onclick="setLanguage('en')">English</button>
+        <button id="lang-es" onclick="setLanguage('es')">Español</button>
+    </div>
 </div>
 
 <main class="page">
-    <div class="badge">👥 Party</div>
-    <h1>Your World Cup parties</h1>
-    <p class="subtitle">
+    <div class="badge" data-i18n="party">👥 Party</div>
+    <h1 data-i18n="partyTitle">Your World Cup parties</h1>
+    <p class="subtitle" data-i18n="partySubtitle">
         Create parties, join with a code, view members, and choose which party leaderboard you want to use.
     </p>
 
     <div class="user-pill">
-        👤 Logged in as <strong id="username">...</strong>
+        👤 <span data-i18n="loggedInAs">Logged in as</span> <strong id="username">...</strong>
     </div>
 
     <div class="countdown-card">
         <div>
-            <div class="countdown-small">TIME UNTIL</div>
-            <div class="countdown-label">PREDICTIONS LOCK</div>
+            <div class="countdown-small" data-i18n="timeUntil">TIME UNTIL</div>
+            <div class="countdown-label" data-i18n="predictionsLock">PREDICTIONS LOCK</div>
         </div>
         <div class="countdown-timer">
             <div class="countdown-unit">
                 <span id="countdownDays" class="countdown-number">--</span>
-                <span class="countdown-word">days</span>
+                <span class="countdown-word" data-i18n="days">days</span>
             </div>
             <div class="countdown-unit">
                 <span id="countdownHours" class="countdown-number">--</span>
-                <span class="countdown-word">hours</span>
+                <span class="countdown-word" data-i18n="hours">hours</span>
             </div>
             <div class="countdown-unit">
                 <span id="countdownMinutes" class="countdown-number">--</span>
-                <span class="countdown-word">minutes</span>
+                <span class="countdown-word" data-i18n="minutes">minutes</span>
             </div>
             <div class="countdown-unit">
                 <span id="countdownSeconds" class="countdown-number">--</span>
-                <span class="countdown-word">seconds</span>
+                <span class="countdown-word" data-i18n="seconds">seconds</span>
             </div>
         </div>
     </div>
@@ -652,18 +698,18 @@
         <div>
             <section class="card">
                 <div class="card-header">
-                    <h2>Your parties</h2>
+                    <h2 data-i18n="yourParties">Your parties</h2>
                     <span id="partyCount" class="status-pill">Loading...</span>
                 </div>
 
                 <div id="partyList" class="party-list">
-                    <div class="empty-state">Loading parties...</div>
+                    <div class="empty-state" data-i18n="loadingParties">Loading parties...</div>
                 </div>
 
                 <div class="actions">
-                    <button class="secondary-btn" onclick="openJoinModal()">Join with code</button>
-                    <button class="secondary-btn" onclick="openCreateModal()">Create party</button>
-                    <button class="primary-btn" onclick="goToDashboard()">Go to dashboard</button>
+                    <button class="secondary-btn" onclick="openJoinModal()" data-i18n="joinWithCode">Join with code</button>
+                    <button class="secondary-btn" onclick="openCreateModal()" data-i18n="createParty">Create party</button>
+                    <button class="primary-btn" onclick="goToDashboard()" data-i18n="goDashboard">Go to dashboard</button>
                 </div>
 
                 <div id="mainMessage" class="message"></div>
@@ -671,11 +717,11 @@
 
             <section class="card">
                 <div class="card-header">
-                    <h2 id="detailTitle">Party details</h2>
-                    <span id="detailStatus" class="status-pill">No party selected</span>
+                    <h2 id="detailTitle" data-i18n="partyDetails">Party details</h2>
+                    <span id="detailStatus" class="status-pill" data-i18n="noPartySelected">No party selected</span>
                 </div>
 
-                <div id="noSelectedParty" class="empty-state">
+                <div id="noSelectedParty" class="empty-state" data-i18n="selectPartyFromList">
                     Select a party from the list above.
                 </div>
 
@@ -683,14 +729,14 @@
                     <p class="muted" id="partyDeadlineText"></p>
 
                     <div class="party-code-box">
-                        <div class="code-label">Party code</div>
+                        <div class="code-label" data-i18n="partyCode">Party code</div>
                         <div id="currentPartyCode" class="code-value">---</div>
                     </div>
 
                     <div class="actions">
-                        <button class="primary-btn" onclick="startPredictions()">Start predictions</button>
-                        <button class="secondary-btn" onclick="copyPartyCode()">Copy code</button>
-                        <button class="danger-btn" onclick="confirmLeaveParty()">Leave party</button>
+                        <button class="primary-btn" onclick="startPredictions()" data-i18n="startPredictions">Start predictions</button>
+                        <button class="secondary-btn" onclick="copyPartyCode()" data-i18n="copyCode">Copy code</button>
+                        <button class="danger-btn" onclick="confirmLeaveParty()" data-i18n="leaveParty">Leave party</button>
                     </div>
 
                     <div id="copyMessage" class="message"></div>
@@ -701,24 +747,32 @@
         <aside>
             <section class="card">
                 <div class="card-header">
-                    <h2>Members</h2>
+                    <h2 data-i18n="members">Members</h2>
                     <span id="memberCount" class="status-pill">0</span>
                 </div>
 
                 <div id="membersList" class="party-list">
-                    <div class="empty-state">Select a party to see members.</div>
+                    <div class="empty-state" data-i18n="selectPartyMembers">
+                        Select a party to see members.
+                    </div>
                 </div>
             </section>
 
             <section class="card">
                 <div class="card-header">
-                    <h2>Quick actions</h2>
+                    <h2 data-i18n="quickActions">Quick actions</h2>
                 </div>
 
                 <div class="side-actions">
-                    <button class="primary-btn" onclick="goToLeaderboard()">Open leaderboard</button>
-                    <button class="secondary-btn" onclick="goToGroups()">Group predictions</button>
-                    <button class="secondary-btn" onclick="goToKnockout()">Knockout bracket</button>
+                    <button class="primary-btn" onclick="goToLeaderboard()" data-i18n="openLeaderboard">
+                        Open leaderboard
+                    </button>
+                    <button class="secondary-btn" onclick="goToGroups()" data-i18n="groupPredictions">
+                        Group predictions
+                    </button>
+                    <button class="secondary-btn" onclick="goToKnockout()" data-i18n="knockoutBracket">
+                        Knockout bracket
+                    </button>
                 </div>
             </section>
         </aside>
@@ -728,15 +782,15 @@
 <div id="joinModal" class="modal-backdrop">
     <div class="modal">
         <button class="close-btn" onclick="closeModals()">×</button>
-        <h2>Join a party</h2>
-        <p>Enter the party code you got from your family or friends.</p>
+        <h2 data-i18n="joinPartyTitle">Join a party</h2>
+        <p data-i18n="joinPartySubtitle">Enter the party code you got from your family or friends.</p>
 
-        <label>Party code</label>
-        <input id="partyCodeInput" placeholder="Example: ABC123" onkeydown="handleEnter(event, joinParty)">
+        <label data-i18n="partyCode">Party code</label>
+        <input id="partyCodeInput" data-i18n-placeholder="partyCodePlaceholder" placeholder="Example: ABC123" onkeydown="handleEnter(event, joinParty)">
 
         <div class="modal-actions">
-            <button class="secondary-btn" onclick="closeModals()">Cancel</button>
-            <button id="joinPartyButton" class="primary-btn" onclick="joinParty()">Join party</button>
+            <button class="secondary-btn" onclick="closeModals()" data-i18n="cancel">Cancel</button>
+            <button id="joinPartyButton" class="primary-btn" onclick="joinParty()" data-i18n="joinPartyButton">Join party</button>
         </div>
 
         <div id="joinMessage" class="message"></div>
@@ -746,15 +800,15 @@
 <div id="createModal" class="modal-backdrop">
     <div class="modal">
         <button class="close-btn" onclick="closeModals()">×</button>
-        <h2>Create a party</h2>
-        <p>Create a private competition. All parties lock on June 11, 2026 at 20:59.</p>
+        <h2 data-i18n="createPartyTitle">Create a party</h2>
+        <p data-i18n="createPartySubtitle">Create a private competition. All parties lock on June 11, 2026 at 20:59.</p>
 
-        <label>Party name</label>
-        <input id="partyNameInput" placeholder="Example: Erik family party">
+        <label data-i18n="partyName">Party name</label>
+        <input id="partyNameInput" data-i18n-placeholder="partyNamePlaceholder" placeholder="Example: Erik family party">
 
         <div class="modal-actions">
-            <button class="secondary-btn" onclick="closeModals()">Cancel</button>
-            <button id="createPartyButton" class="primary-btn" onclick="createParty()">Create party</button>
+            <button class="secondary-btn" onclick="closeModals()" data-i18n="cancel">Cancel</button>
+            <button id="createPartyButton" class="primary-btn" onclick="createParty()" data-i18n="createParty">Create party</button>
         </div>
 
         <div id="createMessage" class="message"></div>
@@ -770,6 +824,7 @@
     </div>
 </div>
 
+<script src="/js/i18n.js"></script>
 <script src="/js/auth.js"></script>
 <script>
     const username = localStorage.getItem("username");
@@ -785,9 +840,11 @@
         window.location.href = "/index.html";
     }
 
-    document.getElementById("username").innerText = username || "No user";
+    document.getElementById("username").innerText = username || t("noUser");
 
     loadMyParties();
+    applyLanguage();
+    updateLanguageButtons();
 
     function loadMyParties() {
         authFetch(`/party/my-parties`)
@@ -813,8 +870,8 @@
             })
             .catch(() => {
                 document.getElementById("partyList").innerHTML =
-                    `<div class="empty-state">Could not load your parties.</div>`;
-                document.getElementById("partyCount").innerText = "Error";
+                    `<div class="empty-state">${t("couldNotLoadParties")}</div>`;
+                document.getElementById("partyCount").innerText = t("error");
             });
     }
 
@@ -823,34 +880,34 @@
         const count = document.getElementById("partyCount");
 
         if (!parties || parties.length === 0) {
-            list.innerHTML = `<div class="empty-state">You are not in any party yet. Create one or join with a code.</div>`;
-            count.innerText = "0 parties";
+            list.innerHTML = `<div class="empty-state">${t("noPartiesYet")}</div>`;
+            count.innerText = t("zeroParties");
             return;
         }
 
-        count.innerText = `${parties.length} party${parties.length === 1 ? "" : "s"}`;
+        count.innerText = `${parties.length} ${parties.length === 1 ? t("partySingular") : t("partyPlural")}`;
         list.innerHTML = "";
 
         parties.forEach(party => {
             const isActive = party.code === activePartyCode;
-            const name = party.name || `Party ${party.code}`;
+            const name = party.name || `${t("party")} ${party.code}`;
 
             const row = document.createElement("div");
             row.className = `party-row ${isActive ? "active" : ""}`;
             row.onclick = () => selectParty(party.code);
 
             row.innerHTML = `
-                <div>
-                    <div class="party-name">${name}</div>
-                    <div class="party-meta">
-                        ${party.memberCount} member${party.memberCount === 1 ? "" : "s"} • Code ${party.code}
-                    </div>
+            <div>
+                <div class="party-name">${name}</div>
+                <div class="party-meta">
+                    ${party.memberCount} ${party.memberCount === 1 ? t("memberSingular") : t("memberPlural")} • ${t("code")} ${party.code}
                 </div>
+            </div>
 
-                <span class="status-pill ${isActive ? "status-active" : ""}">
-                    ${isActive ? "Selected" : "Open"}
-                </span>
-            `;
+            <span class="status-pill ${isActive ? "status-active" : ""}">
+                ${isActive ? t("selected") : t("open")}
+            </span>
+        `;
 
             list.appendChild(row);
         });
@@ -865,7 +922,7 @@
         renderParties();
         renderSelectedParty();
         loadMembers(code);
-        setMessage("mainMessage", "Party selected.");
+        setMessage("mainMessage", t("partySelected"));
     }
 
     function renderSelectedParty() {
@@ -876,12 +933,12 @@
         if (!selectedParty) {
             noSelected.style.display = "block";
             details.style.display = "none";
-            status.innerText = "No party selected";
+            status.innerText = t("noPartySelected");
             status.className = "status-pill";
             return;
         }
 
-        const name = selectedParty.name || `Party ${selectedParty.code}`;
+        const name = selectedParty.name || `${t("party")} ${selectedParty.code}`;
 
         noSelected.style.display = "none";
         details.style.display = "block";
@@ -889,13 +946,13 @@
         document.getElementById("detailTitle").innerText = name;
         document.getElementById("currentPartyCode").innerText = selectedParty.code;
 
-        status.innerText = "Active";
+        status.innerText = t("active");
         status.className = "status-pill status-active";
 
         document.getElementById("partyDeadlineText").innerText =
             selectedParty.predictionDeadline
-                ? `Prediction deadline: ${formatDate(selectedParty.predictionDeadline)}`
-                : "Prediction deadline: June 11, 2026 20:59.";
+                ? `${t("predictionDeadline")}: ${formatDate(selectedParty.predictionDeadline)}`
+                : `${t("predictionDeadline")}: June 11, 2026 20:59.`;
 
         updateCountdown();
     }
@@ -908,8 +965,8 @@
             })
             .catch(() => {
                 document.getElementById("membersList").innerHTML =
-                    `<div class="empty-state">Could not load members.</div>`;
-                document.getElementById("memberCount").innerText = "Error";
+                    `<div class="empty-state">${t("couldNotLoadMembers")}</div>`;
+                document.getElementById("memberCount").innerText = t("error");
             });
     }
 
@@ -922,7 +979,7 @@
         count.innerText = `${currentMembers.length}`;
 
         if (!currentMembers || currentMembers.length === 0) {
-            list.innerHTML = `<div class="empty-state">No members found.</div>`;
+            list.innerHTML = `<div class="empty-state">${t("noMembersFound")}</div>`;
             return;
         }
 
@@ -937,7 +994,7 @@
         if (currentMembers.length > 4) {
             const button = document.createElement("button");
             button.className = "show-all-btn";
-            button.innerText = `View all ${currentMembers.length} members`;
+            button.innerText = `${t("viewAll")} ${currentMembers.length} ${t("memberPlural")}`;
             button.onclick = openMembersModal;
             list.appendChild(button);
         }
@@ -946,12 +1003,14 @@
         const row = document.createElement("div");
         row.className = "member-row";
 
+        const isYou = member.username === username;
+
         row.innerHTML = `
         <div>
             <div class="party-name">${member.username}</div>
-            <div class="party-meta">${member.username === username ? "You" : "Party member"}</div>
+            <div class="party-meta">${isYou ? t("you") : t("partyMember")}</div>
         </div>
-        <span class="status-pill">${member.username === username ? "You" : "Member"}</span>
+        <span class="status-pill">${isYou ? t("you") : t("member")}</span>
     `;
 
         return row;
@@ -963,11 +1022,11 @@
         const subtitle = document.getElementById("membersModalSubtitle");
 
         const partyName = selectedParty
-            ? (selectedParty.name || `Party ${selectedParty.code}`)
-            : "Party";
+            ? (selectedParty.name || `${t("party")} ${selectedParty.code}`)
+            : t("party");
 
-        title.innerText = `${partyName} members`;
-        subtitle.innerText = `${currentMembers.length} member${currentMembers.length === 1 ? "" : "s"} in this party.`;
+        title.innerText = `${partyName} - ${t("members")}`;
+        subtitle.innerText = `${currentMembers.length} ${currentMembers.length === 1 ? t("memberSingular") : t("memberPlural")} ${t("inThisParty")}`;
 
         list.innerHTML = "";
 
@@ -1016,19 +1075,19 @@
         const button = document.getElementById("createPartyButton");
 
         if (!name) {
-            setMessage("createMessage", "Enter a party name.", true);
+            setMessage("createMessage", t("enterPartyName"), true);
             return;
         }
 
         button.disabled = true;
-        button.innerText = "Creating...";
-        setMessage("createMessage", "Creating party...");
+        button.innerText = t("creating");
+        setMessage("createMessage", t("creatingParty"));
 
         authFetch(`/party/create?name=${encodeURIComponent(name)}`, {
             method: "POST"
         })
             .then(res => {
-                if (!res.ok) throw new Error("Create failed");
+                if (!res.ok) throw new Error(t("createFailed"));
                 return res.json();
             })
             .then(party => {
@@ -1039,11 +1098,11 @@
                 loadMyParties();
             })
             .catch(() => {
-                setMessage("createMessage", "Could not create party.", true);
+                setMessage("createMessage", t("couldNotCreateParty"), true);
             })
             .finally(() => {
                 button.disabled = false;
-                button.innerText = "Create party";
+                button.innerText = t("createParty");
             });
     }
 
@@ -1052,20 +1111,20 @@
         const button = document.getElementById("joinPartyButton");
 
         if (!code) {
-            setMessage("joinMessage", "Enter a party code first.", true);
+            setMessage("joinMessage", t("enterPartyCodeFirst"), true);
             return;
         }
 
         button.disabled = true;
-        button.innerText = "Joining...";
-        setMessage("joinMessage", "Joining party...");
+        button.innerText = t("joining");
+        setMessage("joinMessage", t("joiningParty"));
 
         authFetch(`/party/join?code=${encodeURIComponent(code)}`, {
             method: "POST"
         })
             .then(res => {
                 if (!res.ok) {
-                    throw new Error("Could not join party. You may already be in this party.");
+                    throw new Error(t("couldNotJoinParty"));
                 }
                 return res.json();
             })
@@ -1081,15 +1140,15 @@
             })
             .finally(() => {
                 button.disabled = false;
-                button.innerText = "Join party";
+                button.innerText = t("joinPartyButton");
             });
     }
 
     function confirmLeaveParty() {
         if (!selectedParty) return;
 
-        const name = selectedParty.name || `Party ${selectedParty.code}`;
-        const confirmed = confirm(`Are you sure you want to leave ${name}?`);
+        const name = selectedParty.name || `${t("party")} ${selectedParty.code}`;
+        const confirmed = confirm(`${t("leaveConfirm")} ${name}?`);
 
         if (!confirmed) return;
 
@@ -1103,18 +1162,18 @@
             method: "POST"
         })
             .then(res => {
-                if (!res.ok) throw new Error("Could not leave party");
+                if (!res.ok) throw new Error(t("couldNotLeaveParty"));
                 return res.text();
             })
             .then(() => {
                 localStorage.removeItem("partyCode");
                 activePartyCode = null;
                 selectedParty = null;
-                setMessage("mainMessage", "You left the party.");
+                setMessage("mainMessage", t("youLeftParty"));
                 loadMyParties();
             })
             .catch(() => {
-                setMessage("copyMessage", "Could not leave party.", true);
+                setMessage("copyMessage", t("couldNotLeaveParty"), true);
             });
     }
 
@@ -1125,7 +1184,7 @@
 
         if (navigator.clipboard && window.isSecureContext) {
             navigator.clipboard.writeText(code)
-                .then(() => setMessage("copyMessage", "Party code copied!"))
+                .then(() => setMessage("copyMessage", t("partyCodeCopied")))
                 .catch(() => fallbackCopyCode(code));
         } else {
             fallbackCopyCode(code);
@@ -1139,7 +1198,7 @@
         document.execCommand("copy");
         document.body.removeChild(input);
 
-        setMessage("copyMessage", "Party code copied!");
+        setMessage("copyMessage", t("partyCodeCopied"));
     }
 
     function formatDate(value) {
@@ -1189,7 +1248,7 @@
             hoursEl.innerText = "0";
             minutesEl.innerText = "0";
             secondsEl.innerText = "0";
-            if (textEl) textEl.innerText = "🔒 Predictions are locked.";
+            if (textEl) textEl.innerText = t("lockedPredictions");
             return;
         }
 
@@ -1204,7 +1263,7 @@
         secondsEl.innerText = seconds;
 
         if (textEl) {
-            textEl.innerText = "Make sure to finish all predictions before the deadline.";
+            textEl.innerText = t("finishBeforeDeadline");
         }
     }
     updateCountdown();
@@ -1230,6 +1289,25 @@
 
     if (mobileAdminLink && localStorage.getItem("role") !== "ADMIN") {
         mobileAdminLink.style.display = "none";
+    }
+    function updateLanguageButtons() {
+        const currentLang = getLanguage();
+
+        const enButton = document.getElementById("lang-en");
+        const esButton = document.getElementById("lang-es");
+
+        const enNavButton = document.getElementById("lang-en-nav");
+        const esNavButton = document.getElementById("lang-es-nav");
+
+        if (enButton) enButton.classList.toggle("active", currentLang === "en");
+        if (esButton) esButton.classList.toggle("active", currentLang === "es");
+
+        if (enNavButton) enNavButton.classList.toggle("active", currentLang === "en");
+        if (esNavButton) esNavButton.classList.toggle("active", currentLang === "es");
+
+        if (parties.length > 0) renderParties();
+        if (selectedParty) renderSelectedParty();
+        if (currentMembers.length > 0) renderMembers(currentMembers);
     }
 </script>
 

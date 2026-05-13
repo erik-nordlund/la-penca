@@ -397,8 +397,8 @@
             position: relative;
             z-index: 3;
             display: grid;
-            grid-template-columns: 600px 300px 600px;
-            gap: 40px;
+            grid-template-columns: 620px 330px 620px;
+            gap: 55px;
             height: 100%;
             padding: 25px 30px;
             justify-content: center;
@@ -498,6 +498,66 @@
         .mobile-menu {
             display: none;
         }
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .nav-language-buttons {
+            display: flex;
+            gap: 4px;
+            padding: 4px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+
+        .nav-language-buttons button {
+            border: none;
+            border-radius: 999px;
+            background: transparent;
+            color: #aaa;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 7px 11px;
+        }
+
+        .nav-language-buttons button.active {
+            background: linear-gradient(135deg, #0d6efd, #22c55e);
+            color: white;
+        }
+
+        .mobile-language-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            padding: 14px 0;
+        }
+
+        .mobile-language-buttons button {
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.16);
+            background: #151515;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .mobile-language-buttons button.active {
+            border: none;
+            background: linear-gradient(135deg, #0d6efd, #22c55e);
+            color: white;
+        }
+
+        .swipe-hint {
+            display: none;
+            color: #aaa;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
 
         @media (max-width: 1200px) {
             .groups-overview {
@@ -557,26 +617,19 @@
             }
 
             .wc-bracket-wrap {
-                width: 1500px;
-                min-width: 1500px;
+                width: 1850px;
+                min-width: 1850px;
+                height: 1180px;
                 margin-left: 0;
             }
 
             .wc-bracket {
-                grid-template-columns: 520px 260px 520px;
-                gap: 28px;
-                padding: 25px 0 25px 14px;
+                grid-template-columns: 620px 330px 620px;
+                gap: 55px;
+                padding: 25px 0 25px 18px;
                 justify-content: start;
             }
 
-            .wc-bracket-wrap::before {
-                content: "Swipe sideways to view the full bracket →";
-                position: absolute;
-                top: -24px;
-                left: 0;
-                color: #aaa;
-                font-size: 13px;
-            }
             .menu-btn {
                 display: block;
             }
@@ -613,6 +666,13 @@
             .mobile-menu a:hover,
             .mobile-menu a.active {
                 color: #7CFC98;
+            }
+            .nav-language-buttons {
+                display: none;
+            }
+
+            .swipe-hint {
+                display: block;
             }
         }
 
@@ -651,42 +711,55 @@
 
 <nav class="navbar">
     <div class="logo">🏆 La Penca</div>
-    <div class="links">
-        <a href="/dashboard.html">Dashboard</a>
-        <a href="/party.html">Party</a>
-        <a href="/group.html">Group predictions</a>
-        <a href="/third-place.html">Third-place teams prediction</a>
-        <a href="/knockout-board.html">Knockout predictions</a>
-        <a href="/world-cup.html" class="active">World Cup 2026</a>
-        <a href="/leaderboard.html">Leaderboard</a>
-        <a id="adminLink" href="/admin-results.html">Admin</a>
-    </div>
 
-    <button class="menu-btn" onclick="toggleMobileMenu()">☰</button>
+    <div class="nav-right">
+        <div class="links">
+            <a href="/dashboard.html" data-i18n="navDashboard">Dashboard</a>
+            <a href="/party.html" data-i18n="navParty">Party</a>
+            <a href="/group.html" data-i18n="navGroup">Group predictions</a>
+            <a href="/third-place.html" data-i18n="navThird">Third-place teams prediction</a>
+            <a href="/knockout-board.html" data-i18n="navKnockout">Knockout predictions</a>
+            <a href="/world-cup.html" class="active" data-i18n="navWorldCup">World Cup 2026</a>
+            <a href="/leaderboard.html" data-i18n="navLeaderboard">Leaderboard</a>
+            <a id="adminLink" href="/admin-results.html" data-i18n="navAdmin">Admin</a>
+        </div>
+
+        <div class="nav-language-buttons">
+            <button id="lang-en-nav" onclick="setLanguage('en')">EN</button>
+            <button id="lang-es-nav" onclick="setLanguage('es')">ES</button>
+        </div>
+
+        <button class="menu-btn" onclick="toggleMobileMenu()">☰</button>
+    </div>
 </nav>
 
 <div id="mobileMenu" class="mobile-menu">
-    <a href="/dashboard.html">Dashboard</a>
-    <a href="/party.html">Party</a>
-    <a href="/group.html">Group predictions</a>
-    <a href="/third-place.html">Third-place teams prediction</a>
-    <a href="/knockout-board.html">Knockout predictions</a>
-    <a href="/world-cup.html" class="active">World Cup 2026</a>
-    <a href="/leaderboard.html">Leaderboard</a>
-    <a id="mobileAdminLink" href="/admin-results.html">Admin</a>
+    <a href="/dashboard.html" data-i18n="navDashboard">Dashboard</a>
+    <a href="/party.html" data-i18n="navParty">Party</a>
+    <a href="/group.html" data-i18n="navGroup">Group predictions</a>
+    <a href="/third-place.html" data-i18n="navThird">Third-place teams prediction</a>
+    <a href="/knockout-board.html" data-i18n="navKnockout">Knockout predictions</a>
+    <a href="/world-cup.html" class="active" data-i18n="navWorldCup">World Cup 2026</a>
+    <a href="/leaderboard.html" data-i18n="navLeaderboard">Leaderboard</a>
+    <a id="mobileAdminLink" href="/admin-results.html" data-i18n="navAdmin">Admin</a>
+
+    <div class="mobile-language-buttons">
+        <button id="lang-en" onclick="setLanguage('en')">EN</button>
+        <button id="lang-es" onclick="setLanguage('es')">ES</button>
+    </div>
 </div>
 
 <main class="page">
     <section class="hero">
-        <div class="badge">🌍 World Cup 2026</div>
-        <h1>World Cup 2026</h1>
-        <p class="subtitle">Real group tables, real match results, and the real knockout bracket.</p>
+        <div class="badge" data-i18n="worldCupBadge">🌍 World Cup 2026</div>
+        <h1 data-i18n="worldCupTitle">World Cup 2026</h1>
+        <p class="subtitle" data-i18n="worldCupSubtitle">Real group tables, real match results, and the real knockout bracket.</p>
     </section>
 
     <section class="tabs">
-        <button id="groupsTab" class="tab-btn active" onclick="showTab('groups')">Groups</button>
-        <button id="matchesTab" class="tab-btn" onclick="showTab('matches')">Matches</button>
-        <button id="knockoutTab" class="tab-btn" onclick="showTab('knockout')">Knockout stage</button>
+        <button id="groupsTab" class="tab-btn active" onclick="showTab('groups')" data-i18n="groups">Groups</button>
+        <button id="matchesTab" class="tab-btn" onclick="showTab('matches')" data-i18n="matches">Matches</button>
+        <button id="knockoutTab" class="tab-btn" onclick="showTab('knockout')" data-i18n="knockoutStage">Knockout stage</button>
     </section>
 
     <section id="groupsView"></section>
@@ -694,16 +767,17 @@
     <section id="knockoutView" class="hidden"></section>
 </main>
 
+<script src="/js/i18n.js"></script>
 <script src="/js/auth.js"></script>
 <script>
     const groups = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"];
     const knockoutRounds = [
-        { key: "ROUND_OF_32", title: "Round of 32" },
-        { key: "ROUND_OF_16", title: "Round of 16" },
-        { key: "QUARTER_FINAL", title: "Quarter finals" },
-        { key: "SEMI_FINAL", title: "Semi finals" },
-        { key: "FINAL", title: "Final" },
-        { key: "THIRD_PLACE", title: "Third place" }
+        { key: "ROUND_OF_32", titleKey: "roundOf32" },
+        { key: "ROUND_OF_16", titleKey: "roundOf16" },
+        { key: "QUARTER_FINAL", titleKey: "quarterFinals" },
+        { key: "SEMI_FINAL", titleKey: "semiFinals" },
+        { key: "FINAL", titleKey: "final" },
+        { key: "THIRD_PLACE", titleKey: "thirdPlaceMatch" }
     ];
     const username = localStorage.getItem("username");
     const token = localStorage.getItem("token");
@@ -719,16 +793,18 @@
     let knockoutData = {};
     let knockoutResults = {};
     let selectedRoundOf32Teams = [];
+    applyLanguage();
+    updateLanguageButtons();
 
     init();
 
     function init() {
         document.getElementById("groupsView").innerHTML =
-            `<div class="empty-state">Loading World Cup data...</div>`;
+            `<div class="empty-state">${t("loadingWorldCupData")}</div>`;
 
         Promise.all([
             authFetch("/matches").then(res => {
-                if (!res.ok) throw new Error("Could not load matches");
+                if (!res.ok) throw new Error(t("couldNotLoadWorldCupData"));
                 return res.json();
             }),
 
@@ -780,7 +856,7 @@
             })
             .catch(() => {
                 document.getElementById("groupsView").innerHTML =
-                    `<div class="empty-state">Could not load World Cup data.</div>`;
+                    `<div class="empty-state">${t("couldNotLoadWorldCupData")}</div>`;
             });
     }
 
@@ -807,23 +883,23 @@
 
                 <div>
                     <div class="side-card">
-                        <h2>Best 3rd placed teams</h2>
+    <h2>${t("bestThirdPlacedTeams")}</h2>
                         <div id="thirdPlaceRanking"></div>
 
                         <div class="legend">
                             <div class="legend-item">
-                                <span class="legend-dot green"></span>
-                                Qualification next stage
-                            </div>
-                            <div class="legend-item">
-                                <span class="legend-dot yellow"></span>
-                                Possible qualification next stage
-                            </div>
+    <span class="legend-dot green"></span>
+    <span>${t("qualificationNextStage")}</span>
+</div>
+<div class="legend-item">
+    <span class="legend-dot yellow"></span>
+    <span>${t("possibleQualificationNextStage")}</span>
+</div>
                         </div>
                     </div>
 
                     <div class="side-card">
-                        <h2>Next matches</h2>
+                        <h2>${t("nextMatches")}</h2>
                         <div id="nextMatches"></div>
                     </div>
                 </div>
@@ -839,17 +915,17 @@
             card.className = "group-card";
 
             card.innerHTML = `
-                <div class="group-title">Grp. ${group}</div>
+    <div class="group-title">${t("groupShort")} ${group}</div>
                 <table>
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th style="text-align:left;">Team</th>
-                            <th>PL</th>
-                            <th>W</th>
-                            <th>D</th>
-                            <th>L</th>
-                            <th>PTS</th>
+                            <th style="text-align:left;">${t("team")}</th>
+<th>${t("playedShort")}</th>
+<th>W</th>
+<th>D</th>
+<th>L</th>
+<th>${t("pointsShort")}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -886,7 +962,7 @@
         const matches = [...allMatches].sort(compareMatchesByDate);
 
         if (matches.length === 0) {
-            container.innerHTML = `<div class="empty-state">No matches found.</div>`;
+            container.innerHTML = `<div class="empty-state">${t("noMatchesFound")}</div>`;
             return;
         }
 
@@ -927,7 +1003,7 @@
         const container = document.getElementById("thirdPlaceRanking");
 
         if (!thirdPlaceTeams || thirdPlaceTeams.length === 0) {
-            container.innerHTML = `<div class="empty-state">No third-place ranking yet.</div>`;
+            container.innerHTML = `<div class="empty-state">${t("noThirdPlaceRankingYet")}</div>`;
             return;
         }
         thirdPlaceTeams.sort((a, b) => {
@@ -954,7 +1030,7 @@
                         <td>
                             <div class="team-cell">${teamWithFlag(team.teamName)}</div>
                         </td>
-                        <td>${team.points ?? 0} pts</td>
+                        <td>${team.points ?? 0} ${t("pts")}</td>
                     </tr>
                 `).join("")}
             </tbody>
@@ -971,14 +1047,14 @@
             .slice(0, 8);
 
         if (next.length === 0) {
-            container.innerHTML = `<div class="empty-state">No upcoming matches.</div>`;
+            container.innerHTML = `<div class="empty-state">${t("noUpcomingMatches")}</div>`;
             return;
         }
 
         container.innerHTML = next.map(match => `
         <div class="next-match-line">
             <div class="next-home">
-                <span>${match.homeTeam.name}</span>
+                <span>${translateTeam(match.homeTeam.name)}</span>
                 ${flagOnly(match.homeTeam.name)}
             </div>
 
@@ -986,7 +1062,7 @@
 
             <div class="next-away">
                 ${flagOnly(match.awayTeam.name)}
-                <span>${match.awayTeam.name}</span>
+                <span>${translateTeam(match.awayTeam.name)}</span>
             </div>
         </div>
     `).join("");
@@ -996,6 +1072,10 @@
         const container = document.getElementById("knockoutView");
 
         container.innerHTML = `
+        <div class="swipe-hint" data-i18n="swipeBracketHint">
+            Swipe sideways to view the full bracket →
+        </div>
+
         <div class="wc-bracket-wrap" id="wcBracketWrap">
             <svg id="wcLines"></svg>
 
@@ -1007,12 +1087,12 @@
                     <div id="wcChampion" class="champion"></div>
 
                     <div class="center-box">
-                        <div class="center-label">Final</div>
+                        <div class="center-label" data-i18n="final">Final</div>
                         <div id="wcFinalBox"></div>
                     </div>
 
                     <div class="center-box">
-                        <div class="center-label">Third place</div>
+                        <div class="center-label" data-i18n="thirdPlaceMatch">Third place</div>
                         <div id="wcThirdPlaceBox"></div>
                     </div>
                 </div>
@@ -1041,10 +1121,14 @@
 
         const finalResult = findKnockoutResult("FINAL", 1);
         document.getElementById("wcChampion").innerText =
-            finalResult?.winner?.name ? `Champion: ${finalResult.winner.name}` : "";
+            finalResult?.winner?.name
+                ? `${t("champion")}: ${translateTeam(finalResult.winner.name)}`
+                : "";
 
+        applyLanguage();
         setTimeout(drawWcLines, 100);
     }
+
     function getActualRound(roundName) {
         return knockoutData[roundName] || [];
     }
@@ -1065,7 +1149,7 @@
             column.rows.forEach((rowNumber, index) => {
                 const matchNumber = column.start + index;
                 const match = column.matches[index] || {
-                    slot: "Waiting...",
+                    slot: t("waiting"),
                     homeTeam: null,
                     awayTeam: null
                 };
@@ -1085,7 +1169,7 @@
 
         if (!matches || matches.length === 0) {
             box.appendChild(createWcMatchCard(roundName, matchNumber, {
-                slot: "Waiting...",
+                slot: t("waiting"),
                 homeTeam: null,
                 awayTeam: null
             }));
@@ -1103,7 +1187,7 @@
         const result = findKnockoutResult(roundName, matchNumber);
 
         card.innerHTML = `
-        <div class="slot">${match.slot || "Waiting..."}</div>
+        <div class="slot">${translateSlot(match.slot)}</div>
         ${renderWcTeam(match.homeTeam, result, "home")}
         ${renderWcTeam(match.awayTeam, result, "away")}
     `;
@@ -1113,12 +1197,12 @@
 
     function renderWcTeam(teamName, result, side) {
         if (!teamName) {
-            return `<div class="wc-team placeholder">Waiting...</div>`;
+            return `<div class="wc-team placeholder">${t("waiting")}</div>`;
         }
 
         const flagUrl = getFlagUrl(teamName);
         const flag = flagUrl ? `<img src="${flagUrl}" class="flag">` : "";
-
+        const translatedName = translateTeam(teamName);
         const winnerName = result?.winner?.name;
         const score = side === "home" ? result?.homeScore : result?.awayScore;
         const penaltyScore = side === "home" ? result?.homePenaltyScore : result?.awayPenaltyScore;
@@ -1136,7 +1220,7 @@
 
         return `
         <div class="wc-team ${winnerName === teamName ? "winner" : ""}" title="${teamName}">
-            <span class="team-label">${flag} ${teamShort(teamName)}</span>
+            <span class="team-label">${flag} ${translatedName}</span>
             <strong>${scoreText}</strong>
         </div>
     `;
@@ -1165,27 +1249,30 @@
     }
 
     function formatDateHeader(value) {
-        if (!value) return "Date not set";
+        if (!value) return t("dateNotSet");
 
         const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return t("dateNotSet");
 
-        if (Number.isNaN(date.getTime())) return "Date not set";
+        const label = date.toLocaleDateString(
+            getLanguage() === "es" ? "es-ES" : "en-US",
+            {
+                weekday: "long",
+                month: "long",
+                day: "numeric"
+            }
+        );
 
-        return date.toLocaleDateString("en-US", {
-            weekday: "long",
-            month: "long",
-            day: "numeric"
-        });
+        return label.charAt(0).toUpperCase() + label.slice(1);
     }
 
     function formatShortDate(value) {
         if (!value) return "";
 
         const date = new Date(value);
-
         if (Number.isNaN(date.getTime())) return "";
 
-        return date.toLocaleDateString("en-US", {
+        return date.toLocaleDateString(getLanguage() === "es" ? "es-ES" : "en-US", {
             month: "short",
             day: "numeric"
         });
@@ -1284,14 +1371,17 @@
     function teamWithFlag(teamName) {
         const flagUrl = getFlagUrl(teamName);
 
-        if (!teamName) return "Waiting...";
+        if (!teamName) return t("waiting");
+
+        const translatedName = translateTeam(teamName);
 
         if (!flagUrl) {
-            return `<span>${teamName}</span>`;
+            return `<span>${translatedName}</span>`;
         }
 
-        return `<span class="team-label"><img src="${flagUrl}" class="flag"> ${teamName}</span>`;
+        return `<span class="team-label"><img src="${flagUrl}" class="flag"> ${translatedName}</span>`;
     }
+
     function flagOnly(teamName) {
         const flagUrl = getFlagUrl(teamName);
 
@@ -1303,11 +1393,10 @@
     }
 
     function formatMatchTime(value) {
-        if (!value) return "TBD";
+        if (!value) return t("tbd");
 
         const date = new Date(value);
-
-        if (Number.isNaN(date.getTime())) return "TBD";
+        if (Number.isNaN(date.getTime())) return t("tbd");
 
         return date.toLocaleTimeString([], {
             hour: "2-digit",
@@ -1315,6 +1404,7 @@
             hour12: false
         });
     }
+
     function drawWcLines() {
         const svg = document.getElementById("wcLines");
         if (!svg) return;
@@ -1436,6 +1526,40 @@
 
     if (mobileAdminLink && localStorage.getItem("role") !== "ADMIN") {
         mobileAdminLink.style.display = "none";
+    }
+    function updateLanguageButtons() {
+        const currentLang = getLanguage();
+
+        const enButton = document.getElementById("lang-en");
+        const esButton = document.getElementById("lang-es");
+
+        const enNavButton = document.getElementById("lang-en-nav");
+        const esNavButton = document.getElementById("lang-es-nav");
+
+        if (enButton) enButton.classList.toggle("active", currentLang === "en");
+        if (esButton) esButton.classList.toggle("active", currentLang === "es");
+
+        if (enNavButton) enNavButton.classList.toggle("active", currentLang === "en");
+        if (esNavButton) esNavButton.classList.toggle("active", currentLang === "es");
+
+        applyLanguage();
+
+        if (allMatches.length > 0) {
+            renderGroups();
+            renderMatches();
+            renderKnockout();
+        }
+    }
+    function translateSlot(slot) {
+        if (!slot) return t("waiting");
+
+        return slot
+            .replaceAll("Winner R32", t("winnerR32"))
+            .replaceAll("Winner R16", t("winnerR16"))
+            .replaceAll("Winner QF", t("winnerQF"))
+            .replaceAll("Winner SF", t("winnerSF"))
+            .replaceAll("Loser SF", t("loserSF"))
+            .replaceAll("vs", t("vs"));
     }
 </script>
 

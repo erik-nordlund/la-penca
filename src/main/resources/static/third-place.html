@@ -343,6 +343,59 @@
         .mobile-menu {
             display: none;
         }
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .nav-language-buttons {
+            display: flex;
+            gap: 4px;
+            padding: 4px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+
+        .nav-language-buttons button {
+            border: none;
+            border-radius: 999px;
+            background: transparent;
+            color: #aaa;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 7px 11px;
+        }
+
+        .nav-language-buttons button.active {
+            background: linear-gradient(135deg, #0d6efd, #22c55e);
+            color: white;
+        }
+
+        .mobile-language-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            padding: 14px 0;
+        }
+
+        .mobile-language-buttons button {
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.16);
+            background: #151515;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .mobile-language-buttons button.active {
+            border: none;
+            background: linear-gradient(135deg, #0d6efd, #22c55e);
+            color: white;
+        }
 
         @media (max-width: 1050px) {
             .navbar {
@@ -408,6 +461,9 @@
             .mobile-menu a.active {
                 color: #7CFC98;
             }
+            .nav-language-buttons {
+                display: none;
+            }
         }
 
         @media (max-width: 750px) {
@@ -467,57 +523,71 @@
 
 <nav class="navbar">
     <div class="logo">🏆 La Penca</div>
-    <div class="links">
-        <a href="/dashboard.html">Dashboard</a>
-        <a href="/party.html">Party</a>
-        <a href="/group.html">Group predictions</a>
-        <a href="/third-place.html" class="active">Third-place teams prediction</a>
-        <a href="/knockout-board.html">Knockout predictions</a>
-        <a href="/world-cup.html">World Cup 2026</a>
-        <a href="/leaderboard.html">Leaderboard</a>
-        <a id="adminLink" href="/admin-results.html">Admin</a>
-    </div>
 
-    <button class="menu-btn" onclick="toggleMobileMenu()">☰</button>
+    <div class="nav-right">
+        <div class="links">
+            <a href="/dashboard.html" data-i18n="navDashboard">Dashboard</a>
+            <a href="/party.html" data-i18n="navParty">Party</a>
+            <a href="/group.html" data-i18n="navGroup">Group predictions</a>
+            <a href="/third-place.html" class="active" data-i18n="navThird">Third-place teams prediction</a>
+            <a href="/knockout-board.html" data-i18n="navKnockout">Knockout predictions</a>
+            <a href="/world-cup.html" data-i18n="navWorldCup">World Cup 2026</a>
+            <a href="/leaderboard.html" data-i18n="navLeaderboard">Leaderboard</a>
+            <a id="adminLink" href="/admin-results.html" data-i18n="navAdmin">Admin</a>
+        </div>
+
+        <div class="nav-language-buttons">
+            <button id="lang-en-nav" onclick="setLanguage('en')">EN</button>
+            <button id="lang-es-nav" onclick="setLanguage('es')">ES</button>
+        </div>
+
+        <button class="menu-btn" onclick="toggleMobileMenu()">☰</button>
+    </div>
 </nav>
 
 <div id="mobileMenu" class="mobile-menu">
-    <a href="/dashboard.html">Dashboard</a>
-    <a href="/party.html">Party</a>
-    <a href="/group.html">Group predictions</a>
-    <a href="/third-place.html" class="active">Third-place teams prediction</a>
-    <a href="/knockout-board.html">Knockout predictions</a>
-    <a href="/world-cup.html">World Cup 2026</a>
-    <a href="/leaderboard.html">Leaderboard</a>
-    <a id="mobileAdminLink" href="/admin-results.html">Admin</a>
+    <a href="/dashboard.html" data-i18n="navDashboard">Dashboard</a>
+    <a href="/party.html" data-i18n="navParty">Party</a>
+    <a href="/group.html" data-i18n="navGroup">Group predictions</a>
+    <a href="/third-place.html" class="active" data-i18n="navThird">Third-place teams prediction</a>
+    <a href="/knockout-board.html" data-i18n="navKnockout">Knockout predictions</a>
+    <a href="/world-cup.html" data-i18n="navWorldCup">World Cup 2026</a>
+    <a href="/leaderboard.html" data-i18n="navLeaderboard">Leaderboard</a>
+    <a id="mobileAdminLink" href="/admin-results.html" data-i18n="navAdmin">Admin</a>
+
+    <div class="mobile-language-buttons">
+        <button id="lang-en" onclick="setLanguage('en')">EN</button>
+        <button id="lang-es" onclick="setLanguage('es')">ES</button>
+    </div>
 </div>
 
 <main class="page">
     <section class="hero">
         <div>
-            <div id="lockBadge" class="badge">🥉 Third-place teams</div>
-            <h1>Select best third-place teams</h1>
-            <p id="lockText" class="subtitle">
+            <div id="lockBadge" class="badge" data-i18n="thirdPlaceBadge">🥉 Third-place teams</div>
+            <h1 data-i18n="thirdPlaceTitle">Select best third-place teams</h1>
+            <p id="lockText" class="subtitle" data-i18n="thirdPlaceSubtitle">
                 Some third-place teams qualify automatically. If teams are tied, choose exactly the remaining number of teams.
             </p>
         </div>
 
         <div class="info">
             <div class="pill">👤 <strong id="username">...</strong></div>
-            <div class="pill">👥 Party <strong id="partyCode">...</strong></div>
+            <div class="pill">👥 <span data-i18n="party">Party</span> <strong id="partyCode">...</strong></div>
         </div>
     </section>
 
     <section class="toolbar">
         <div class="progress">
-            Selection: <strong id="selectedCount">0</strong>/<span id="requiredCount">0</span>
-            chosen from tied teams
+            <span data-i18n="selection">Selection</span>:
+            <strong id="selectedCount">0</strong>/<span id="requiredCount">0</span>
+            <span data-i18n="chosenFromTiedTeams">chosen from tied teams</span>
             <div id="message" class="message"></div>
         </div>
 
         <div class="toolbar-actions">
-            <button class="secondary-btn" onclick="goBack()">Back to groups</button>
-            <button id="saveButton" class="primary-btn" onclick="saveOrContinue()">Save and continue</button>
+            <button class="secondary-btn" onclick="goBack()" data-i18n="backToGroups">Back to groups</button>
+            <button id="saveButton" class="primary-btn" onclick="saveOrContinue()" data-i18n="saveAndContinue">Save and continue</button>
         </div>
     </section>
 
@@ -525,11 +595,11 @@
 
         <div class="card choice-card">
             <div class="card-title">
-                <h2>Choose between tied teams</h2>
-                <span id="choiceStatus" class="status-pill status-pending">Waiting</span>
+                <h2 data-i18n="chooseTiedTeams">Choose between tied teams</h2>
+                <span id="choiceStatus" class="status-pill status-pending" data-i18n="waiting">Waiting</span>
             </div>
 
-            <p class="muted" id="choiceText">
+            <p class="muted" id="choiceText" data-i18n="loadingTiedTeams">
                 Loading tied teams...
             </p>
 
@@ -538,11 +608,11 @@
 
         <div class="card auto-card">
             <div class="card-title">
-                <h2>Automatically qualified</h2>
+                <h2 data-i18n="automaticallyQualified">Automatically qualified</h2>
                 <span id="automaticCount" class="status-pill status-ok">0 teams</span>
             </div>
 
-            <p class="muted">
+            <p class="muted" data-i18n="automaticQualifiedText">
                 These teams are already through because they are above the tie line.
             </p>
 
@@ -551,11 +621,11 @@
 
         <div class="card final-card">
             <div class="card-title">
-                <h2>Final qualified list</h2>
+                <h2 data-i18n="finalQualifiedList">Final qualified list</h2>
                 <span id="finalCount" class="status-pill status-pending">0/8</span>
             </div>
 
-            <p class="muted">
+            <p class="muted" data-i18n="finalQualifiedText">
                 This is the list that will be saved and used to build your knockout bracket.
             </p>
 
@@ -565,6 +635,7 @@
     </section>
 </main>
 
+<script src="/js/i18n.js"></script>
 <script src="/js/auth.js"></script>
 <script>
     const loggedInUser = localStorage.getItem("username");
@@ -586,14 +657,17 @@
         window.location.href = "/party.html";
     }
 
-    document.getElementById("username").innerText = username || "No user";
-    document.getElementById("partyCode").innerText = code || "No party";
+    document.getElementById("username").innerText = username || t("noUser");
+    document.getElementById("partyCode").innerText = code || t("noParty");
 
     const selectedTeams = [];
     const automaticTeams = [];
     let remainingSlots = 0;
     let savedTeams = [];
     let predictionsLocked = false;
+
+    applyLanguage();
+    updateLanguageButtons();
 
     function getFlagUrl(teamName) {
         const map = {
@@ -658,12 +732,13 @@
 
     function teamWithFlag(teamName) {
         const flagUrl = getFlagUrl(teamName);
+        const translatedName = translateTeam(teamName);
 
         if (!flagUrl) {
-            return teamName;
+            return translatedName;
         }
 
-        return `<img src="${flagUrl}" class="flag"> ${teamName}`;
+        return `<img src="${flagUrl}" class="flag"> ${translatedName}`;
     }
 
     validateGroupPredictionsBeforeLoading().then(canLoad => {
@@ -675,7 +750,7 @@
             authFetch(`/third-place-selection?viewerUsername=${encodeURIComponent(loggedInUser)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`)
                 .then(res => {
                     if (!res.ok) {
-                        throw new Error("You can only view other players' predictions after the deadline.");
+                        throw new Error(t("viewAfterDeadlineOnly"));
                     }
                     return res.json();
                 }),
@@ -683,7 +758,7 @@
             authFetch(`/third-place-teams/saved?viewerUsername=${encodeURIComponent(loggedInUser)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}`)
                 .then(res => {
                     if (!res.ok) {
-                        throw new Error("You can only view other players' predictions after the deadline.");
+                        throw new Error(t("viewAfterDeadlineOnly"));
                     }
                     return res.json();
                 })
@@ -701,24 +776,24 @@
                 updateFinalList();
 
                 if (savedTeams.length > 0 && !viewingOtherUser) {
-                    document.getElementById("message").innerText = "Your saved selection has been loaded.";
+                    document.getElementById("message").innerText = t("savedSelectionLoaded");
                 }
             })
             .catch(err => {
                 predictionsLocked = true;
                 renderLockStatus();
 
-                document.getElementById("lockBadge").innerText = "🔒 View locked";
+                document.getElementById("lockBadge").innerText = t("viewLocked");
                 document.getElementById("lockBadge").classList.add("locked");
                 document.getElementById("lockText").innerText =
-                    err.message || "You can only view other players' predictions after the deadline.";
+                    err.message || t("viewAfterDeadlineOnly");
 
                 document.getElementById("automatic").innerHTML = "";
                 document.getElementById("finalList").innerHTML = "";
                 document.getElementById("teams").innerHTML = `
                 <div class="empty-state">
-                    You can only view other players' predictions after the deadline.
-                </div>
+    ${t("viewAfterDeadlineOnly")}
+</div>
             `;
 
                 document.getElementById("saveButton").disabled = true;
@@ -730,7 +805,7 @@
         automatic.innerHTML = "";
 
         if (!teams || teams.length === 0) {
-            automatic.innerHTML = `<div class="empty-state">No teams qualify automatically yet.</div>`;
+            automatic.innerHTML = `<div class="empty-state">${t("noTeamsAutomatic")}</div>`;
             return;
         }
 
@@ -740,7 +815,7 @@
             automatic.appendChild(createTeamCard(team, true, false));
         });
 
-        document.getElementById("automaticCount").innerText = `${automaticTeams.length} teams`;
+        document.getElementById("automaticCount").innerText = `${automaticTeams.length} ${t("teams")}`;
     }
 
     function renderChoices(tiedTeams) {
@@ -750,9 +825,9 @@
         document.getElementById("requiredCount").innerText = remainingSlots;
 
         if (!tiedTeams || tiedTeams.length === 0) {
-            teams.innerHTML = `<div class="empty-state">No tied teams to choose from.</div>`;
-            document.getElementById("choiceText").innerText = "Everything is already decided automatically.";
-            document.getElementById("choiceStatus").innerText = "Done";
+            teams.innerHTML = `<div class="empty-state">${t("noTiedTeams")}</div>`;
+            document.getElementById("choiceText").innerText = t("everythingDecided");
+            document.getElementById("choiceStatus").innerText = t("done");
             document.getElementById("choiceStatus").className = "status-pill status-ok";
             return;
         }
@@ -765,11 +840,11 @@
             });
         } else if (tiedTeams.length === remainingSlots) {
             tiedTeams.forEach(team => selectedTeams.push(team.teamName));
-            document.getElementById("message").innerText = "All tied teams qualify automatically.";
+            document.getElementById("message").innerText = t("allTiedQualify");
         }
 
         document.getElementById("choiceText").innerText =
-            `Choose ${remainingSlots} team(s) from this group of tied teams.`;
+            `${t("chooseFromTied")} ${remainingSlots} ${remainingSlots === 1 ? t("teamSingular") : t("teamPlural")} ${t("fromTiedGroup")}`
 
         tiedTeams.forEach(team => {
             const isSelected = selectedTeams.includes(team.teamName);
@@ -784,7 +859,7 @@
         card.innerHTML = `
             <div>
                 <div class="team-name">${teamWithFlag(team.teamName)}</div>
-                <div class="team-meta">Group ${team.groupName} • ${team.points ?? 0} pts</div>
+                <div class="team-meta">${t("group")} ${team.groupName} • ${team.points ?? 0} ${t("pts")}</div>
             </div>
             <div class="check">✓</div>
         `;
@@ -798,7 +873,7 @@
 
     function toggleTeam(element, teamName) {
         if (predictionsLocked) {
-            setMessage("Predictions are locked for this party.", true);
+            setMessage(t("predictionsLockedParty"), true);
             return;
         }
         const index = selectedTeams.indexOf(teamName);
@@ -812,7 +887,7 @@
         }
 
         if (selectedTeams.length >= remainingSlots) {
-            setMessage(`You can only choose ${remainingSlots} team(s).`, true);
+            setMessage(`${t("youCanOnlyChoose")} ${remainingSlots} ${remainingSlots === 1 ? t("teamSingular") : t("teamPlural")}.`, true);
             return;
         }
 
@@ -834,10 +909,10 @@
         const choiceStatus = document.getElementById("choiceStatus");
 
         if (selectedTeams.length === remainingSlots) {
-            choiceStatus.innerText = "Ready";
+            choiceStatus.innerText = t("ready");
             choiceStatus.className = "status-pill status-ok";
         } else {
-            choiceStatus.innerText = "Choose teams";
+            choiceStatus.innerText = t("chooseTeams");
             choiceStatus.className = "status-pill status-pending";
         }
     }
@@ -849,7 +924,7 @@
         const all = automaticTeams.concat(selectedTeams);
 
         if (all.length === 0) {
-            finalList.innerHTML = `<div class="empty-state">No qualified teams selected yet.</div>`;
+            finalList.innerHTML = `<div class="empty-state">${t("noQualifiedSelected")}</div>`;
             return;
         }
 
@@ -859,7 +934,7 @@
             div.innerHTML = `
                 <div>
                     <div class="team-name">${teamWithFlag(teamName)}</div>
-                    <div class="team-meta">Qualified for Round of 32</div>
+                    <div class="team-meta">${t("qualifiedRound32")}</div>
                 </div>
                 <div class="check">✓</div>
             `;
@@ -871,12 +946,12 @@
         const button = document.getElementById("saveButton");
 
         if (predictionsLocked) {
-            setMessage("Predictions are locked for this party.", true);
+            setMessage(t("predictionsLockedParty"), true);
             return;
         }
 
         if (selectedTeams.length !== remainingSlots) {
-            setMessage(`You must choose exactly ${remainingSlots} team(s).`, true);
+            setMessage(`${t("youMustChooseExactly")} ${remainingSlots} ${remainingSlots === 1 ? t("teamSingular") : t("teamPlural")}.`, true);
             return;
         }
 
@@ -884,15 +959,15 @@
         const teamsParam = allQualifiedTeams.map(encodeURIComponent).join(",");
 
         button.disabled = true;
-        button.innerText = "Saving...";
-        setMessage("Saving selection...");
+        button.innerText = t("saving");
+        setMessage(t("savingSelection"));
 
         authFetch(`/third-place-selection/save?code=${encodeURIComponent(code)}&teams=${teamsParam}`, {
             method: "POST"
         })
             .then(res => {
                 if (!res.ok) {
-                    throw new Error("Save failed");
+                    throw new Error(t("saveFailed"));
                 }
                 return res.json();
             })
@@ -900,12 +975,12 @@
                 window.location.href = "/knockout-board.html";
             })
             .catch(() => {
-                setMessage("Could not save selection.", true);
+                setMessage(t("couldNotSaveSelection"), true);
             })
             .finally(() => {
                 if (!viewingOtherUser && !predictionsLocked) {
                     button.disabled = false;
-                    button.innerText = "Save and continue";
+                    button.innerText = t("saveAndContinue");
                 }
             });
     }
@@ -926,24 +1001,24 @@
     }
     function renderLockStatus() {
         if (viewingOtherUser) {
-            document.getElementById("lockBadge").innerText = `👀 ${username}'s predictions`;
+            document.getElementById("lockBadge").innerText = `👀 ${username} - ${t("predictions")}`;
             document.getElementById("lockText").innerText =
-                `You are viewing ${username}'s third-place selections.`;
+                `${t("viewingThirdPlaceSelections")} ${username}.`;
 
             document.getElementById("saveButton").disabled = false;
-            document.getElementById("saveButton").innerText = "Continue to knockout";
-            setMessage("View-only mode. You cannot change another player's predictions.", true);
+            document.getElementById("saveButton").innerText = t("continueToKnockout");
+            setMessage(t("viewOnlyMode"), true);
             return;
         }
 
         if (predictionsLocked) {
-            document.getElementById("lockBadge").innerText = "🔒 Predictions locked";
+            document.getElementById("lockBadge").innerText = t("predictionsLockedBadge");
             document.getElementById("lockBadge").classList.add("locked");
             document.getElementById("lockText").innerText =
-                "Deadline passed. You can view your selections, but you cannot change them.";
+                t("deadlinePassedThird");
 
             document.getElementById("saveButton").disabled = true;
-            setMessage("Predictions are locked for this party.", true);
+            setMessage(t("predictionsLockedParty"), true);
         }
     }
     function goToKnockout() {
@@ -988,12 +1063,12 @@
 
                 if (missingGroups.length > 0) {
                     document.getElementById("teams").innerHTML = `
-                    <div class="empty-state">
-                        You must fill in all group predictions first. Missing groups: ${missingGroups.join(", ")}.
-                    </div>
-                `;
+    <div class="empty-state">
+        ${t("finishGroupsFirst")} ${missingGroups.join(", ")}.
+    </div>
+`;
                     document.getElementById("saveButton").disabled = true;
-                    setMessage(`Go back and finish all group predictions first. Missing groups: ${missingGroups.join(", ")}.`, true);
+                    setMessage(`${t("goBackFinishGroups")} ${missingGroups.join(", ")}.`, true);
                     return false;
                 }
 
@@ -1021,6 +1096,23 @@
 
     if (mobileAdminLink && localStorage.getItem("role") !== "ADMIN") {
         mobileAdminLink.style.display = "none";
+    }
+    function updateLanguageButtons() {
+        const currentLang = getLanguage();
+
+        const enButton = document.getElementById("lang-en");
+        const esButton = document.getElementById("lang-es");
+
+        const enNavButton = document.getElementById("lang-en-nav");
+        const esNavButton = document.getElementById("lang-es-nav");
+
+        if (enButton) enButton.classList.toggle("active", currentLang === "en");
+        if (esButton) esButton.classList.toggle("active", currentLang === "es");
+
+        if (enNavButton) enNavButton.classList.toggle("active", currentLang === "en");
+        if (esNavButton) esNavButton.classList.toggle("active", currentLang === "es");
+
+        applyLanguage();
     }
 </script>
 

@@ -331,6 +331,59 @@
         .mobile-menu {
             display: none;
         }
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .nav-language-buttons {
+            display: flex;
+            gap: 4px;
+            padding: 4px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+
+        .nav-language-buttons button {
+            border: none;
+            border-radius: 999px;
+            background: transparent;
+            color: #aaa;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 7px 11px;
+        }
+
+        .nav-language-buttons button.active {
+            background: linear-gradient(135deg, #0d6efd, #22c55e);
+            color: white;
+        }
+
+        .mobile-language-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            padding: 14px 0;
+        }
+
+        .mobile-language-buttons button {
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.16);
+            background: #151515;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .mobile-language-buttons button.active {
+            border: none;
+            background: linear-gradient(135deg, #0d6efd, #22c55e);
+            color: white;
+        }
 
         @media (max-width: 950px) {
             .navbar {
@@ -379,6 +432,9 @@
             .card {
                 padding: 20px;
                 border-radius: 20px;
+            }
+            .nav-language-buttons {
+                display: none;
             }
         }
         @media (max-width: 850px) {
@@ -480,35 +536,48 @@
 
 <nav class="navbar">
     <div class="logo">🏆 La Penca</div>
-    <div class="links">
-        <a href="/dashboard.html">Dashboard</a>
-        <a href="/party.html">Party</a>
-        <a href="/group.html">Group predictions</a>
-        <a href="/third-place.html">Third-place teams prediction</a>
-        <a href="/knockout-board.html">Knockout predictions</a>
-        <a href="/world-cup.html">World Cup 2026</a>
-        <a href="/leaderboard.html" class="active">Leaderboard</a>
-        <a id="adminLink" href="/admin-results.html">Admin</a>
-    </div>
 
-    <button class="menu-btn" onclick="toggleMobileMenu()">☰</button>
+    <div class="nav-right">
+        <div class="links">
+            <a href="/dashboard.html" data-i18n="navDashboard">Dashboard</a>
+            <a href="/party.html" data-i18n="navParty">Party</a>
+            <a href="/group.html" data-i18n="navGroup">Group predictions</a>
+            <a href="/third-place.html" data-i18n="navThird">Third-place teams prediction</a>
+            <a href="/knockout-board.html" data-i18n="navKnockout">Knockout predictions</a>
+            <a href="/world-cup.html" data-i18n="navWorldCup">World Cup 2026</a>
+            <a href="/leaderboard.html" class="active" data-i18n="navLeaderboard">Leaderboard</a>
+            <a id="adminLink" href="/admin-results.html" data-i18n="navAdmin">Admin</a>
+        </div>
+
+        <div class="nav-language-buttons">
+            <button id="lang-en-nav" onclick="setLanguage('en')">EN</button>
+            <button id="lang-es-nav" onclick="setLanguage('es')">ES</button>
+        </div>
+
+        <button class="menu-btn" onclick="toggleMobileMenu()">☰</button>
+    </div>
 </nav>
 
 <div id="mobileMenu" class="mobile-menu">
-    <a href="/dashboard.html">Dashboard</a>
-    <a href="/party.html">Party</a>
-    <a href="/group.html">Group predictions</a>
-    <a href="/third-place.html">Third-place teams prediction</a>
-    <a href="/knockout-board.html">Knockout predictions</a>
-    <a href="/world-cup.html">World Cup 2026</a>
-    <a href="/leaderboard.html" class="active">Leaderboard</a>
-    <a id="mobileAdminLink" href="/admin-results.html">Admin</a>
+    <a href="/dashboard.html" data-i18n="navDashboard">Dashboard</a>
+    <a href="/party.html" data-i18n="navParty">Party</a>
+    <a href="/group.html" data-i18n="navGroup">Group predictions</a>
+    <a href="/third-place.html" data-i18n="navThird">Third-place teams prediction</a>
+    <a href="/knockout-board.html" data-i18n="navKnockout">Knockout predictions</a>
+    <a href="/world-cup.html" data-i18n="navWorldCup">World Cup 2026</a>
+    <a href="/leaderboard.html" class="active" data-i18n="navLeaderboard">Leaderboard</a>
+    <a id="mobileAdminLink" href="/admin-results.html" data-i18n="navAdmin">Admin</a>
+
+    <div class="mobile-language-buttons">
+        <button id="lang-en" onclick="setLanguage('en')">EN</button>
+        <button id="lang-es" onclick="setLanguage('es')">ES</button>
+    </div>
 </div>
 
 <div id="breakdownModal" class="modal-backdrop">
     <div class="modal">
         <div class="modal-header">
-            <h2 id="modalTitle">Score breakdown</h2>
+            <h2 id="modalTitle" data-i18n="scoreBreakdown">Score breakdown</h2>
             <button class="close-btn" onclick="closeModal()">×</button>
         </div>
 
@@ -519,14 +588,14 @@
 <div id="predictionModal" class="modal-backdrop">
     <div class="modal">
         <div class="modal-header">
-            <h2 id="predictionModalTitle">View predictions</h2>
+            <h2 id="predictionModalTitle" data-i18n="viewPredictions">View predictions</h2>
             <button class="close-btn" onclick="closePredictionModal()">×</button>
         </div>
 
         <div style="display:grid; gap:12px; margin-top:18px;">
-            <button class="primary-btn" onclick="goToPredictionPage('group')">Group predictions</button>
-            <button class="primary-btn" onclick="goToPredictionPage('third')">Third place</button>
-            <button class="primary-btn" onclick="goToPredictionPage('knockout')">Knockout bracket</button>
+            <button class="primary-btn" onclick="goToPredictionPage('group')" data-i18n="groupPredictions">Group predictions</button>
+            <button class="primary-btn" onclick="goToPredictionPage('third')" data-i18n="thirdPlaceShort">Third place</button>
+            <button class="primary-btn" onclick="goToPredictionPage('knockout')" data-i18n="knockoutBracket">Knockout bracket</button>
         </div>
     </div>
 </div>
@@ -534,58 +603,59 @@
 <main class="page">
     <section class="hero">
         <div>
-            <div class="badge">📊 Leaderboard</div>
-            <h1>Party standings</h1>
-            <p class="subtitle">
+            <div class="badge" data-i18n="leaderboardBadge">📊 Leaderboard</div>
+            <h1 data-i18n="partyStandings">Party standings</h1>
+            <p class="subtitle" data-i18n="leaderboardSubtitle">
                 See who is leading your World Cup prediction competition.
             </p>
         </div>
 
         <div class="info">
             <div class="pill">👤 <strong id="username">...</strong></div>
-            <div class="pill">👥 Party <strong id="partyCode">...</strong></div>
+            <div class="pill">👥 <span data-i18n="party">Party</span> <strong id="partyCode">...</strong></div>
         </div>
     </section>
 
     <section class="layout">
         <div class="card">
             <div class="card-title">
-                <h2>Leaderboard</h2>
-                <span id="playerCount" class="status-pill">Loading...</span>
+                <h2 data-i18n="leaderboard">Leaderboard</h2>
+                <span id="playerCount" class="status-pill" data-i18n="loading">Loading...</span>
             </div>
 
             <div id="leaderboard" class="leaderboard-list">
-                <div class="empty-state">Loading leaderboard...</div>
+                <div class="empty-state" data-i18n="loadingLeaderboard">Loading leaderboard...</div>
             </div>
         </div>
 
         <aside>
             <div class="card">
                 <div class="card-title">
-                    <h2>Podium</h2>
-                    <span class="status-pill status-ok">Top 3</span>
+                    <h2 data-i18n="podium">Podium</h2>
+                    <span class="status-pill status-ok" data-i18n="topThree">Top 3</span>
                 </div>
 
                 <div id="podium" class="podium">
-                    <div class="empty-state">Waiting for scores...</div>
+                    <div class="empty-state" data-i18n="waitingForScores">Waiting for scores...</div>
                 </div>
             </div>
 
             <div class="card">
                 <div class="card-title">
-                    <h2>Your position</h2>
+                    <h2 data-i18n="yourPosition">Your position</h2>
                 </div>
 
-                <div id="myPosition" class="muted">
+                <div id="myPosition" class="muted" data-i18n="loadingYourPosition">
                     Loading your position...
                 </div>
 
-                <button class="primary-btn" onclick="goToDashboard()">Back to dashboard</button>
+                <button class="primary-btn" onclick="goToDashboard()" data-i18n="backDashboard">Back to dashboard</button>
             </div>
         </aside>
     </section>
 </main>
 
+<script src="/js/i18n.js"></script>
 <script src="/js/auth.js"></script>
 <script>
     const username = localStorage.getItem("username");
@@ -597,15 +667,16 @@
         window.location.href = "/index.html";
     }
 
-    document.getElementById("username").innerText = username || "No user";
-    document.getElementById("partyCode").innerText = code || "No party";
+    document.getElementById("username").innerText = username || t("noUser");
+    document.getElementById("partyCode").innerText = code || t("noParty");
 
     if (!code) {
         document.getElementById("leaderboard").innerHTML =
-            `<div class="empty-state">You need to create or join a party first.</div>`;
-        document.getElementById("playerCount").innerText = "No party";
-        document.getElementById("myPosition").innerText = "No active party selected.";
-    } else {
+            `<div class="empty-state">${t("noPartySelectedLeaderboard")}</div>`;
+        document.getElementById("playerCount").innerText = t("noParty");
+        document.getElementById("myPosition").innerText = t("noActivePartySelected");
+    }
+    else {
         authFetch(`/leaderboard?code=${encodeURIComponent(code)}`)
             .then(res => res.json())
             .then(rows => {
@@ -615,8 +686,8 @@
             })
             .catch(() => {
                 document.getElementById("leaderboard").innerHTML =
-                    `<div class="empty-state">Could not load leaderboard.</div>`;
-                document.getElementById("playerCount").innerText = "Error";
+                    `<div class="empty-state">${t("couldNotLoadLeaderboard")}</div>`;
+                document.getElementById("playerCount").innerText = t("error");
             });
     }
 
@@ -625,12 +696,12 @@
         const count = document.getElementById("playerCount");
 
         if (!rows || rows.length === 0) {
-            container.innerHTML = `<div class="empty-state">No players in this party yet.</div>`;
-            count.innerText = "0 players";
+            container.innerHTML = `<div class="empty-state">${t("noPlayersParty")}</div>`;
+            count.innerText = `0 ${t("players")}`;
             return;
         }
 
-        count.innerText = `${rows.length} player${rows.length === 1 ? "" : "s"}`;
+        count.innerText = `${rows.length} ${rows.length === 1 ? t("player") : t("players")}`;
         container.innerHTML = "";
 
         rows.forEach((row, index) => {
@@ -642,22 +713,19 @@
                 <div class="rank">${medal || "#" + (index + 1)}</div>
 
                 <div>
-                    <div class="player-name">${row.username} ${isMe ? "(You)" : ""}</div>
+                    <div class="player-name">${row.username} ${isMe ? `(${t("youLabel")})` : ""}</div>
                     <div class="player-sub">${getRankText(index)}</div>
                 </div>
 
                 <div class="score">
                     ${row.score}
-                    <span>points</span>
+                    <span>${t("points")}</span>
                 </div>
 
                 <div style="display:flex; gap:6px;">
-    <button class="details-btn"
-        onclick="loadBreakdown('${row.username}', event)">📊</button>
-
-    <button class="details-btn"
-    onclick="openPredictionModal('${row.username}')">👀</button>
-</div>
+                    <button class="details-btn" onclick="loadBreakdown('${row.username}', event)">📊</button>
+                    <button class="details-btn" onclick="openPredictionModal('${row.username}')">👀</button>
+                </div>
             </div>
         `;
         });
@@ -672,14 +740,14 @@
 
         authFetch(`/score-breakdown?username=${encodeURIComponent(user)}&code=${encodeURIComponent(code)}`)
             .then(res => {
-                if (!res.ok) throw new Error("Could not load score breakdown.");
+                if (!res.ok) throw new Error(t("couldNotLoadScoreBreakdown"));
                 return res.json();
             })
             .then(data => {
                 showBreakdown(user, data);
             })
             .catch(() => {
-                alert("Could not load score breakdown.");
+                alert(t("couldNotLoadScoreBreakdown"));
             })
             .finally(() => {
                 button.disabled = false;
@@ -688,20 +756,20 @@
     }
 
     function showBreakdown(user, data) {
-        document.getElementById("modalTitle").innerText = `${user} - Score breakdown`;
+        document.getElementById("modalTitle").innerText = `${user} - ${t("scoreBreakdown")}`;
 
         document.getElementById("breakdownContent").innerHTML = `
-        <div class="breakdown-row"><span>Group stage</span><span>${data.groupPoints}</span></div>
-        <div class="breakdown-row"><span>Round of 32</span><span>${data.roundOf32Points}</span></div>
-        <div class="breakdown-row"><span>Round of 16</span><span>${data.roundOf16Points}</span></div>
-        <div class="breakdown-row"><span>Quarter finals</span><span>${data.quarterFinalPoints}</span></div>
-        <div class="breakdown-row"><span>Semi finals</span><span>${data.semiFinalPoints}</span></div>
-        <div class="breakdown-row"><span>Final + Champion</span><span>${data.finalPoints}</span></div>
-        <div class="breakdown-row"><span>Placements</span><span>${data.placementPoints}</span></div>
+        <div class="breakdown-row"><span>${t("groupStage")}</span><span>${data.groupPoints}</span></div>
+        <div class="breakdown-row"><span>${t("roundOf32")}</span><span>${data.roundOf32Points}</span></div>
+        <div class="breakdown-row"><span>${t("roundOf16")}</span><span>${data.roundOf16Points}</span></div>
+        <div class="breakdown-row"><span>${t("quarterFinals")}</span><span>${data.quarterFinalPoints}</span></div>
+        <div class="breakdown-row"><span>${t("semiFinals")}</span><span>${data.semiFinalPoints}</span></div>
+        <div class="breakdown-row"><span>${t("finalChampion")}</span><span>${data.finalPoints}</span></div>
+        <div class="breakdown-row"><span>${t("placements")}</span><span>${data.placementPoints}</span></div>
 
         <hr>
 
-        <div class="breakdown-row"><strong>Total</strong><strong>${data.totalPoints}</strong></div>
+        <div class="breakdown-row"><strong>${t("total")}</strong><strong>${data.totalPoints}</strong></div>
     `;
 
         document.getElementById("breakdownModal").classList.add("show");
@@ -715,7 +783,7 @@
         const podium = document.getElementById("podium");
 
         if (!rows || rows.length === 0) {
-            podium.innerHTML = `<div class="empty-state">No podium yet.</div>`;
+            podium.innerHTML = `<div class="empty-state">${t("noPodiumYet")}</div>`;
             return;
         }
 
@@ -723,12 +791,12 @@
 
         rows.slice(0, 3).forEach((row, index) => {
             podium.innerHTML += `
-                <div class="podium-card">
-                    <div class="podium-rank">${getMedal(index)}</div>
-                    <div class="podium-name">${row.username}</div>
-                    <div class="podium-score">${row.score} points</div>
-                </div>
-            `;
+            <div class="podium-card">
+                <div class="podium-rank">${getMedal(index)}</div>
+                <div class="podium-name">${row.username}</div>
+                <div class="podium-score">${row.score} ${t("points")}</div>
+            </div>
+        `;
         });
     }
 
@@ -736,21 +804,21 @@
         const el = document.getElementById("myPosition");
 
         if (!rows || rows.length === 0) {
-            el.innerText = "You are not ranked yet.";
+            el.innerText = t("notRankedYet");
             return;
         }
 
         const index = rows.findIndex(row => row.username === username);
 
         if (index === -1) {
-            el.innerText = "You are not in this leaderboard yet.";
+            el.innerText = t("notInLeaderboardYet");
             return;
         }
 
         el.innerHTML = `
-            You are currently ranked <strong>#${index + 1}</strong>
-            with <strong>${rows[index].score}</strong> points.
-        `;
+        ${t("currentlyRanked")} <strong>#${index + 1}</strong>
+        ${t("with")} <strong>${rows[index].score}</strong> ${t("points")}.
+    `;
     }
 
     function getMedal(index) {
@@ -761,10 +829,10 @@
     }
 
     function getRankText(index) {
-        if (index === 0) return "Current leader";
-        if (index === 1) return "Chasing first place";
-        if (index === 2) return "On the podium";
-        return "Still in the race";
+        if (index === 0) return t("currentLeader");
+        if (index === 1) return t("chasingFirst");
+        if (index === 2) return t("onPodium");
+        return t("stillInRace");
     }
 
     function goToDashboard() {
@@ -775,7 +843,7 @@
     function openPredictionModal(user) {
         selectedViewUser = user;
         document.getElementById("predictionModalTitle").innerText =
-            `View ${user}'s predictions`;
+            `${t("viewUserPredictions")} - ${user}`;
         document.getElementById("predictionModal").classList.add("show");
     }
 
@@ -826,6 +894,26 @@
 
     if (mobileAdminLink && localStorage.getItem("role") !== "ADMIN") {
         mobileAdminLink.style.display = "none";
+    }
+    applyLanguage();
+    updateLanguageButtons();
+
+    function updateLanguageButtons() {
+        const currentLang = getLanguage();
+
+        const enButton = document.getElementById("lang-en");
+        const esButton = document.getElementById("lang-es");
+
+        const enNavButton = document.getElementById("lang-en-nav");
+        const esNavButton = document.getElementById("lang-es-nav");
+
+        if (enButton) enButton.classList.toggle("active", currentLang === "en");
+        if (esButton) esButton.classList.toggle("active", currentLang === "es");
+
+        if (enNavButton) enNavButton.classList.toggle("active", currentLang === "en");
+        if (esNavButton) esNavButton.classList.toggle("active", currentLang === "es");
+
+        applyLanguage();
     }
 </script>
 

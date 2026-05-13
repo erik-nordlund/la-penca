@@ -25,16 +25,12 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid rgba(255,255,255,0.1);
-
             position: sticky;
             top: 0;
             z-index: 10;
         }
 
-        .logo {
-            font-size: 22px;
-            font-weight: bold;
-        }
+        .logo { font-size: 22px; font-weight: bold; }
 
         .links a {
             color: #d7d7d7;
@@ -45,13 +41,9 @@
         }
 
         .links a:hover,
-        .links a.active {
-            color: #7CFC98;
-        }
+        .links a.active { color: #7CFC98; }
 
-        .page {
-            padding: 55px 80px;
-        }
+        .page { padding: 55px 80px; }
 
         .hero {
             margin-bottom: 34px;
@@ -98,9 +90,7 @@
             box-shadow: 0 18px 60px rgba(0,0,0,0.35);
         }
 
-        .card + .card {
-            margin-top: 22px;
-        }
+        .card + .card { margin-top: 22px; }
 
         .card-title {
             display: flex;
@@ -254,8 +244,12 @@
             color: #ff8b8b;
         }
 
-        button:hover {
-            filter: brightness(1.08);
+        button:hover { filter: brightness(1.08); }
+
+        button:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            filter: none;
         }
 
         .leaderboard-preview {
@@ -273,15 +267,6 @@
             padding: 13px 15px;
         }
 
-        .empty-state {
-            margin-top: 16px;
-            background: rgba(255,255,255,0.045);
-            border: 1px dashed rgba(255,255,255,0.16);
-            border-radius: 16px;
-            padding: 20px;
-            color: #aaa;
-            text-align: center;
-        }
         .menu-btn {
             display: none;
             border: 1px solid rgba(255,255,255,0.14);
@@ -293,39 +278,79 @@
             cursor: pointer;
         }
 
-        .mobile-menu {
-            display: none;
+        .mobile-menu { display: none; }
+
+        .mobile-language-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            padding: 14px 0;
+        }
+
+        .mobile-language-buttons button {
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.16);
+            background: #151515;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .mobile-language-buttons button.active {
+            border: none;
+            background: linear-gradient(135deg, #0d6efd, #22c55e);
+            color: white;
+        }
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .nav-language-buttons {
+            display: flex;
+            gap: 4px;
+            padding: 4px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+
+        .nav-language-buttons button {
+            border: none;
+            border-radius: 999px;
+            background: transparent;
+            color: #aaa;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 7px 11px;
+        }
+
+        .nav-language-buttons button.active {
+            background: linear-gradient(135deg, #0d6efd, #22c55e);
+            color: white;
         }
 
         @media (max-width: 1000px) {
-            .navbar {
-                padding: 14px 18px;
-            }
+            .navbar { padding: 14px 18px; }
 
-            .page {
-                padding: 32px 18px 55px;
-            }
+            .page { padding: 32px 18px 55px; }
 
-            .grid {
-                grid-template-columns: 1fr;
-            }
+            .grid { grid-template-columns: 1fr; }
 
-            h1 {
-                font-size: 42px;
-            }
+            h1 { font-size: 42px; }
 
-            .subtitle {
-                font-size: 16px;
-            }
+            .subtitle { font-size: 16px; }
 
-            .links {
+            .links { display: none; }
+
+            .nav-language-buttons {
                 display: none;
             }
 
             .actions,
-            .info-grid {
-                grid-template-columns: 1fr;
-            }
+            .info-grid { grid-template-columns: 1fr; }
 
             .card {
                 padding: 20px;
@@ -337,10 +362,9 @@
                 flex-direction: column;
             }
         }
+
         @media (max-width: 850px) {
-            .menu-btn {
-                display: block;
-            }
+            .menu-btn { display: block; }
 
             .mobile-menu {
                 position: fixed;
@@ -355,9 +379,8 @@
                 box-shadow: 0 12px 40px rgba(0,0,0,0.4);
             }
 
-            .mobile-menu.show {
-                display: block;
-            }
+            .mobile-menu.show { display: block; }
+
             .mobile-menu a {
                 display: block;
                 color: #d7d7d7;
@@ -367,28 +390,18 @@
                 border-bottom: 1px solid rgba(255,255,255,0.08);
             }
 
-            .mobile-menu a:last-child {
-                border-bottom: none;
-            }
+            .mobile-menu a:last-child { border-bottom: none; }
 
             .mobile-menu a:hover,
-            .mobile-menu a.active {
-                color: #7CFC98;
-            }
+            .mobile-menu a.active { color: #7CFC98; }
         }
 
         @media (max-width: 480px) {
-            .page {
-                padding: 26px 14px 50px;
-            }
+            .page { padding: 26px 14px 50px; }
 
-            h1 {
-                font-size: 36px;
-            }
+            h1 { font-size: 36px; }
 
-            h2 {
-                font-size: 22px;
-            }
+            h2 { font-size: 22px; }
 
             .card-title {
                 align-items: flex-start;
@@ -407,9 +420,7 @@
             }
 
             .primary-btn,
-            .danger-btn {
-                width: 100%;
-            }
+            .danger-btn { width: 100%; }
         }
     </style>
 </head>
@@ -417,36 +428,49 @@
 
 <nav class="navbar">
     <div class="logo">🏆 La Penca</div>
-    <div class="links">
-        <a href="/dashboard.html" class="active">Dashboard</a>
-        <a href="/party.html">Party</a>
-        <a href="/group.html">Group predictions</a>
-        <a href="/third-place.html">Third-place teams prediction</a>
-        <a href="/knockout-board.html">Knockout predictions</a>
-        <a href="/world-cup.html">World Cup 2026</a>
-        <a href="/leaderboard.html">Leaderboard</a>
-        <a id="adminLink" href="/admin-results.html">Admin</a>
-    </div>
 
-    <button class="menu-btn" onclick="toggleMobileMenu()">☰</button>
+    <div class="nav-right">
+        <div class="links">
+            <a href="/dashboard.html" class="active" data-i18n="navDashboard">Dashboard</a>
+            <a href="/party.html" data-i18n="navParty">Party</a>
+            <a href="/group.html" data-i18n="navGroup">Group predictions</a>
+            <a href="/third-place.html" data-i18n="navThird">Third-place teams prediction</a>
+            <a href="/knockout-board.html" data-i18n="navKnockout">Knockout predictions</a>
+            <a href="/world-cup.html" data-i18n="navWorldCup">World Cup 2026</a>
+            <a href="/leaderboard.html" data-i18n="navLeaderboard">Leaderboard</a>
+            <a id="adminLink" href="/admin-results.html" data-i18n="navAdmin">Admin</a>
+        </div>
+
+        <div class="nav-language-buttons">
+            <button id="lang-en-nav" onclick="setLanguage('en')">EN</button>
+            <button id="lang-es-nav" onclick="setLanguage('es')">ES</button>
+        </div>
+
+        <button class="menu-btn" onclick="toggleMobileMenu()">☰</button>
+    </div>
 </nav>
 
 <div id="mobileMenu" class="mobile-menu">
-    <a href="/dashboard.html" class="active">Dashboard</a>
-    <a href="/party.html">Party</a>
-    <a href="/group.html">Group predictions</a>
-    <a href="/third-place.html">Third-place teams prediction</a>
-    <a href="/knockout-board.html">Knockout predictions</a>
-    <a href="/world-cup.html">World Cup 2026</a>
-    <a href="/leaderboard.html">Leaderboard</a>
-    <a id="mobileAdminLink" href="/admin-results.html">Admin</a>
+    <a href="/dashboard.html" class="active" data-i18n="navDashboard">Dashboard</a>
+    <a href="/party.html" data-i18n="navParty">Party</a>
+    <a href="/group.html" data-i18n="navGroup">Group predictions</a>
+    <a href="/third-place.html" data-i18n="navThird">Third-place teams prediction</a>
+    <a href="/knockout-board.html" data-i18n="navKnockout">Knockout predictions</a>
+    <a href="/world-cup.html" data-i18n="navWorldCup">World Cup 2026</a>
+    <a href="/leaderboard.html" data-i18n="navLeaderboard">Leaderboard</a>
+    <a id="mobileAdminLink" href="/admin-results.html" data-i18n="navAdmin">Admin</a>
+
+    <div class="mobile-language-buttons">
+        <button id="lang-en" onclick="setLanguage('en')">English</button>
+        <button id="lang-es" onclick="setLanguage('es')">Español</button>
+    </div>
 </div>
 
 <main class="page">
     <section class="hero">
-        <div class="badge">🏠 Dashboard</div>
-        <h1>Welcome back, <span id="heroUsername">...</span></h1>
-        <p class="subtitle">
+        <div class="badge" data-i18n="dashboardBadge">🏠 Dashboard</div>
+        <h1><span data-i18n="welcomeBackDashboard">Welcome back</span>, <span id="heroUsername">...</span></h1>
+        <p class="subtitle" data-i18n="dashboardSubtitle">
             Continue your World Cup predictions, check your party, and keep track of your leaderboard.
         </p>
     </section>
@@ -455,18 +479,18 @@
         <div>
             <div class="card">
                 <div class="card-title">
-                    <h2>Your info</h2>
+                    <h2 data-i18n="yourInfo">Your info</h2>
                     <span id="partyStatus" class="status-pill status-pending">Checking...</span>
                 </div>
 
                 <div class="info-grid">
                     <div class="info-box">
-                        <div class="info-label">User</div>
+                        <div class="info-label" data-i18n="user">User</div>
                         <div id="username" class="info-value">...</div>
                     </div>
 
                     <div class="info-box">
-                        <div class="info-label">Active party</div>
+                        <div class="info-label" data-i18n="activeParty">Active party</div>
                         <div id="partyCode" class="info-value">---</div>
                     </div>
                 </div>
@@ -474,69 +498,69 @@
 
             <div class="card">
                 <div class="card-title">
-                    <h2>Prediction progress</h2>
-                    <span class="status-pill status-pending">Light version</span>
+                    <h2 data-i18n="predictionProgress">Prediction progress</h2>
+                    <span class="status-pill status-pending" data-i18n="lightVersion">Light version</span>
                 </div>
 
-                <p class="muted">
+                <p class="muted" data-i18n="predictionProgressText">
                     Later this can show real completion status. For now, use it as your prediction flow.
                 </p>
 
                 <div class="progress-list">
                     <div class="progress-item">
                         <div class="progress-main">
-                            <strong>1. Group predictions</strong>
-                            <span>Predict every group match.</span>
+                            <strong data-i18n="progressGroupsTitle">1. Group predictions</strong>
+                            <span data-i18n="progressGroupsText">Predict every group match.</span>
                         </div>
-                        <span class="status-pill status-pending">Start</span>
+                        <span class="status-pill status-pending" data-i18n="start">Start</span>
                     </div>
 
                     <div class="progress-item">
                         <div class="progress-main">
-                            <strong>2. Third-place selection</strong>
-                            <span>Select qualified third-place teams.</span>
+                            <strong data-i18n="progressThirdTitle">2. Third-place selection</strong>
+                            <span data-i18n="progressThirdText">Select qualified third-place teams.</span>
                         </div>
-                        <span class="status-pill status-pending">Next</span>
+                        <span class="status-pill status-pending" data-i18n="next">Next</span>
                     </div>
 
                     <div class="progress-item">
                         <div class="progress-main">
-                            <strong>3. Knockout bracket</strong>
-                            <span>Pick winners from R32 to the final.</span>
+                            <strong data-i18n="progressKnockoutTitle">3. Knockout bracket</strong>
+                            <span data-i18n="progressKnockoutText">Pick winners from R32 to the final.</span>
                         </div>
-                        <span class="status-pill status-pending">Later</span>
+                        <span class="status-pill status-pending" data-i18n="later">Later</span>
                     </div>
                 </div>
             </div>
 
             <div class="card">
                 <div class="card-title">
-                    <h2>Quick actions</h2>
+                    <h2 data-i18n="quickActions">Quick actions</h2>
                 </div>
 
                 <div class="actions">
                     <a class="action-card" href="/group.html">
                         <div class="action-icon">⚽</div>
-                        <strong>Groups</strong>
-                        <span>Start or continue group predictions.</span>
+                        <strong data-i18n="groups">Groups</strong>
+                        <span data-i18n="groupsActionText">Start or continue group predictions.</span>
                     </a>
 
                     <a class="action-card" href="/third-place.html">
                         <div class="action-icon">🥉</div>
-                        <strong>Third place</strong>
-                        <span>Choose best third-place teams.</span>
+                        <strong data-i18n="thirdPlace">Third place</strong>
+                        <span data-i18n="thirdPlaceActionText">Choose best third-place teams.</span>
                     </a>
 
                     <a class="action-card" href="/knockout-board.html">
                         <div class="action-icon">🏆</div>
-                        <strong>Knockout</strong>
-                        <span>Build your full bracket.</span>
+                        <strong data-i18n="knockout">Knockout</strong>
+                        <span data-i18n="knockoutActionText">Build your full bracket.</span>
                     </a>
 
                     <a class="action-card" href="/leaderboard.html">
                         <div class="action-icon">📊</div>
-                        <strong>Leaderboard</strong>
-                        <span>See who is leading the party.</span>
+                        <strong data-i18n="leaderboard">Leaderboard</strong>
+                        <span data-i18n="leaderboardActionText">See who is leading the party.</span>
                     </a>
                 </div>
             </div>
@@ -545,37 +569,35 @@
         <div>
             <div class="card">
                 <div class="card-title">
-                    <h2>Party</h2>
+                    <h2 data-i18n="party">Party</h2>
                 </div>
 
-                <p id="partyText" class="muted">
-                    Checking active party...
-                </p>
+                <p id="partyText" class="muted">Checking active party...</p>
 
-                <button class="primary-btn" onclick="goToParty()">Manage party</button>
+                <button class="primary-btn" onclick="goToParty()" data-i18n="manageParty">Manage party</button>
             </div>
 
             <div class="card">
                 <div class="card-title">
-                    <h2>Leaderboard preview</h2>
-                    <span class="status-pill status-pending">Coming soon</span>
+                    <h2 data-i18n="leaderboardPreview">Leaderboard preview</h2>
+                    <span class="status-pill status-pending" data-i18n="comingSoon">Coming soon</span>
                 </div>
 
-                <p class="muted">
+                <p class="muted" data-i18n="leaderboardPreviewText">
                     Later this can show the top players in your party directly on the dashboard.
                 </p>
 
                 <div class="leaderboard-preview">
                     <div class="leader-row">
-                        <span>🥇 Top player</span>
+                        <span data-i18n="topPlayer">🥇 Top player</span>
                         <strong>-- pts</strong>
                     </div>
                     <div class="leader-row">
-                        <span>🥈 Second place</span>
+                        <span data-i18n="secondPlace">🥈 Second place</span>
                         <strong>-- pts</strong>
                     </div>
                     <div class="leader-row">
-                        <span>🥉 Third place</span>
+                        <span data-i18n="thirdPlacePodium">🥉 Third place</span>
                         <strong>-- pts</strong>
                     </div>
                 </div>
@@ -583,20 +605,24 @@
 
             <div class="card">
                 <div class="card-title">
-                    <h2>Account</h2>
+                    <h2 data-i18n="account">Account</h2>
                 </div>
 
-                <p class="muted">
+                <p class="muted" data-i18n="loggedInLocal">
                     You are logged in locally on this browser.
                 </p>
 
-                <button id="logoutButton" class="danger-btn" onclick="logout()">Log out</button>
+                <button id="logoutButton" class="danger-btn" onclick="logout()" data-i18n="logout">Log out</button>
             </div>
         </div>
     </section>
 </main>
+
 <script src="/js/auth.js"></script>
+<script src="/js/i18n.js"></script>
 <script>
+    applyLanguage();
+
     const username = localStorage.getItem("username");
     const partyCode = localStorage.getItem("partyCode");
     const token = localStorage.getItem("token");
@@ -606,26 +632,26 @@
         window.location.href = "/index.html";
     }
 
-    document.getElementById("heroUsername").innerText = username || "User";
-    document.getElementById("username").innerText = username || "No user";
-    document.getElementById("partyCode").innerText = partyCode || "No party";
+    document.getElementById("heroUsername").innerText = username || t("userFallback");
+    document.getElementById("username").innerText = username || t("noUser");
+    document.getElementById("partyCode").innerText = partyCode || t("noParty");
 
+    applyLanguage();
     renderParty();
+    updateLanguageButtons();
 
     function renderParty() {
         const status = document.getElementById("partyStatus");
         const partyText = document.getElementById("partyText");
 
         if (partyCode) {
-            status.innerText = "Party active";
+            status.innerText = t("partyActive");
             status.className = "status-pill status-active";
-
-            partyText.innerText = `You are currently competing in party ${partyCode}.`;
+            partyText.innerText = `${t("currentlyCompeting")} ${partyCode}.`;
         } else {
-            status.innerText = "No party";
+            status.innerText = t("noParty");
             status.className = "status-pill status-pending";
-
-            partyText.innerText = "You are not in a party yet. Create or join one to start predicting.";
+            partyText.innerText = t("notInPartyYet");
         }
     }
 
@@ -638,7 +664,7 @@
         const refreshToken = localStorage.getItem("refreshToken");
 
         button.disabled = true;
-        button.innerText = "Logging out...";
+        button.innerText = t("loggingOut");
 
         if (refreshToken) {
             fetch("/auth/logout", {
@@ -647,8 +673,7 @@
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({ refreshToken })
-            })
-                .finally(logoutAndRedirect);
+            }).finally(logoutAndRedirect);
         } else {
             logoutAndRedirect();
         }
@@ -658,6 +683,12 @@
     if (adminLink && localStorage.getItem("role") !== "ADMIN") {
         adminLink.style.display = "none";
     }
+
+    const mobileAdminLink = document.getElementById("mobileAdminLink");
+    if (mobileAdminLink && localStorage.getItem("role") !== "ADMIN") {
+        mobileAdminLink.style.display = "none";
+    }
+
     function toggleMobileMenu() {
         document.getElementById("mobileMenu").classList.toggle("show");
     }
@@ -675,10 +706,36 @@
         }
     });
 
-    const mobileAdminLink = document.getElementById("mobileAdminLink");
+    function updateLanguageButtons() {
+        const currentLang = getLanguage();
 
-    if (mobileAdminLink && localStorage.getItem("role") !== "ADMIN") {
-        mobileAdminLink.style.display = "none";
+        const buttons = [
+            document.getElementById("lang-en"),
+            document.getElementById("lang-es"),
+            document.getElementById("lang-en-nav"),
+            document.getElementById("lang-es-nav")
+        ];
+
+        buttons.forEach(button => {
+            if (!button) return;
+            button.classList.remove("active");
+        });
+
+        if (document.getElementById("lang-en")) {
+            document.getElementById("lang-en").classList.toggle("active", currentLang === "en");
+        }
+
+        if (document.getElementById("lang-es")) {
+            document.getElementById("lang-es").classList.toggle("active", currentLang === "es");
+        }
+
+        if (document.getElementById("lang-en-nav")) {
+            document.getElementById("lang-en-nav").classList.toggle("active", currentLang === "en");
+        }
+
+        if (document.getElementById("lang-es-nav")) {
+            document.getElementById("lang-es-nav").classList.toggle("active", currentLang === "es");
+        }
     }
 </script>
 
