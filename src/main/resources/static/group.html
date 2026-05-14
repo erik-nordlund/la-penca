@@ -182,6 +182,10 @@
             color: #aaa;
             font-size: 13px;
         }
+        .bottom-toolbar {
+            margin-top: 28px;
+            margin-bottom: 0;
+        }
 
         .match {
             display: grid;
@@ -591,9 +595,13 @@
         </div>
     </section>
 
-    <section class="toolbar">
+    <section id="matches" class="groups-grid"></section>
+
+    <section class="toolbar bottom-toolbar">
         <div class="progress-text">
-            <span data-i18n="progress">Progress</span>: <strong id="savedCount">0</strong>/<span id="totalCount">0</span> <span data-i18n="predictionsSaved">predictions saved</span>
+            <span data-i18n="progress">Progress</span>:
+            <strong id="savedCount">0</strong>/<span id="totalCount">0</span>
+            <span data-i18n="predictionsSaved">predictions saved</span>
             <div id="saveMessage" class="message"></div>
         </div>
 
@@ -602,8 +610,6 @@
             <button id="continueBtn" class="primary-btn" onclick="goToThirdPlace()" data-i18n="continueThirdPlace">Continue to third-place teams</button>
         </div>
     </section>
-
-    <section id="matches" class="groups-grid"></section>
 </main>
 
 <script src="/js/i18n.js"></script>
@@ -715,7 +721,7 @@
         return `<img src="${flagUrl}" class="flag"> ${translateTeam(teamName)}`;
     }
 
-    const tieBreakStorageKey = `tieBreakSaved-${username}-${code}`;
+    const tieBreakStorageKey = `tieBreakSaved-${username}`;
     let savedTieBreakGroups = new Set(JSON.parse(localStorage.getItem(tieBreakStorageKey) || "[]"));
 
     function markTieBreakSaved(group) {
@@ -899,14 +905,19 @@
             .then(() => {
                 selected[matchId] = outcome;
 
-                matchDiv.querySelectorAll(".pick").forEach(btn => {
+                buttons.forEach(btn => {
                     btn.classList.remove("selected", "correct-pick", "wrong-pick");
                 });
 
-                matchDiv.classList.remove("correct-result", "wrong-result");
-                matchDiv.classList.add(getResultClass(allGroupMatches.find(m => m.id === matchId)));
+                const match = allGroupMatches.find(m => m.id === matchId);
+                const resultClass = getResultClass(match);
 
-                const buttons = matchDiv.querySelectorAll(".pick");
+                matchDiv.classList.remove("correct-result", "wrong-result");
+
+                if (resultClass) {
+                    matchDiv.classList.add(resultClass);
+                }
+
                 if (outcome === "HOME_WIN") buttons[0].classList.add("selected");
                 if (outcome === "DRAW") buttons[1].classList.add("selected");
                 if (outcome === "AWAY_WIN") buttons[2].classList.add("selected");
@@ -965,7 +976,7 @@
         }
 
         if (!validateCanContinueToThirdPlace()) {
-            scrollToTop();
+            scrollToBottomToolbar();
             return;
         }
 
@@ -1336,7 +1347,7 @@
         }
 
         if (!validateCanContinueToThirdPlace()) {
-            scrollToTop();
+            scrollToBottomToolbar();
             return;
         }
 
@@ -1423,6 +1434,12 @@
             renderMatches(allGroupMatches);
             updateProgress();
         }
+    }
+    function scrollToBottomToolbar() {
+        document.querySelector(".bottom-toolbar")?.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+        });
     }
 </script>
 
