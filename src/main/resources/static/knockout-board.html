@@ -18,20 +18,26 @@
     }
 
     .navbar {
-      background: #1f1f1f;
-      padding: 15px 25px;
+      background: rgba(31,31,31,0.94);
+      padding: 16px 28px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid #333;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 9999;
     }
+
 
     .logo { font-size: 22px; font-weight: bold; }
 
     .links a {
-      color: white;
+      color: #d7d7d7;
       text-decoration: none;
       margin-left: 18px;
+      font-weight: bold;
+      font-size: 14px;
     }
 
     .links a:hover { color: #7CFC98; }
