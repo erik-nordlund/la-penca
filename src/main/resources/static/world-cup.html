@@ -779,6 +779,44 @@
         { key: "FINAL", titleKey: "final" },
         { key: "THIRD_PLACE", titleKey: "thirdPlaceMatch" }
     ];
+    const knockoutMatchDates = {
+        "ROUND_OF_32-1": "2026-06-29T22:30:00",
+        "ROUND_OF_32-2": "2026-06-30T23:00:00",
+        "ROUND_OF_32-3": "2026-06-28T21:00:00",
+        "ROUND_OF_32-4": "2026-06-30T03:00:00",
+        "ROUND_OF_32-5": "2026-07-03T01:00:00",
+        "ROUND_OF_32-6": "2026-07-02T21:00:00",
+        "ROUND_OF_32-7": "2026-07-02T02:00:00",
+        "ROUND_OF_32-8": "2026-07-01T22:00:00",
+        "ROUND_OF_32-9": "2026-06-29T19:00:00",
+        "ROUND_OF_32-10": "2026-06-30T19:00:00",
+        "ROUND_OF_32-11": "2026-07-01T03:00:00",
+        "ROUND_OF_32-12": "2026-07-01T18:00:00",
+        "ROUND_OF_32-13": "2026-07-04T00:00:00",
+        "ROUND_OF_32-14": "2026-07-03T20:00:00",
+        "ROUND_OF_32-15": "2026-07-03T05:00:00",
+        "ROUND_OF_32-16": "2026-07-04T03:30:00",
+
+        "ROUND_OF_16-1": "2026-07-04T23:00:00",
+        "ROUND_OF_16-2": "2026-07-04T19:00:00",
+        "ROUND_OF_16-3": "2026-07-06T21:00:00",
+        "ROUND_OF_16-4": "2026-07-07T02:00:00",
+        "ROUND_OF_16-5": "2026-07-05T22:00:00",
+        "ROUND_OF_16-6": "2026-07-06T02:00:00",
+        "ROUND_OF_16-7": "2026-07-07T18:00:00",
+        "ROUND_OF_16-8": "2026-07-07T22:00:00",
+
+        "QUARTER_FINAL-1": "2026-07-09T22:00:00",
+        "QUARTER_FINAL-2": "2026-07-10T21:00:00",
+        "QUARTER_FINAL-3": "2026-07-11T23:00:00",
+        "QUARTER_FINAL-4": "2026-07-12T03:00:00",
+
+        "SEMI_FINAL-1": "2026-07-14T21:00:00",
+        "SEMI_FINAL-2": "2026-07-15T21:00:00",
+
+        "THIRD_PLACE-1": "2026-07-18T23:00:00",
+        "FINAL-1": "2026-07-19T21:00:00"
+    };
     const username = localStorage.getItem("username");
     const token = localStorage.getItem("token");
     const refreshToken = localStorage.getItem("refreshToken");
@@ -959,24 +997,39 @@
         const container = document.getElementById("matchesView");
         container.innerHTML = "";
 
-        const matches = [...allMatches].sort(compareMatchesByDate);
+        const groupMatches = [...allMatches]
+            .sort(compareMatchesByDate)
+            .map(match => ({
+                type: "group",
+                date: match.matchDate,
+                homeTeam: match.homeTeam.name,
+                awayTeam: match.awayTeam.name,
+                played: match.played,
+                homeScore: match.homeScore,
+                awayScore: match.awayScore
+            }));
+
+        const knockoutMatches = buildKnockoutMatchRows();
+
+        const matches = [...groupMatches, ...knockoutMatches]
+            .sort((a, b) => new Date(a.date) - new Date(b.date));
 
         if (matches.length === 0) {
             container.innerHTML = `<div class="empty-state">${t("noMatchesFound")}</div>`;
             return;
         }
 
-        let currentDate = "";
+        let currentHeader = "";
 
         matches.forEach(match => {
-            const dateLabel = formatDateHeader(match.matchDate);
+            const headerLabel = formatDateHeader(match.date);
 
-            if (dateLabel !== currentDate) {
-                currentDate = dateLabel;
+            if (headerLabel !== currentHeader) {
+                currentHeader = headerLabel;
 
                 const header = document.createElement("div");
                 header.className = "date-header";
-                header.innerText = currentDate;
+                header.innerText = currentHeader;
                 container.appendChild(header);
             }
 
@@ -984,19 +1037,78 @@
             row.className = "match-row";
 
             row.innerHTML = `
-    <div class="match-team">
-        ${teamWithFlag(match.homeTeam.name)}
-    </div>
+            <div class="match-team">
+                ${teamWithFlag(match.homeTeam)}
+            </div>
 
-    <div class="score">${formatScore(match)}</div>
+            <div class="score">${formatMatchRowScore(match)}</div>
 
-    <div class="match-team away">
-        ${teamWithFlag(match.awayTeam.name)}
-    </div>
-`;
+            <div class="match-team away">
+                ${teamWithFlag(match.awayTeam)}
+            </div>
+        `;
 
             container.appendChild(row);
         });
+    }
+
+    function buildKnockoutMatchRows() {
+        const rounds = [
+            { key: "ROUND_OF_32", title: t("roundOf32") },
+            { key: "ROUND_OF_16", title: t("roundOf16") },
+            { key: "QUARTER_FINAL", title: t("quarterFinals") },
+            { key: "SEMI_FINAL", title: t("semiFinals") },
+            { key: "FINAL", title: t("final") },
+            { key: "THIRD_PLACE", title: t("thirdPlaceMatch") }
+        ];
+
+        const rows = [];
+
+        rounds.forEach(round => {
+            const matches = knockoutData[round.key] || [];
+            const results = knockoutResults[round.key] || [];
+
+            matches.forEach((match, index) => {
+                const matchNumber = index + 1;
+                const result = results.find(r => r.matchNumber === matchNumber);
+
+                const dateKey = `${round.key}-${matchNumber}`;
+
+                rows.push({
+                    type: "knockout",
+                    roundTitle: round.title,
+                    date: knockoutMatchDates[dateKey],
+                    homeTeam: match.homeTeam,
+                    awayTeam: match.awayTeam,
+                    played: result?.played || false,
+                    homeScore: result?.homeScore,
+                    awayScore: result?.awayScore,
+                    homePenaltyScore: result?.homePenaltyScore,
+                    awayPenaltyScore: result?.awayPenaltyScore
+                });
+            });
+        });
+
+        return rows;
+    }
+
+    function formatMatchRowScore(match) {
+        if (!match.played || match.homeScore === null || match.homeScore === undefined || match.awayScore === null || match.awayScore === undefined) {
+            return formatMatchTime(match.date);
+        }
+
+        let score = `${match.homeScore} - ${match.awayScore}`;
+
+        if (
+            match.homePenaltyScore !== null &&
+            match.homePenaltyScore !== undefined &&
+            match.awayPenaltyScore !== null &&
+            match.awayPenaltyScore !== undefined
+        ) {
+            score += ` (${match.homePenaltyScore} - ${match.awayPenaltyScore})`;
+        }
+
+        return score;
     }
 
     function renderThirdPlaceRanking() {
