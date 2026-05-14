@@ -1216,26 +1216,32 @@
     }
 
     function refreshTieButton(group) {
+        const button = document.getElementById(`tie-button-${group}`);
+        if (!button) return;
+
         authFetch(`/group-table?viewerUsername=${encodeURIComponent(loggedInUser)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}&group=${encodeURIComponent(group)}`)
             .then(res => res.json())
             .then(table => {
-                const button = document.getElementById(`tie-button-${group}`);
-                if (!button) return;
-
                 const tieExists = hasTie(table);
-                const tieSolved = savedTieBreakGroups.has(group);
 
-                if (tieExists && !tieSolved) {
-                    button.innerText = `⚠️ ${t("fixTieBreakTable")}`;
-                    button.style.borderColor = "rgba(255,193,7,0.7)";
-                    button.style.color = "#ffd166";
-                } else {
-                    button.innerText = t("openTieBreakTable");
-                    button.style.borderColor = "rgba(255,255,255,0.16)";
-                    button.style.color = "white";
-                }
+                return authFetch(`/group-tiebreak?username=${encodeURIComponent(username)}&code=${encodeURIComponent(code)}&group=${encodeURIComponent(group)}`)
+                    .then(res => res.json())
+                    .then(savedRanking => {
+                        const tieSolved = savedRanking && savedRanking.length === 4;
+
+                        if (tieExists && !tieSolved) {
+                            button.innerText = `⚠️ ${t("fixTieBreakTable")}`;
+                            button.style.borderColor = "rgba(255,193,7,0.7)";
+                            button.style.color = "#ffd166";
+                        } else {
+                            button.innerText = t("openTieBreakTable");
+                            button.style.borderColor = "rgba(255,255,255,0.16)";
+                            button.style.color = "white";
+                        }
+                    });
             });
     }
+
     function getActualOutcome(match) {
         if (!match.played || match.homeScore === null || match.awayScore === null) {
             return null;

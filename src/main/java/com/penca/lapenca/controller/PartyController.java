@@ -9,6 +9,7 @@ import com.penca.lapenca.repository.AppUserRepository;
 import com.penca.lapenca.repository.PartyMemberRepository;
 import com.penca.lapenca.service.PartyMemberService;
 import com.penca.lapenca.service.PartyService;
+import com.penca.lapenca.service.PredictionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
@@ -25,15 +26,18 @@ public class PartyController {
     private final PartyMemberService partyMemberService;
     private final AppUserRepository appUserRepository;
     private final PartyMemberRepository partyMemberRepository;
+    private final PredictionService predictionService;
 
     public PartyController(PartyService partyService,
                            PartyMemberService partyMemberService,
                            AppUserRepository appUserRepository,
-                           PartyMemberRepository partyMemberRepository) {
+                           PartyMemberRepository partyMemberRepository,
+                           PredictionService predictionService) {
         this.partyService = partyService;
         this.partyMemberService = partyMemberService;
         this.appUserRepository = appUserRepository;
         this.partyMemberRepository = partyMemberRepository;
+        this.predictionService = predictionService;
     }
 
     @PostMapping("/party/create")
@@ -51,6 +55,7 @@ public class PartyController {
                 .build();
 
         partyMemberRepository.save(partyMember);
+        predictionService.copyPredictionsToNewParty(user, party);
 
         return party;
     }

@@ -66,34 +66,44 @@ public class PredictionService {
         AppUser user = appUserRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Party party = partyRepository.findByCode(partyCode)
+        Party activeParty = partyRepository.findByCode(partyCode)
                 .orElseThrow(() -> new RuntimeException("Party not found"));
 
-        validatePartyNotLocked(party);
+        validatePartyNotLocked(activeParty);
 
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new RuntimeException("Match not found"));
 
-        Prediction prediction = predictionRepository
-                .findByUserAndPartyAndMatch(user, party, match)
-                .orElse(
-                        Prediction.builder()
-                                .user(user)
-                                .party(party)
-                                .match(match)
-                                .pointsAwarded(0)
-                                .build()
-                );
+        Prediction activePartyPrediction = null;
 
-        boolean changed = prediction.getPredictedOutcome() != predictedOutcome;
+        for (Party party : getAllPartiesForUser(user)) {
+            Prediction prediction = predictionRepository
+                    .findByUserAndPartyAndMatch(user, party, match)
+                    .orElse(
+                            Prediction.builder()
+                                    .user(user)
+                                    .party(party)
+                                    .match(match)
+                                    .pointsAwarded(0)
+                                    .build()
+                    );
 
-        prediction.setPredictedOutcome(predictedOutcome);
+            boolean changed = prediction.getPredictedOutcome() != predictedOutcome;
 
-        if (changed) {
-            clearBracketAfterGroupChange(user, party);
+            prediction.setPredictedOutcome(predictedOutcome);
+
+            Prediction saved = predictionRepository.save(prediction);
+
+            if (changed) {
+                clearBracketAfterGroupChange(user, party);
+            }
+
+            if (party.getId().equals(activeParty.getId())) {
+                activePartyPrediction = saved;
+            }
         }
 
-        return predictionRepository.save(prediction);
+        return activePartyPrediction;
     }
 
     public List<GroupTableRow> calculateGroupTable(String username, String partyCode, String groupName) {
@@ -207,40 +217,45 @@ public class PredictionService {
         AppUser user = appUserRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Party party = partyRepository.findByCode(code)
+        Party activeParty = partyRepository.findByCode(code)
                 .orElseThrow(() -> new RuntimeException("Party not found"));
 
-        validatePartyNotLocked(party);
+        validatePartyNotLocked(activeParty);
 
         if (teamNames.size() != 4) {
             throw new RuntimeException("You must rank exactly 4 teams");
         }
 
-        groupTieBreakRankingRepository.deleteByUserAndPartyAndGroupName(user, party, groupName);
+        List<GroupTieBreakRanking> savedForActiveParty = new ArrayList<>();
 
-        List<GroupTieBreakRanking> saved = new ArrayList<>();
+        for (Party party : getAllPartiesForUser(user)) {
+            groupTieBreakRankingRepository.deleteByUserAndPartyAndGroupName(user, party, groupName);
 
-        for (int i = 0; i < teamNames.size(); i++) {
-            int position = i + 1;
-            String teamName = teamNames.get(i);
+            for (int i = 0; i < teamNames.size(); i++) {
+                String teamName = teamNames.get(i);
 
-            Team team = teamRepository.findByName(teamName)
-                    .orElseThrow(() -> new RuntimeException("Team not found: " + teamName));
+                Team team = teamRepository.findByName(teamName)
+                        .orElseThrow(() -> new RuntimeException("Team not found: " + teamName));
 
-            GroupTieBreakRanking ranking = GroupTieBreakRanking.builder()
-                    .user(user)
-                    .party(party)
-                    .groupName(groupName)
-                    .team(team)
-                    .positionIndex(position)
-                    .build();
+                GroupTieBreakRanking ranking = GroupTieBreakRanking.builder()
+                        .user(user)
+                        .party(party)
+                        .groupName(groupName)
+                        .team(team)
+                        .positionIndex(i + 1)
+                        .build();
 
-            saved.add(groupTieBreakRankingRepository.save(ranking));
+                GroupTieBreakRanking saved = groupTieBreakRankingRepository.save(ranking);
+
+                if (party.getId().equals(activeParty.getId())) {
+                    savedForActiveParty.add(saved);
+                }
+            }
+
+            clearBracketAfterGroupChange(user, party);
         }
 
-        clearBracketAfterGroupChange(user, party);
-
-        return saved;
+        return savedForActiveParty;
     }
 
     public List<String> getGroupTieBreakRanking(String username,
@@ -380,32 +395,37 @@ public class PredictionService {
         AppUser user = appUserRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Party party = partyRepository.findByCode(partyCode)
+        Party activeParty = partyRepository.findByCode(partyCode)
                 .orElseThrow(() -> new RuntimeException("Party not found"));
 
-        validatePartyNotLocked(party);
+        validatePartyNotLocked(activeParty);
 
         if (teamNames.size() != 8) {
             throw new RuntimeException("You must select exactly 8 third-place teams");
         }
 
-        qualifiedThirdPlaceSelectionRepository.deleteByUserAndParty(user, party);
+        for (Party party : getAllPartiesForUser(user)) {
+            qualifiedThirdPlaceSelectionRepository.deleteByUserAndParty(user, party);
 
-        for (String teamName : teamNames) {
-            Team team = teamRepository.findByName(teamName)
-                    .orElseThrow(() -> new RuntimeException("Team not found: " + teamName));
+            for (String teamName : teamNames) {
+                Team team = teamRepository.findByName(teamName)
+                        .orElseThrow(() -> new RuntimeException("Team not found: " + teamName));
 
-            QualifiedThirdPlaceSelection selection = QualifiedThirdPlaceSelection.builder()
-                    .user(user)
-                    .party(party)
-                    .team(team)
-                    .build();
+                qualifiedThirdPlaceSelectionRepository.save(
+                        QualifiedThirdPlaceSelection.builder()
+                                .user(user)
+                                .party(party)
+                                .team(team)
+                                .build()
+                );
+            }
 
-            qualifiedThirdPlaceSelectionRepository.save(selection);
+            knockoutPredictionRepository.deleteByUserAndParty(user, party);
         }
-        knockoutPredictionRepository.deleteByUserAndParty(user, party);
+
         return teamNames;
     }
+
     public QualifiedTeamsOverviewDto getQualifiedTeamsOverview(String username, String partyCode) {
         AppUser user = appUserRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -583,40 +603,49 @@ public class PredictionService {
         AppUser user = appUserRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Party party = partyRepository.findByCode(code)
+        Party activeParty = partyRepository.findByCode(code)
                 .orElseThrow(() -> new RuntimeException("Party not found"));
 
-        validatePartyNotLocked(party);
+        validatePartyNotLocked(activeParty);
 
         Team winner = teamRepository.findByName(winnerTeamName)
                 .orElseThrow(() -> new RuntimeException("Team not found: " + winnerTeamName));
 
-        KnockoutPrediction prediction = knockoutPredictionRepository
-                .findByUserAndPartyAndRoundNameAndMatchNumber(user, party, roundName, matchNumber)
-                .orElse(
-                        KnockoutPrediction.builder()
-                                .user(user)
-                                .party(party)
-                                .roundName(roundName)
-                                .matchNumber(matchNumber)
-                                .slot(slot)
-                                .build()
-                );
+        KnockoutPrediction activePartyPrediction = null;
 
-        boolean changed = prediction.getPredictedWinner() == null
-                || !prediction.getPredictedWinner().getName().equals(winnerTeamName);
+        for (Party party : getAllPartiesForUser(user)) {
+            KnockoutPrediction prediction = knockoutPredictionRepository
+                    .findByUserAndPartyAndRoundNameAndMatchNumber(user, party, roundName, matchNumber)
+                    .orElse(
+                            KnockoutPrediction.builder()
+                                    .user(user)
+                                    .party(party)
+                                    .roundName(roundName)
+                                    .matchNumber(matchNumber)
+                                    .slot(slot)
+                                    .build()
+                    );
 
-        prediction.setSlot(slot);
-        prediction.setPredictedWinner(winner);
+            boolean changed = prediction.getPredictedWinner() == null
+                    || !prediction.getPredictedWinner().getName().equals(winnerTeamName);
 
-        KnockoutPrediction saved = knockoutPredictionRepository.save(prediction);
+            prediction.setSlot(slot);
+            prediction.setPredictedWinner(winner);
 
-        if (changed) {
-            clearAffectedFutureRounds(user, party, roundName, matchNumber);
+            KnockoutPrediction saved = knockoutPredictionRepository.save(prediction);
+
+            if (changed) {
+                clearAffectedFutureRounds(user, party, roundName, matchNumber);
+            }
+
+            if (party.getId().equals(activeParty.getId())) {
+                activePartyPrediction = saved;
+            }
         }
 
-        return saved;
+        return activePartyPrediction;
     }
+
     private void clearAffectedFutureRounds(AppUser user, Party party, String roundName, int matchNumber) {
 
         switch (roundName) {
@@ -1796,5 +1825,81 @@ public class PredictionService {
         rebuildActualQualifiedTeamsForRound(roundName);
 
         return saved;
+    }
+
+    private List<Party> getAllPartiesForUser(AppUser user) {
+        return partyMemberRepository.findByUser(user)
+                .stream()
+                .map(PartyMember::getParty)
+                .toList();
+    }
+    @Transactional
+    public void copyPredictionsToNewParty(AppUser user, Party newParty) {
+        Party sourceParty = getAllPartiesForUser(user).stream()
+                .filter(p -> !p.getId().equals(newParty.getId()))
+                .max((a, b) -> Integer.compare(
+                        predictionRepository.findByUserAndParty(user, a).size()
+                                + groupTieBreakRankingRepository.findByUserAndParty(user, a).size()
+                                + qualifiedThirdPlaceSelectionRepository.findByUserAndParty(user, a).size()
+                                + knockoutPredictionRepository.findByUserAndParty(user, a).size(),
+
+                        predictionRepository.findByUserAndParty(user, b).size()
+                                + groupTieBreakRankingRepository.findByUserAndParty(user, b).size()
+                                + qualifiedThirdPlaceSelectionRepository.findByUserAndParty(user, b).size()
+                                + knockoutPredictionRepository.findByUserAndParty(user, b).size()
+                ))
+                .orElse(null);
+
+        if (sourceParty == null) {
+            return;
+        }
+
+        if (
+                predictionRepository.findByUserAndParty(user, sourceParty).isEmpty()
+                        && groupTieBreakRankingRepository.findByUserAndParty(user, sourceParty).isEmpty()
+                        && qualifiedThirdPlaceSelectionRepository.findByUserAndParty(user, sourceParty).isEmpty()
+                        && knockoutPredictionRepository.findByUserAndParty(user, sourceParty).isEmpty()
+        ) {
+            return;
+        }
+
+        predictionRepository.findByUserAndParty(user, sourceParty).forEach(old -> {
+            predictionRepository.save(Prediction.builder()
+                    .user(user)
+                    .party(newParty)
+                    .match(old.getMatch())
+                    .predictedOutcome(old.getPredictedOutcome())
+                    .pointsAwarded(0)
+                    .build());
+        });
+
+        groupTieBreakRankingRepository.findByUserAndParty(user, sourceParty).forEach(old -> {
+            groupTieBreakRankingRepository.save(GroupTieBreakRanking.builder()
+                    .user(user)
+                    .party(newParty)
+                    .groupName(old.getGroupName())
+                    .team(old.getTeam())
+                    .positionIndex(old.getPositionIndex())
+                    .build());
+        });
+
+        qualifiedThirdPlaceSelectionRepository.findByUserAndParty(user, sourceParty).forEach(old -> {
+            qualifiedThirdPlaceSelectionRepository.save(QualifiedThirdPlaceSelection.builder()
+                    .user(user)
+                    .party(newParty)
+                    .team(old.getTeam())
+                    .build());
+        });
+
+        knockoutPredictionRepository.findByUserAndParty(user, sourceParty).forEach(old -> {
+            knockoutPredictionRepository.save(KnockoutPrediction.builder()
+                    .user(user)
+                    .party(newParty)
+                    .roundName(old.getRoundName())
+                    .matchNumber(old.getMatchNumber())
+                    .slot(old.getSlot())
+                    .predictedWinner(old.getPredictedWinner())
+                    .build());
+        });
     }
 }

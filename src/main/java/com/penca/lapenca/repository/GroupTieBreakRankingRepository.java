@@ -13,6 +13,11 @@ public interface GroupTieBreakRankingRepository extends JpaRepository<GroupTieBr
             String groupName
     );
 
+    List<GroupTieBreakRanking> findByUserAndParty(
+            AppUser user,
+            Party party
+    );
+
     void deleteByUserAndPartyAndGroupName(
             AppUser user,
             Party party,

@@ -17,15 +17,19 @@ public class PartyMemberService {
     private final PartyMemberRepository partyMemberRepository;
     private final PartyRepository partyRepository;
     private final AppUserRepository appUserRepository;
+    private final PredictionService predictionService;
 
     public PartyMemberService(PartyMemberRepository partyMemberRepository,
                               PartyRepository partyRepository,
-                              AppUserRepository appUserRepository) {
+                              AppUserRepository appUserRepository,
+                              PredictionService predictionService) {
         this.partyMemberRepository = partyMemberRepository;
         this.partyRepository = partyRepository;
         this.appUserRepository = appUserRepository;
+        this.predictionService = predictionService;
     }
 
+    @Transactional
     public PartyMember joinParty(String username, String partyCode) {
         username = username.trim();
         partyCode = partyCode.trim().toUpperCase();
@@ -53,7 +57,11 @@ public class PartyMemberService {
                 .party(party)
                 .build();
 
-        return partyMemberRepository.save(partyMember);
+        PartyMember saved = partyMemberRepository.save(partyMember);
+
+        predictionService.copyPredictionsToNewParty(user, party);
+
+        return saved;
     }
 
     @Transactional
