@@ -405,6 +405,19 @@ public class PredictionService {
         }
 
         for (Party party : getAllPartiesForUser(user)) {
+            List<String> oldTeamNames = qualifiedThirdPlaceSelectionRepository
+                    .findByUserAndParty(user, party)
+                    .stream()
+                    .map(selection -> selection.getTeam().getName())
+                    .sorted()
+                    .toList();
+
+            List<String> newTeamNames = teamNames.stream()
+                    .sorted()
+                    .toList();
+
+            boolean changed = !oldTeamNames.equals(newTeamNames);
+
             qualifiedThirdPlaceSelectionRepository.deleteByUserAndParty(user, party);
 
             for (String teamName : teamNames) {
@@ -420,7 +433,9 @@ public class PredictionService {
                 );
             }
 
-            knockoutPredictionRepository.deleteByUserAndParty(user, party);
+            if (changed) {
+                knockoutPredictionRepository.deleteByUserAndParty(user, party);
+            }
         }
 
         return teamNames;
