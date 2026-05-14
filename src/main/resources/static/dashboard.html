@@ -331,6 +331,10 @@
             background: linear-gradient(135deg, #0d6efd, #22c55e);
             color: white;
         }
+        .progress-item {
+            color: white;
+            text-decoration: none;
+        }
 
         @media (max-width: 1000px) {
             .navbar { padding: 14px 18px; }
@@ -499,7 +503,7 @@
             <div class="card">
                 <div class="card-title">
                     <h2 data-i18n="predictionProgress">Prediction progress</h2>
-                    <span class="status-pill status-pending" data-i18n="lightVersion">Light version</span>
+                    <span id="progressStatus" class="status-pill status-pending">Checking...</span>
                 </div>
 
                 <p class="muted" data-i18n="predictionProgressText">
@@ -507,29 +511,29 @@
                 </p>
 
                 <div class="progress-list">
-                    <div class="progress-item">
+                    <a class="progress-item" href="/group.html">
                         <div class="progress-main">
                             <strong data-i18n="progressGroupsTitle">1. Group predictions</strong>
-                            <span data-i18n="progressGroupsText">Predict every group match.</span>
+                            <span id="groupProgressText">Checking...</span>
                         </div>
-                        <span class="status-pill status-pending" data-i18n="start">Start</span>
-                    </div>
+                        <span id="groupProgressStatus" class="status-pill status-pending">...</span>
+                    </a>
 
-                    <div class="progress-item">
+                    <a class="progress-item" href="/third-place.html">
                         <div class="progress-main">
                             <strong data-i18n="progressThirdTitle">2. Third-place selection</strong>
-                            <span data-i18n="progressThirdText">Select qualified third-place teams.</span>
+                            <span id="thirdProgressText">Checking...</span>
                         </div>
-                        <span class="status-pill status-pending" data-i18n="next">Next</span>
-                    </div>
+                        <span id="thirdProgressStatus" class="status-pill status-pending">...</span>
+                    </a>
 
-                    <div class="progress-item">
+                    <a class="progress-item" href="/knockout-board.html">
                         <div class="progress-main">
                             <strong data-i18n="progressKnockoutTitle">3. Knockout bracket</strong>
-                            <span data-i18n="progressKnockoutText">Pick winners from R32 to the final.</span>
+                            <span id="knockoutProgressText">Checking...</span>
                         </div>
-                        <span class="status-pill status-pending" data-i18n="later">Later</span>
-                    </div>
+                        <span id="knockoutProgressStatus" class="status-pill status-pending">...</span>
+                    </a>
                 </div>
             </div>
 
@@ -580,27 +584,14 @@
             <div class="card">
                 <div class="card-title">
                     <h2 data-i18n="leaderboardPreview">Leaderboard preview</h2>
-                    <span class="status-pill status-pending" data-i18n="comingSoon">Coming soon</span>
+                    <span id="leaderboardStatus" class="status-pill status-pending">Checking...</span>
                 </div>
 
-                <p class="muted" data-i18n="leaderboardPreviewText">
-                    Later this can show the top players in your party directly on the dashboard.
+                <p id="leaderboardPreviewText" class="muted">
+                    Loading leaderboard...
                 </p>
 
-                <div class="leaderboard-preview">
-                    <div class="leader-row">
-                        <span data-i18n="topPlayer">🥇 Top player</span>
-                        <strong>-- pts</strong>
-                    </div>
-                    <div class="leader-row">
-                        <span data-i18n="secondPlace">🥈 Second place</span>
-                        <strong>-- pts</strong>
-                    </div>
-                    <div class="leader-row">
-                        <span data-i18n="thirdPlacePodium">🥉 Third place</span>
-                        <strong>-- pts</strong>
-                    </div>
-                </div>
+                <div id="leaderboardPreviewList" class="leaderboard-preview"></div>
             </div>
 
             <div class="card">
@@ -621,7 +612,6 @@
 <script src="/js/auth.js"></script>
 <script src="/js/i18n.js"></script>
 <script>
-    applyLanguage();
 
     const username = localStorage.getItem("username");
     const partyCode = localStorage.getItem("partyCode");
@@ -638,6 +628,8 @@
 
     applyLanguage();
     renderParty();
+    loadDashboardProgress();
+    loadLeaderboardPreview();
     updateLanguageButtons();
 
     function renderParty() {
@@ -735,6 +727,99 @@
 
         if (document.getElementById("lang-es-nav")) {
             document.getElementById("lang-es-nav").classList.toggle("active", currentLang === "es");
+        }
+    }
+    function setPill(id, text, active) {
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        el.innerText = text;
+        el.className = active
+            ? "status-pill status-active"
+            : "status-pill status-pending";
+    }
+
+    async function loadDashboardProgress() {
+        if (!partyCode) {
+            setPill("progressStatus", "No party", false);
+            return;
+        }
+
+        try {
+            const [predictions, thirdSaved, knockoutPredictions] = await Promise.all([
+                authFetch(`/predictions?viewerUsername=${encodeURIComponent(username)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(partyCode)}`)
+                    .then(res => res.ok ? res.json() : []),
+
+                authFetch(`/third-place-teams/saved?viewerUsername=${encodeURIComponent(username)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(partyCode)}`)
+                    .then(res => res.ok ? res.json() : []),
+
+                authFetch(`/knockout/predictions?viewerUsername=${encodeURIComponent(username)}&username=${encodeURIComponent(username)}&code=${encodeURIComponent(partyCode)}`)
+                    .then(res => res.ok ? res.json() : [])
+            ]);
+
+            const groupCount = predictions.filter(p => p.match?.stage === "GROUP").length;
+            const groupDone = groupCount >= 72;
+
+            const thirdCount = thirdSaved.length;
+            const thirdDone = thirdCount >= 8;
+
+            const knockoutCount = knockoutPredictions.length;
+            const knockoutDone = knockoutCount >= 31;
+
+            document.getElementById("groupProgressText").innerText = `${groupCount}/72 group matches predicted.`;
+            document.getElementById("thirdProgressText").innerText = `${thirdCount}/8 third-place teams selected.`;
+            document.getElementById("knockoutProgressText").innerText = `${knockoutCount}/31 knockout winners picked.`;
+
+            setPill("groupProgressStatus", groupDone ? "Done" : "Continue", groupDone);
+            setPill("thirdProgressStatus", thirdDone ? "Done" : "Next", thirdDone);
+            setPill("knockoutProgressStatus", knockoutDone ? "Done" : "Later", knockoutDone);
+
+            const allDone = groupDone && thirdDone && knockoutDone;
+            setPill("progressStatus", allDone ? "Complete" : "In progress", allDone);
+
+        } catch (err) {
+            setPill("progressStatus", "Could not load", false);
+        }
+    }
+
+    async function loadLeaderboardPreview() {
+        const list = document.getElementById("leaderboardPreviewList");
+        const text = document.getElementById("leaderboardPreviewText");
+
+        if (!partyCode) {
+            setPill("leaderboardStatus", "No party", false);
+            text.innerText = "Join or create a party to see the leaderboard.";
+            list.innerHTML = "";
+            return;
+        }
+
+        try {
+            const leaderboard = await authFetch(`/leaderboard?code=${encodeURIComponent(partyCode)}`)
+                .then(res => res.ok ? res.json() : []);
+
+            const topThree = leaderboard.slice(0, 3);
+
+            setPill("leaderboardStatus", "Live", true);
+            text.innerText = "Top players in your party right now.";
+
+            if (topThree.length === 0) {
+                list.innerHTML = `<div class="leader-row"><span>No players yet</span><strong>-- pts</strong></div>`;
+                return;
+            }
+
+            const medals = ["🥇", "🥈", "🥉"];
+
+            list.innerHTML = topThree.map((row, index) => `
+            <div class="leader-row">
+                <span>${medals[index] || ""} ${row.username}</span>
+                <strong>${row.score} pts</strong>
+            </div>
+        `).join("");
+
+        } catch (err) {
+            setPill("leaderboardStatus", "Could not load", false);
+            text.innerText = "Could not load leaderboard preview.";
+            list.innerHTML = "";
         }
     }
 </script>
