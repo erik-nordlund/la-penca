@@ -78,13 +78,30 @@
 
     .bracket-wrap {
       position: relative;
-      width: 1780px;
-      min-width: 1780px;
-      height: 1180px;
-      margin: 36px auto 0;
-      background: rgba(31,31,31,0.35);
-      border-radius: 18px;
+      width: min(100%, 1580px);
+      min-width: 1580px;
+      height: 1040px;
+      margin: 34px auto 0;
+      background:
+              radial-gradient(circle at 50% 38%, rgba(245, 158, 11, 0.10), transparent 18%),
+              radial-gradient(circle at 18% 18%, rgba(34,197,94,0.12), transparent 24%),
+              radial-gradient(circle at 85% 22%, rgba(13,110,253,0.10), transparent 25%),
+              rgba(15, 18, 20, 0.72);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
       overflow: hidden;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.45);
+    }
+
+    .bracket-wrap::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+              linear-gradient(90deg, rgba(34,197,94,0.04), transparent 20%, transparent 80%, rgba(34,197,94,0.04)),
+              radial-gradient(circle at center, transparent 0, rgba(0,0,0,0.24) 70%);
+      pointer-events: none;
+      z-index: 0;
     }
 
     #lines {
@@ -100,51 +117,62 @@
       position: relative;
       z-index: 2;
       display: grid;
-      grid-template-columns: 620px 330px 620px;
-      gap: 55px;
+      grid-template-columns: 540px 300px 540px;
+      gap: 58px;
       height: 100%;
-      padding: 25px 30px;
+      padding: 38px 34px 26px;
       justify-content: center;
     }
 
     .side,
     .right {
       display: grid;
-      grid-template-columns: repeat(4, 130px);
-      gap: 40px;
+      grid-template-columns: repeat(4, 108px);
+      gap: 34px;
       height: 100%;
     }
 
     .round {
       display: grid;
-      grid-template-rows: repeat(16, 68px);
+      grid-template-rows: repeat(16, 58px);
       position: relative;
     }
 
     .round-title {
       position: absolute;
-      top: -22px;
+      top: -25px;
       width: 100%;
       text-align: center;
-      font-size: 14px;
-      font-weight: bold;
+      font-size: 12px;
+      font-weight: 900;
+      color: rgba(255,255,255,0.92);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
 
     .match {
-      background: #202020;
-      border: 1px solid #444;
-      border-radius: 10px;
-      padding: 6px;
-      min-height: 84px;
-      width: 130px;
+      background: linear-gradient(180deg, rgba(40,40,40,0.94), rgba(25,25,25,0.94));
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 9px;
+      padding: 5px;
+      min-height: 70px;
+      width: 108px;
       box-sizing: border-box;
       align-self: center;
+      box-shadow: 0 10px 26px rgba(0,0,0,0.22);
+      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .match:hover {
+      transform: translateY(-2px);
+      border-color: rgba(124,252,152,0.45);
+      box-shadow: 0 0 22px rgba(34,197,94,0.16), 0 12px 30px rgba(0,0,0,0.3);
     }
 
     .slot {
-      color: #aaa;
-      font-size: 11px;
-      margin-bottom: 5px;
+      color: #8f8f8f;
+      font-size: 9px;
+      margin-bottom: 4px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -154,22 +182,51 @@
       width: 100%;
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 6px;
-      padding: 7px 6px;
-      margin-top: 4px;
+      justify-content: flex-start;
+      gap: 4px;
+      padding: 6px 5px;
+      margin-top: 3px;
       border: none;
-      border-radius: 7px;
-      background: #0d6efd;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #0d6efd, #1462d1);
       color: white;
-      font-weight: bold;
+      font-weight: 800;
       cursor: pointer;
-      font-size: 12px;
-      line-height: 1.1;
+      font-size: 9px;
+      line-height: 1.05;
+      overflow: hidden;
+      transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .team img {
+      flex-shrink: 0;
+    }
+
+    .team:not(.placeholder) {
+      white-space: nowrap;
+    }
+
+    .team-name {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .team:hover:not(:disabled) {
+      transform: scale(1.03);
+      filter: brightness(1.12);
     }
 
     .team.selected {
-      background: #22c55e;
+      background: linear-gradient(135deg, #16a34a, #22c55e);
+      box-shadow: 0 0 14px rgba(34,197,94,0.35);
+    }
+
+    .team.selected::after {
+      content: "✓";
+      margin-left: auto;
+      font-weight: 900;
     }
 
     .team.placeholder {
@@ -179,101 +236,137 @@
     }
 
     .team:disabled {
-      opacity: 0.55;
+      opacity: 0.58;
       cursor: not-allowed;
-      filter: none;
     }
 
     .center {
       display: grid;
-      grid-template-rows: repeat(16, 68px);
+      grid-template-rows: repeat(16, 58px);
       align-items: center;
       justify-items: center;
       height: 100%;
     }
 
     .trophy {
-      grid-row: 6;
-      font-size: 54px;
-      opacity: 0.85;
-      align-self: end;
+      position: absolute;
+      left: 50%;
+      top: 34px;
+      transform: translateX(-50%);
+      z-index: 3;
+      font-size: 70px;
+      opacity: 0.98;
+      filter: drop-shadow(0 0 22px rgba(245,158,11,0.55));
+      animation: trophyFloatCentered 2.8s ease-in-out infinite;
+    }
+    @keyframes trophyFloatCentered {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-6px); }
     }
 
     .champion {
-      grid-row: 7;
+      position: absolute;
+      left: 50%;
+      top: 120px;
+      transform: translateX(-50%);
+      z-index: 3;
       color: #7CFC98;
-      font-size: 20px;
-      font-weight: bold;
+      font-size: 26px;
+      font-weight: 900;
       text-align: center;
-      min-height: 28px;
-      align-self: start;
+      min-height: 38px;
       white-space: nowrap;
+      text-shadow:
+              0 0 12px rgba(124,252,152,0.8),
+              0 0 34px rgba(34,197,94,0.45);
     }
 
     .final-center {
       grid-row: 8 / span 2;
       align-self: center;
-      transform: translateY(-10px);
     }
 
     .third-center {
-      grid-row: 10 / span 2;
+      grid-row: 11 / span 2;
       align-self: center;
     }
 
     .center-box {
-      width: 170px;
+      width: 150px;
     }
 
     .center .match {
-      width: 170px;
-      min-height: 78px;
+      width: 150px;
+      min-height: 72px;
     }
 
     .center-label {
       text-align: center;
-      color: #aaa;
-      font-weight: bold;
-      margin-bottom: 5px;
+      color: rgba(255,255,255,0.82);
+      font-weight: 900;
+      margin-bottom: 6px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .final-center .match {
+      border-color: rgba(245,158,11,0.55);
+      box-shadow: 0 0 24px rgba(245,158,11,0.18);
+    }
+
+    .third-center .match {
+      width: 140px;
+      opacity: 0.95;
     }
 
     .line {
-      stroke: #444;
+      stroke: rgba(255,255,255,0.22);
       stroke-width: 2;
       fill: none;
     }
     .score-summary {
-      margin-top: 26px;
-      background: #1f1f1f;
-      border: 1px solid #333;
-      border-radius: 14px;
-      padding: 18px;
+      margin: 28px auto 0;
+      max-width: 1580px;
+      background:
+              radial-gradient(circle at top left, rgba(34,197,94,0.08), transparent 32%),
+              rgba(31,31,31,0.86);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 18px 60px rgba(0,0,0,0.32);
     }
 
     .score-summary h2 {
       margin: 0 0 16px;
+      font-size: 24px;
     }
 
     .score-grid {
       display: grid;
-      grid-template-columns: repeat(6, minmax(180px, 1fr));
+      grid-template-columns: repeat(6, minmax(150px, 1fr));
       gap: 12px;
     }
     .score-column {
-      background: #222;
-      border: 1px solid #333;
-      border-radius: 10px;
-      padding: 10px;
+      background: rgba(20,20,20,0.72);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 12px;
+      padding: 12px;
+      min-height: 160px;
     }
+
     .score-column h3 {
       margin: 0 0 4px;
       font-size: 13px;
+      color: white;
     }
+
     .score-subtitle {
       color: #aaa;
-      font-size: 12px;
+      font-size: 11px;
       margin-bottom: 10px;
     }
+
     .links a:hover,
     .links a.active {
       color: #7CFC98;
@@ -293,29 +386,35 @@
     }
 
     .score-team {
-      padding: 7px 9px;
+      padding: 7px 8px;
       border-radius: 7px;
-      margin-top: 5px;
-      font-size: 12px;
-      font-weight: bold;
+      margin-top: 6px;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .score-team.correct {
-      background: rgba(34,197,94,0.45);
-      border: 1px solid rgba(124,252,152,0.45);
+      background: rgba(34,197,94,0.32);
+      border: 1px solid rgba(124,252,152,0.38);
+      box-shadow: 0 0 12px rgba(34,197,94,0.12);
     }
 
     .score-team.wrong {
-      background: rgba(239,68,68,0.45);
-      border: 1px solid rgba(255,107,107,0.45);
+      background: rgba(239,68,68,0.32);
+      border: 1px solid rgba(255,107,107,0.35);
     }
+
     .flag {
-      width: 20px;
-      height: 14px;
+      width: 16px;
+      height: 11px;
       object-fit: cover;
-      border-radius: 3px;
-      margin-right: 4px;
+      border-radius: 2px;
+      margin-right: 3px;
       vertical-align: middle;
+      flex-shrink: 0;
     }
     .menu-btn {
       display: none;
@@ -395,6 +494,115 @@
       padding-bottom: 18px;
       -webkit-overflow-scrolling: touch;
     }
+    h1 {
+      margin: 0;
+      font-size: 44px;
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+    }
+
+    .page-subtitle {
+      margin: 10px 0 0;
+      color: #cfcfcf;
+      font-size: 16px;
+    }
+    .confetti-piece {
+      position: fixed;
+      top: -12px;
+      width: 8px;
+      height: 14px;
+      pointer-events: none;
+      z-index: 20000;
+      border-radius: 2px;
+      animation: confettiFall 1.9s linear forwards;
+    }
+
+    @keyframes confettiFall {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+
+      100% {
+        transform: translateY(110vh) rotate(720deg);
+        opacity: 0;
+      }
+    }
+
+    .champion-pop {
+      animation: championPopCentered 0.75s ease;
+    }
+
+    @keyframes championPop {
+      0% {
+        transform: scale(0.85);
+        opacity: 0.4;
+      }
+
+      55% {
+        transform: scale(1.12);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+    .champion-zone {
+      position: relative;
+      grid-row: 4 / span 3;
+      width: 300px;
+      height: 190px;
+      justify-self: center;
+      align-self: center;
+    }
+
+    .trophy-confetti-layer {
+      position: absolute;
+      left: 50%;
+      top: 58px;
+      width: 320px;
+      height: 220px;
+      transform: translateX(-50%);
+      pointer-events: none;
+      overflow: visible;
+      z-index: 1;
+    }
+
+    .trophy-confetti {
+      position: absolute;
+      left: 50%;
+      top: 40px;
+      width: 7px;
+      height: 13px;
+      border-radius: 2px;
+      opacity: 0;
+      box-shadow: 0 0 8px currentColor;
+      animation: trophyConfetti 2.6s ease-out forwards;
+    }
+
+    @keyframes trophyConfetti {
+      0% {
+        transform: translate(-50%, 0) rotate(0deg) scale(0.65);
+        opacity: 0;
+      }
+
+      10% {
+        opacity: 1;
+      }
+
+      100% {
+        transform:
+                translate(
+                        calc(-50% + var(--x)),
+                        var(--y)
+                )
+                rotate(var(--r))
+                scale(1);
+        opacity: 0;
+      }
+    }
 
     @media (max-width: 900px) {
       .navbar {
@@ -418,24 +626,30 @@
         margin-top: 8px;
       }
 
+      .bracket-scroll {
+        overflow-x: auto;
+        padding-bottom: 18px;
+        -webkit-overflow-scrolling: touch;
+      }
+
       .bracket-wrap {
-        width: 1850px;
-        min-width: 1850px;
-        height: 1180px;
+        width: 1580px;
+        min-width: 1580px;
+        height: 1040px;
         margin-left: 0;
       }
 
       .bracket {
-        grid-template-columns: 620px 330px 620px;
-        gap: 55px;
-        padding: 25px 0 25px 18px;
-        justify-content: start;
+        grid-template-columns: 540px 300px 540px;
+        gap: 58px;
+        padding: 38px 34px 26px;
+        justify-content: center;
       }
 
       .side,
       .right {
-        grid-template-columns: repeat(4, 130px);
-        gap: 40px;
+        grid-template-columns: repeat(4, 108px);
+        gap: 34px;
       }
 
       .score-summary {
@@ -557,8 +771,9 @@
 <div class="page">
   <div class="topbar">
     <div>
-      <div id="lockBadge" class="badge" data-i18n="knockoutBadge">🏆 Knockout bracket</div>
-      <h1 data-i18n="knockoutBoardTitle">Knockout Board</h1>
+      <div id="lockBadge" class="badge" data-i18n="knockoutBadge">🏆 Knockout stage</div>
+      <h1 data-i18n="knockoutBoardTitle">Knockout stage predictions</h1>
+      <p class="page-subtitle">Predict the winner of each match by selecting which team advances.</p>
       <div id="lockMessage" class="lock-message"></div>
     </div>
   </div>
@@ -574,8 +789,11 @@
       <div class="side left" id="leftSide"></div>
 
       <div class="center">
-        <div class="trophy">🏆</div>
-        <div id="champion" class="champion"></div>
+        <div class="champion-zone">
+          <div id="trophyConfettiLayer" class="trophy-confetti-layer"></div>
+          <div class="trophy">🏆</div>
+          <div id="champion" class="champion"></div>
+        </div>
 
         <div class="center-box final-center">
           <div class="center-label" data-i18n="final">Final</div>
@@ -700,11 +918,12 @@
             : translateTeam(teamName);
 
     if (!flagUrl) {
-      return translatedName;
+      return `<span class="team-name">${translatedName}</span>`;
     }
 
-    return `<img src="${flagUrl}" class="flag"> ${translatedName}`;
+    return `<img src="${flagUrl}" class="flag"> <span class="team-name">${translatedName}</span>`;
   }
+
   function translatePlacementLabel(value) {
     return value
             .replace("Champion: ", `${t("championLabel")}: `)
@@ -811,7 +1030,29 @@
     renderCenterMatch("thirdPlaceBox", "THIRD_PLACE", all.thirdPlace, 1);
 
     const champion = saved["FINAL"]?.[1];
-    document.getElementById("champion").innerText = champion ? `${t("champion")}: ${translateTeam(champion)}` : "";
+
+    const championEl = document.getElementById("champion");
+
+    championEl.innerText =
+            champion
+                    ? `${t("champion")}: ${translateTeam(champion)}`
+                    : "";
+
+    if (champion && champion !== lastChampion) {
+      lastChampion = champion;
+
+      setTimeout(() => {
+        celebrateChampion(champion);
+      }, 150);
+    }
+
+    if (champion) {
+      startSubtleTrophyConfetti(champion);
+    } else {
+      lastChampion = null;
+      confettiAlreadyShownFor = null;
+      stopSubtleTrophyConfetti();
+    }
 
     renderScoreSummary();
     setTimeout(drawLines, 50);
@@ -984,6 +1225,10 @@
 
               if (!saved[roundName]) {
                 saved[roundName] = {};
+              }
+
+              if (roundName === "FINAL") {
+                sessionStorage.setItem("championJustSelected", "true");
               }
 
               saved[roundName][matchNumber] = winner;
@@ -1381,6 +1626,132 @@
       renderLockStatus();
       renderBracket();
     }
+  }
+  let lastChampion = null;
+  let confettiAlreadyShownFor = null;
+
+  function fireConfetti() {
+    const colors = [
+      "#22c55e",
+      "#0d6efd",
+      "#f59e0b",
+      "#ef4444",
+      "#ffffff"
+    ];
+
+    for (let i = 0; i < 90; i++) {
+      const piece = document.createElement("div");
+
+      piece.className = "confetti-piece";
+
+      piece.style.left = `${Math.random() * 100}vw`;
+      piece.style.background =
+              colors[Math.floor(Math.random() * colors.length)];
+
+      piece.style.animationDelay = `${Math.random() * 0.35}s`;
+
+      piece.style.transform =
+              `rotate(${Math.random() * 360}deg)`;
+
+      document.body.appendChild(piece);
+
+      setTimeout(() => {
+        piece.remove();
+      }, 2300);
+    }
+  }
+
+  function celebrateChampion(champion) {
+    const championEl = document.getElementById("champion");
+
+    if (!championEl || !champion) {
+      return;
+    }
+
+    championEl.classList.remove("champion-pop");
+
+    void championEl.offsetWidth;
+
+    championEl.classList.add("champion-pop");
+
+    const championJustSelected =
+            sessionStorage.getItem("championJustSelected") === "true";
+
+    if (championJustSelected && confettiAlreadyShownFor !== champion) {
+      confettiAlreadyShownFor = champion;
+      fireConfetti();
+      sessionStorage.removeItem("championJustSelected");
+    }
+  }
+  let subtleConfettiInterval = null;
+  let activeChampionCelebration = null;
+
+  function createTrophyConfettiPiece() {
+    const layer = document.getElementById("trophyConfettiLayer");
+
+    if (!layer) {
+      return;
+    }
+
+    const colors = ["#22c55e", "#0d6efd", "#f59e0b", "#ef4444", "#ffffff"];
+
+    const piece = document.createElement("div");
+    piece.className = "trophy-confetti";
+
+    const direction = Math.random() > 0.5 ? 1 : -1;
+
+    const x = direction * (45 + Math.random() * 125);
+    const y = -55 - Math.random() * 155;
+    const rotation = `${direction * (220 + Math.random() * 420)}deg`;
+
+    const color = colors[Math.floor(Math.random() * colors.length)];
+
+    piece.style.background = color;
+    piece.style.color = color;
+    piece.style.setProperty("--x", `${x}px`);
+    piece.style.setProperty("--y", `${y}px`);
+    piece.style.setProperty("--r", rotation);
+    piece.style.animationDuration = `${1.9 + Math.random() * 1.1}s`;
+
+    layer.appendChild(piece);
+
+    setTimeout(() => {
+      piece.remove();
+    }, 3300);
+  }
+
+  function startSubtleTrophyConfetti(champion) {
+    if (!champion) {
+      stopSubtleTrophyConfetti();
+      return;
+    }
+
+    if (activeChampionCelebration === champion && subtleConfettiInterval) {
+      return;
+    }
+
+    stopSubtleTrophyConfetti();
+
+    activeChampionCelebration = champion;
+
+    for (let i = 0; i < 32; i++) {
+      setTimeout(createTrophyConfettiPiece, i * 38);
+    }
+
+    subtleConfettiInterval = setInterval(() => {
+      for (let i = 0; i < 5; i++) {
+        setTimeout(createTrophyConfettiPiece, i * 85);
+      }
+    }, 1700);
+  }
+
+  function stopSubtleTrophyConfetti() {
+    if (subtleConfettiInterval) {
+      clearInterval(subtleConfettiInterval);
+      subtleConfettiInterval = null;
+    }
+
+    activeChampionCelebration = null;
   }
 </script>
 
