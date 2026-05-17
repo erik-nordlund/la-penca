@@ -855,7 +855,8 @@
             automatic.appendChild(createTeamCard(team, true, false));
         });
 
-        document.getElementById("automaticCount").innerText = `${automaticTeams.length} ${t("teams")}`;
+        document.getElementById("automaticCount").innerText =
+            `${automaticTeams.length} ${automaticTeams.length === 1 ? t("teamSingular") : t("teamPlural")}`;
     }
 
     function renderChoices(tiedTeams) {
