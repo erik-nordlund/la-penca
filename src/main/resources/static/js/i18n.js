@@ -370,6 +370,15 @@ const translations = {
         champion: "Champion",
         waiting: "Waiting...",
         swipeBracket: "Swipe sideways to view the full bracket →",
+        previousWinners: "Previous Winners",
+        familyOnly: "Family only",
+        worldCupChampion: "World Cup champion",
+        laPencaChampion2022: "2022 La Penca Champion",
+        laPencaChampion2018: "2018 La Penca Champion",
+        laPencaChampion2014: "2014 La Penca Champion",
+        laPencaChampion2010: "2010 La Penca Champion",
+        laPencaChampion2006: "2006 La Penca Champion",
+        laPencaChampion2002: "2002 La Penca Champion",
 
 
 
@@ -800,6 +809,15 @@ const translations = {
         champion: "Campeón",
         waiting: "Esperando...",
         swipeBracket: "Desliza hacia los lados para ver todo el cuadro →",
+        previousWinners: "Ganadores anteriores",
+        familyOnly: "Solo familia",
+        worldCupChampion: "Campeón del Mundial",
+        laPencaChampion2022: "Campeón de La Penca 2022",
+        laPencaChampion2018: "Campeón de La Penca 2018",
+        laPencaChampion2014: "Campeón de La Penca 2014",
+        laPencaChampion2010: "Campeón de La Penca 2010",
+        laPencaChampion2006: "Campeón de La Penca 2006",
+        laPencaChampion2002: "Campeón de La Penca 2002",
 
         teams: {
             "Mexico": "México",

@@ -759,6 +759,51 @@
             border: 1px solid rgba(255,255,255,0.08);
         }
 
+        .previous-winners {
+            display: grid;
+            gap: 12px;
+        }
+
+        .previous-winner-row {
+            display: grid;
+            grid-template-columns: 62px 1fr auto;
+            gap: 14px;
+            align-items: center;
+            padding: 14px;
+            border-radius: 16px;
+            background:
+                    radial-gradient(circle at left, rgba(245,158,11,0.18), transparent 38%),
+                    rgba(255,255,255,0.055);
+            border: 1px solid rgba(245,158,11,0.28);
+        }
+
+        .previous-year {
+            color: #fbbf24;
+            font-weight: 900;
+            font-size: 16px;
+        }
+
+        .previous-name {
+            font-weight: 900;
+            font-size: 17px;
+        }
+
+        .previous-sub {
+            color: #aaa;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .previous-trophy {
+            font-size: 24px;
+        }
+
+        .family-only-badge {
+            background: rgba(245,158,11,0.14);
+            color: #fbbf24;
+            border: 1px solid rgba(245,158,11,0.35);
+        }
+
         @media (max-width: 1200px) {
             .breakdown-grid {
                 grid-template-columns: 1fr;
@@ -1060,6 +1105,19 @@
                     </div>
                 </div>
             </div>
+            <div id="previousWinnersCard" class="card" style="display:none;">
+                <div class="card-title">
+                    <h2 data-i18n="previousWinners">🏅 Previous Winners</h2>
+
+                    <span
+                            class="status-pill family-only-badge"
+                            data-i18n="familyOnly">
+    Family only
+</span>
+                </div>
+
+                <div id="previousWinners" class="previous-winners"></div>
+            </div>
         </aside>
 
     </section>
@@ -1072,6 +1130,16 @@
     const code = localStorage.getItem("partyCode");
     const token = localStorage.getItem("token");
     const refreshToken = localStorage.getItem("refreshToken");
+    const FAMILY_PARTY_CODE = "56Z8EQ";
+
+    const previousWinners = [
+        { year: "2022", winner: "Leslie", type: "laPencaChampion2022" },
+        { year: "2018", winner: "Willie", type: "laPencaChampion2018" },
+        { year: "2014", winner: "Ronnie", type: "laPencaChampion2014" },
+        { year: "2010", winner: "Carol", type: "laPencaChampion2010" },
+        { year: "2006", winner: "Willie", type: "laPencaChampion2006" },
+        { year: "2002", winner: "Carol", type: "laPencaChampion2002" }
+    ];
 
     if (!username || (!token && !refreshToken)) {
         window.location.href = "/index.html";
@@ -1432,6 +1500,7 @@
 
     applyLanguage();
     updateLanguageButtons();
+    renderPreviousWinners();
 
     function updateLanguageButtons() {
         const currentLang = getLanguage();
@@ -1449,6 +1518,31 @@
         if (esNavButton) esNavButton.classList.toggle("active", currentLang === "es");
 
         applyLanguage();
+    }
+    function renderPreviousWinners() {
+        const card = document.getElementById("previousWinnersCard");
+        const container = document.getElementById("previousWinners");
+
+        if (!card || !container) return;
+
+        if (code !== FAMILY_PARTY_CODE) {
+            card.style.display = "none";
+            return;
+        }
+
+        card.style.display = "block";
+
+        container.innerHTML = previousWinners.map((item, index) => `
+        <div class="previous-winner-row">
+            <div class="previous-year">${item.year}</div>
+
+            <div>
+                <div class="previous-name">${item.winner}</div>
+                <div class="previous-sub">${t(item.type)}</div>
+            </div>
+
+        </div>
+    `).join("");
     }
 </script>
 
