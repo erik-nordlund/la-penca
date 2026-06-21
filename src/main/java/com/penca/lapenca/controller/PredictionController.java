@@ -284,6 +284,10 @@ public class PredictionController {
                 awayPenaltyScore
         );
     }
+    @GetMapping("/next-match-predictions")
+    public NextMatchPredictionsDto getNextMatchPredictions(@RequestParam String code) {
+        return predictionService.getNextMatchPredictions(code);
+    }
 
     @PostMapping("/actual/knockout/reset")
     public ActualKnockoutResult resetActualKnockoutResult(@RequestParam String round,
