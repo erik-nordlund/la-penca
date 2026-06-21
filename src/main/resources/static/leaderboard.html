@@ -181,7 +181,7 @@
 
         .layout {
             display: grid;
-            grid-template-columns: 1fr 360px;
+            grid-template-columns: 1fr 320px;
             gap: 24px;
             align-items: start;
         }
@@ -804,6 +804,107 @@
             border: 1px solid rgba(245,158,11,0.35);
         }
 
+        .nm-teams-block {
+            background: rgba(255,255,255,0.045);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 14px;
+            text-align: center;
+        }
+
+        .nm-teams-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .nm-team-side {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .nm-flag { font-size: 26px; line-height: 1; }
+        .nm-team-name { font-size: 13px; font-weight: bold; }
+        .nm-vs { font-size: 12px; color: #555; }
+        .nm-match-time { font-size: 11px; color: #666; margin-top: 6px; }
+
+        .nm-col-headers {
+            display: grid;
+            grid-template-columns: 1fr 36px 36px 36px;
+            gap: 4px;
+            padding: 0 4px;
+            margin-bottom: 6px;
+        }
+
+        .nm-col-header {
+            font-size: 10px;
+            color: #555;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .nm-member-row {
+            display: grid;
+            grid-template-columns: 1fr 36px 36px 36px;
+            align-items: center;
+            gap: 4px;
+            padding: 7px 6px;
+            border-radius: 10px;
+            margin-bottom: 4px;
+            background: rgba(255,255,255,0.03);
+        }
+
+        .nm-member-row.nm-me {
+            background: rgba(34,197,94,0.12);
+            border: 1px solid rgba(124,252,152,0.25);
+        }
+
+        .nm-member-name {
+            font-size: 13px;
+            color: #ccc;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .nm-member-name.nm-me-name { color: #7CFC98; font-weight: bold; }
+
+        .nm-pick-cell {
+            display: flex;
+            justify-content: center;
+        }
+
+        .nm-pill {
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 3px 0;
+            width: 28px;
+            text-align: center;
+        }
+
+        .nm-pill-1 { background: #14532d; color: #4ade80; }
+        .nm-pill-x { background: #1e293b; color: #7dd3fc; }
+        .nm-pill-2 { background: #3b0a0a; color: #f87171; }
+
+        .nm-summary {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0 2px;
+            border-top: 1px solid rgba(255,255,255,0.07);
+            margin-top: 8px;
+        }
+
+        .nm-sum-item { text-align: center; }
+        .nm-sum-num { font-size: 14px; font-weight: bold; }
+        .nm-sum-label { font-size: 10px; color: #555; margin-top: 2px; }
+
         @media (max-width: 1200px) {
             .breakdown-grid {
                 grid-template-columns: 1fr;
@@ -1093,16 +1194,13 @@
 
         <aside>
 
-            <div class="card">
+            <div class="card" id="nextMatchCard">
                 <div class="card-title">
-                    <h2>🏆 Podium</h2>
-                    <span class="status-pill status-ok">TOP 3</span>
+                    <h2 style="font-size:16px; letter-spacing:0.06em; color:#7CFC98;">⚽ NEXT MATCH PREDICTIONS</h2>
                 </div>
 
-                <div id="podium" class="podium">
-                    <div class="empty-state">
-                        Waiting for scores...
-                    </div>
+                <div id="nextMatchContent">
+                    <div style="color:#aaa; font-size:14px;">Loading...</div>
                 </div>
             </div>
             <div id="previousWinnersCard" class="card" style="display:none;">
@@ -1169,7 +1267,6 @@
             .then(res => res.json())
             .then(rows => {
                 renderLeaderboard(rows);
-                renderPodium(rows);
             })
             .catch(() => {
                 document.getElementById("leaderboard").innerHTML =
@@ -1544,6 +1641,123 @@
         </div>
     `).join("");
     }
+
+    function loadNextMatchPredictions() {
+            if (!code) return;
+
+            authFetch(`/next-match-predictions?code=${encodeURIComponent(code)}`)
+                .then(res => res.json())
+                .then(data => renderNextMatchPredictions(data))
+                .catch(() => {
+                    const el = document.getElementById("nextMatchContent");
+                    if (el) el.innerHTML = `<div style="color:#aaa;font-size:14px;">Could not load next match.</div>`;
+                });
+        }
+
+        function renderNextMatchPredictions(data) {
+            const el = document.getElementById("nextMatchContent");
+            if (!el) return;
+
+            if (!data.match) {
+                el.innerHTML = `<div style="color:#aaa;font-size:14px;">No upcoming matches.</div>`;
+                return;
+            }
+
+            const match = data.match;
+            const members = data.members || [];
+
+            const home = match.homeTeam?.name || "?";
+            const away = match.awayTeam?.name || "?";
+            const group = match.homeTeam?.groupName || "";
+
+            const dateStr = match.matchDate
+                ? new Date(match.matchDate).toLocaleDateString("sv-SE", { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })
+                : "";
+
+            const flagCodeMap = {
+                "Mexico":"mx","South Africa":"za","South Korea":"kr","Czech Republic":"cz",
+                "Switzerland":"ch","Canada":"ca","Bosnia":"ba","Qatar":"qa","Brazil":"br",
+                "Haiti":"ht","Scotland":"gb-sct","Morocco":"ma","Turkey":"tr","Paraguay":"py",
+                "USA":"us","Germany":"de","Curacao":"cw","Ecuador":"ec","Norway":"no",
+                "DR Congo":"cd","Cape Verde":"cv","Japan":"jp","Belgium":"be","England":"gb-eng",
+                "Colombia":"co","Portugal":"pt","Spain":"es","Austria":"at","Uruguay":"uy",
+                "Ivory Coast":"ci","France":"fr","Argentina":"ar","Algeria":"dz","Panama":"pa",
+                "Croatia":"hr","Senegal":"sn","Netherlands":"nl","Sweden":"se","Saudi Arabia":"sa",
+                "Australia":"au","Iran":"ir","Ghana":"gh","Denmark":"dk","Poland":"pl",
+                "New Zealand":"nz","Iraq":"iq","Jordan":"jo","Tunisia":"tn","Wales":"gb-wls","Uzbekistan":"uz"
+            };
+
+            const homeFlag = flagCodeMap[home]
+                ? `<img src="https://flagcdn.com/w40/${flagCodeMap[home]}.png" style="width:28px;height:20px;object-fit:cover;border-radius:3px;">`
+                : "🏳️";
+            const awayFlag = flagCodeMap[away]
+                ? `<img src="https://flagcdn.com/w40/${flagCodeMap[away]}.png" style="width:28px;height:20px;object-fit:cover;border-radius:3px;">`
+                : "🏳️";
+
+            let count1 = 0, countX = 0, count2 = 0;
+            members.forEach(m => {
+                if (m.outcome === "HOME_WIN") count1++;
+                else if (m.outcome === "DRAW") countX++;
+                else if (m.outcome === "AWAY_WIN") count2++;
+            });
+
+            const rowsHtml = members.map(m => {
+                const isMe = m.username === username;
+                const pill1 = m.outcome === "HOME_WIN" ? `<span class="nm-pill nm-pill-1">1</span>` : "";
+                const pillX = m.outcome === "DRAW"     ? `<span class="nm-pill nm-pill-x">X</span>` : "";
+                const pill2 = m.outcome === "AWAY_WIN" ? `<span class="nm-pill nm-pill-2">2</span>` : "";
+                return `
+            <div class="nm-member-row ${isMe ? "nm-me" : ""}">
+                <div class="nm-member-name ${isMe ? "nm-me-name" : ""}">${m.username}${isMe ? " (you)" : ""}</div>
+                <div class="nm-pick-cell">${pill1}</div>
+                <div class="nm-pick-cell">${pillX}</div>
+                <div class="nm-pick-cell">${pill2}</div>
+            </div>`;
+            }).join("");
+
+            el.innerHTML = `
+        <div class="nm-teams-block">
+            <div style="font-size:11px;color:#555;margin-bottom:8px;">Group ${group} · ${dateStr}</div>
+            <div class="nm-teams-row">
+                <div class="nm-team-side">
+                    <span class="nm-flag">${homeFlag}</span>
+                    <span class="nm-team-name">${home}</span>
+                </div>
+                <span class="nm-vs">vs</span>
+                <div class="nm-team-side">
+                    <span class="nm-flag">${awayFlag}</span>
+                    <span class="nm-team-name">${away}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="nm-col-headers">
+            <div></div>
+            <div class="nm-col-header" title="${home} wins">1</div>
+            <div class="nm-col-header">X</div>
+            <div class="nm-col-header" title="${away} wins">2</div>
+        </div>
+
+        ${rowsHtml}
+
+        <div class="nm-summary">
+            <div class="nm-sum-item">
+                <div class="nm-sum-num" style="color:#4ade80;">${count1}</div>
+                <div class="nm-sum-label">tips 1</div>
+            </div>
+            <div class="nm-sum-item">
+                <div class="nm-sum-num" style="color:#7dd3fc;">${countX}</div>
+                <div class="nm-sum-label">tips X</div>
+            </div>
+            <div class="nm-sum-item">
+                <div class="nm-sum-num" style="color:#f87171;">${count2}</div>
+                <div class="nm-sum-label">tips 2</div>
+            </div>
+        </div>
+    `;
+        }
+
+        loadNextMatchPredictions();
 </script>
 
 </body>

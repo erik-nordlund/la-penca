@@ -1817,6 +1817,41 @@ public class PredictionService {
         }
     }
 
+    public NextMatchPredictionsDto getNextMatchPredictions(String code) {
+        Party party = partyRepository.findByCode(code)
+                .orElseThrow(() -> new RuntimeException("Party not found"));
+
+        // Hitta nästa ospelad gruppspelsmatch (tidigaste matchDate)
+        Match nextMatch = matchRepository
+                .findByStageOrderByMatchDateAsc("GROUP")
+                .stream()
+                .filter(m -> !m.isPlayed())
+                .findFirst()
+                .orElse(null);
+
+        if (nextMatch == null) {
+            return new NextMatchPredictionsDto(null, List.of());
+        }
+
+        List<PartyMember> members = partyMemberRepository.findByParty(party);
+
+        List<NextMatchPredictionsDto.MemberPrediction> memberPredictions = members.stream()
+                .map(member -> {
+                    AppUser user = member.getUser();
+                    MatchOutcome outcome = predictionRepository
+                            .findByUserAndPartyAndMatch(user, party, nextMatch)
+                            .map(Prediction::getPredictedOutcome)
+                            .orElse(null);
+                    return new NextMatchPredictionsDto.MemberPrediction(
+                            user.getUsername(),
+                            outcome != null ? outcome.name() : null
+                    );
+                })
+                .toList();
+
+        return new NextMatchPredictionsDto(nextMatch, memberPredictions);
+    }
+
     public List<ActualKnockoutResult> getActualKnockoutResults(String roundName) {
         return actualKnockoutResultRepository.findByRoundNameOrderByMatchNumberAsc(roundName);
     }
