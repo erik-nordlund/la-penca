@@ -1817,21 +1817,21 @@ public class PredictionService {
         }
     }
 
-    public NextMatchPredictionsDto getNextMatchPredictions(String code) {
+    public NextMatchPredictionsDto getNextMatchPredictionsByOffset(String code, int offset) {
         Party party = partyRepository.findByCode(code)
                 .orElseThrow(() -> new RuntimeException("Party not found"));
 
-        // Hitta nästa ospelad gruppspelsmatch (tidigaste matchDate)
-        Match nextMatch = matchRepository
+        List<Match> unplayedMatches = matchRepository
                 .findByStageOrderByMatchDateAsc("GROUP")
                 .stream()
                 .filter(m -> !m.isPlayed())
-                .findFirst()
-                .orElse(null);
+                .toList();
 
-        if (nextMatch == null) {
+        if (unplayedMatches.isEmpty() || offset >= unplayedMatches.size()) {
             return new NextMatchPredictionsDto(null, List.of());
         }
+
+        Match match = unplayedMatches.get(offset);
 
         List<PartyMember> members = partyMemberRepository.findByParty(party);
 
@@ -1839,7 +1839,7 @@ public class PredictionService {
                 .map(member -> {
                     AppUser user = member.getUser();
                     MatchOutcome outcome = predictionRepository
-                            .findByUserAndPartyAndMatch(user, party, nextMatch)
+                            .findByUserAndPartyAndMatch(user, party, match)
                             .map(Prediction::getPredictedOutcome)
                             .orElse(null);
                     return new NextMatchPredictionsDto.MemberPrediction(
@@ -1849,7 +1849,20 @@ public class PredictionService {
                 })
                 .toList();
 
-        return new NextMatchPredictionsDto(nextMatch, memberPredictions);
+        return new NextMatchPredictionsDto(match, memberPredictions);
+    }
+
+    public int getUnplayedGroupMatchCount(String code) {
+        partyRepository.findByCode(code)
+                .orElseThrow(() -> new RuntimeException("Party not found"));
+
+        long total = matchRepository
+                .findByStageOrderByMatchDateAsc("GROUP")
+                .stream()
+                .filter(m -> !m.isPlayed())
+                .count();
+
+        return (int) Math.min(total, 4);
     }
 
     public List<ActualKnockoutResult> getActualKnockoutResults(String roundName) {
