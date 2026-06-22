@@ -285,8 +285,14 @@ public class PredictionController {
         );
     }
     @GetMapping("/next-match-predictions")
-    public NextMatchPredictionsDto getNextMatchPredictions(@RequestParam String code) {
-        return predictionService.getNextMatchPredictions(code);
+    public NextMatchPredictionsDto getNextMatchPredictions(@RequestParam String code,
+                                                           @RequestParam(defaultValue = "0") int offset) {
+        return predictionService.getNextMatchPredictionsByOffset(code, offset);
+    }
+
+    @GetMapping("/next-match-predictions/count")
+    public int getUnplayedGroupMatchCount(@RequestParam String code) {
+        return predictionService.getUnplayedGroupMatchCount(code);
     }
 
     @PostMapping("/actual/knockout/reset")

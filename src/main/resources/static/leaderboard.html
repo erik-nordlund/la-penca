@@ -1642,90 +1642,107 @@
     `).join("");
     }
 
-    function loadNextMatchPredictions() {
-            if (!code) return;
+    let currentMatchOffset = 0;
+    let totalUnplayedMatches = 0;
 
-            authFetch(`/next-match-predictions?code=${encodeURIComponent(code)}`)
-                .then(res => res.json())
-                .then(data => renderNextMatchPredictions(data))
-                .catch(() => {
-                    const el = document.getElementById("nextMatchContent");
-                    if (el) el.innerHTML = `<div style="color:#aaa;font-size:14px;">Could not load next match.</div>`;
-                });
+    function loadNextMatchPredictions() {
+        if (!code) return;
+
+        authFetch(`/next-match-predictions/count?code=${encodeURIComponent(code)}`)
+            .then(res => res.json())
+            .then(count => {
+                totalUnplayedMatches = count;
+                fetchMatchAtOffset(currentMatchOffset);
+            })
+            .catch(() => {
+                const el = document.getElementById("nextMatchContent");
+                if (el) el.innerHTML = `<div style="color:#aaa;font-size:14px;">Could not load next match.</div>`;
+            });
+    }
+
+    function fetchMatchAtOffset(offset) {
+        authFetch(`/next-match-predictions?code=${encodeURIComponent(code)}&offset=${offset}`)
+            .then(res => res.json())
+            .then(data => renderNextMatchPredictions(data))
+            .catch(() => {
+                const el = document.getElementById("nextMatchContent");
+                if (el) el.innerHTML = `<div style="color:#aaa;font-size:14px;">Could not load match.</div>`;
+            });
+    }
+
+    function renderNextMatchPredictions(data) {
+        const el = document.getElementById("nextMatchContent");
+        if (!el) return;
+
+        if (!data.match) {
+            el.innerHTML = `<div style="color:#aaa;font-size:14px;">No upcoming matches.</div>`;
+            return;
         }
 
-        function renderNextMatchPredictions(data) {
-            const el = document.getElementById("nextMatchContent");
-            if (!el) return;
+        const match = data.match;
+        const members = data.members || [];
+        const home = match.homeTeam?.name || "?";
+        const away = match.awayTeam?.name || "?";
+        const group = match.homeTeam?.groupName || "";
+        const dateStr = match.matchDate
+            ? new Date(match.matchDate).toLocaleDateString("sv-SE", { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })
+            : "";
 
-            if (!data.match) {
-                el.innerHTML = `<div style="color:#aaa;font-size:14px;">No upcoming matches.</div>`;
-                return;
-            }
+        const flagCodeMap = {
+            "Mexico":"mx","South Africa":"za","South Korea":"kr","Czech Republic":"cz",
+            "Switzerland":"ch","Canada":"ca","Bosnia":"ba","Qatar":"qa","Brazil":"br",
+            "Haiti":"ht","Scotland":"gb-sct","Morocco":"ma","Turkey":"tr","Paraguay":"py",
+            "USA":"us","Germany":"de","Curacao":"cw","Ecuador":"ec","Norway":"no",
+            "DR Congo":"cd","Cape Verde":"cv","Japan":"jp","Belgium":"be","England":"gb-eng",
+            "Colombia":"co","Portugal":"pt","Spain":"es","Austria":"at","Uruguay":"uy",
+            "Ivory Coast":"ci","France":"fr","Argentina":"ar","Algeria":"dz","Panama":"pa",
+            "Croatia":"hr","Senegal":"sn","Netherlands":"nl","Sweden":"se","Saudi Arabia":"sa",
+            "Australia":"au","Iran":"ir","Ghana":"gh","Denmark":"dk","Poland":"pl",
+            "New Zealand":"nz","Iraq":"iq","Jordan":"jo","Tunisia":"tn","Wales":"gb-wls","Uzbekistan":"uz"
+        };
 
-            const match = data.match;
-            const members = data.members || [];
+        const homeFlag = flagCodeMap[home]
+            ? `<img src="https://flagcdn.com/w40/${flagCodeMap[home]}.png" style="width:28px;height:20px;object-fit:cover;border-radius:3px;">`
+            : "🏳️";
+        const awayFlag = flagCodeMap[away]
+            ? `<img src="https://flagcdn.com/w40/${flagCodeMap[away]}.png" style="width:28px;height:20px;object-fit:cover;border-radius:3px;">`
+            : "🏳️";
 
-            const home = match.homeTeam?.name || "?";
-            const away = match.awayTeam?.name || "?";
-            const group = match.homeTeam?.groupName || "";
+        let count1 = 0, countX = 0, count2 = 0;
+        members.forEach(m => {
+            if (m.outcome === "HOME_WIN") count1++;
+            else if (m.outcome === "DRAW") countX++;
+            else if (m.outcome === "AWAY_WIN") count2++;
+        });
 
-            const dateStr = match.matchDate
-                ? new Date(match.matchDate).toLocaleDateString("sv-SE", { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })
-                : "";
-
-            const flagCodeMap = {
-                "Mexico":"mx","South Africa":"za","South Korea":"kr","Czech Republic":"cz",
-                "Switzerland":"ch","Canada":"ca","Bosnia":"ba","Qatar":"qa","Brazil":"br",
-                "Haiti":"ht","Scotland":"gb-sct","Morocco":"ma","Turkey":"tr","Paraguay":"py",
-                "USA":"us","Germany":"de","Curacao":"cw","Ecuador":"ec","Norway":"no",
-                "DR Congo":"cd","Cape Verde":"cv","Japan":"jp","Belgium":"be","England":"gb-eng",
-                "Colombia":"co","Portugal":"pt","Spain":"es","Austria":"at","Uruguay":"uy",
-                "Ivory Coast":"ci","France":"fr","Argentina":"ar","Algeria":"dz","Panama":"pa",
-                "Croatia":"hr","Senegal":"sn","Netherlands":"nl","Sweden":"se","Saudi Arabia":"sa",
-                "Australia":"au","Iran":"ir","Ghana":"gh","Denmark":"dk","Poland":"pl",
-                "New Zealand":"nz","Iraq":"iq","Jordan":"jo","Tunisia":"tn","Wales":"gb-wls","Uzbekistan":"uz"
-            };
-
-            const homeFlag = flagCodeMap[home]
-                ? `<img src="https://flagcdn.com/w40/${flagCodeMap[home]}.png" style="width:28px;height:20px;object-fit:cover;border-radius:3px;">`
-                : "🏳️";
-            const awayFlag = flagCodeMap[away]
-                ? `<img src="https://flagcdn.com/w40/${flagCodeMap[away]}.png" style="width:28px;height:20px;object-fit:cover;border-radius:3px;">`
-                : "🏳️";
-
-            let count1 = 0, countX = 0, count2 = 0;
-            members.forEach(m => {
-                if (m.outcome === "HOME_WIN") count1++;
-                else if (m.outcome === "DRAW") countX++;
-                else if (m.outcome === "AWAY_WIN") count2++;
-            });
-
-            const rowsHtml = members.map(m => {
-                const isMe = m.username === username;
-                const pill1 = m.outcome === "HOME_WIN" ? `<span class="nm-pill nm-pill-1">1</span>` : "";
-                const pillX = m.outcome === "DRAW"     ? `<span class="nm-pill nm-pill-x">X</span>` : "";
-                const pill2 = m.outcome === "AWAY_WIN" ? `<span class="nm-pill nm-pill-2">2</span>` : "";
-                return `
+        const rowsHtml = members.map(m => {
+            const isMe = m.username === username;
+            const pill1 = m.outcome === "HOME_WIN" ? `<span class="nm-pill nm-pill-1">1</span>` : "";
+            const pillX = m.outcome === "DRAW"     ? `<span class="nm-pill nm-pill-x">X</span>` : "";
+            const pill2 = m.outcome === "AWAY_WIN" ? `<span class="nm-pill nm-pill-2">2</span>` : "";
+            return `
             <div class="nm-member-row ${isMe ? "nm-me" : ""}">
                 <div class="nm-member-name ${isMe ? "nm-me-name" : ""}">${m.username}${isMe ? " (you)" : ""}</div>
                 <div class="nm-pick-cell">${pill1}</div>
                 <div class="nm-pick-cell">${pillX}</div>
                 <div class="nm-pick-cell">${pill2}</div>
             </div>`;
-            }).join("");
+        }).join("");
 
-            el.innerHTML = `
+        const canPrev = currentMatchOffset > 0;
+        const canNext = currentMatchOffset < totalUnplayedMatches - 1;
+
+        el.innerHTML = `
         <div class="nm-teams-block">
             <div style="font-size:11px;color:#555;margin-bottom:8px;">Group ${group} · ${dateStr}</div>
             <div class="nm-teams-row">
                 <div class="nm-team-side">
-                    <span class="nm-flag">${homeFlag}</span>
+                    ${homeFlag}
                     <span class="nm-team-name">${home}</span>
                 </div>
                 <span class="nm-vs">vs</span>
                 <div class="nm-team-side">
-                    <span class="nm-flag">${awayFlag}</span>
+                    ${awayFlag}
                     <span class="nm-team-name">${away}</span>
                 </div>
             </div>
@@ -1733,9 +1750,9 @@
 
         <div class="nm-col-headers">
             <div></div>
-            <div class="nm-col-header" title="${home} wins">1</div>
+            <div class="nm-col-header">1</div>
             <div class="nm-col-header">X</div>
-            <div class="nm-col-header" title="${away} wins">2</div>
+            <div class="nm-col-header">2</div>
         </div>
 
         ${rowsHtml}
@@ -1754,10 +1771,23 @@
                 <div class="nm-sum-label">tips 2</div>
             </div>
         </div>
-    `;
-        }
 
-        loadNextMatchPredictions();
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.07);">
+            <button onclick="changeMatch(-1)" style="background:${canPrev ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)'}; border:1px solid rgba(255,255,255,0.12); color:${canPrev ? '#fff' : '#444'}; border-radius:8px; padding:6px 12px; cursor:${canPrev ? 'pointer' : 'default'}; font-size:14px;" ${canPrev ? '' : 'disabled'}>← Prev</button>
+            <span style="font-size:11px; color:#555;">${currentMatchOffset + 1} / ${totalUnplayedMatches}</span>
+            <button onclick="changeMatch(1)" style="background:${canNext ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)'}; border:1px solid rgba(255,255,255,0.12); color:${canNext ? '#fff' : '#444'}; border-radius:8px; padding:6px 12px; cursor:${canNext ? 'pointer' : 'default'}; font-size:14px;" ${canNext ? '' : 'disabled'}>Next →</button>
+        </div>
+    `;
+    }
+
+    function changeMatch(direction) {
+        const newOffset = currentMatchOffset + direction;
+        if (newOffset < 0 || newOffset >= totalUnplayedMatches) return;
+        currentMatchOffset = newOffset;
+        fetchMatchAtOffset(currentMatchOffset);
+    }
+
+    loadNextMatchPredictions();
 </script>
 
 </body>
