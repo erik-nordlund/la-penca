@@ -134,8 +134,8 @@ public class PredictionService {
             String homeTeamName = match.getHomeTeam().getName();
             String awayTeamName = match.getAwayTeam().getName();
 
-            table.putIfAbsent(homeTeamName, new GroupTableRow(homeTeamName, 0, 0, 0, 0, 0));
-            table.putIfAbsent(awayTeamName, new GroupTableRow(awayTeamName, 0, 0, 0, 0, 0));
+            table.putIfAbsent(homeTeamName, new GroupTableRow(homeTeamName, 0, 0, 0, 0, 0, 0, 0));
+            table.putIfAbsent(awayTeamName, new GroupTableRow(awayTeamName, 0, 0, 0, 0, 0, 0, 0));
 
             GroupTableRow homeRow = table.get(homeTeamName);
             GroupTableRow awayRow = table.get(awayTeamName);
@@ -1338,8 +1338,8 @@ public class PredictionService {
             String homeTeamName = match.getHomeTeam().getName();
             String awayTeamName = match.getAwayTeam().getName();
 
-            table.putIfAbsent(homeTeamName, new GroupTableRow(homeTeamName, 0, 0, 0, 0, 0));
-            table.putIfAbsent(awayTeamName, new GroupTableRow(awayTeamName, 0, 0, 0, 0, 0));
+            table.putIfAbsent(homeTeamName, new GroupTableRow(homeTeamName, 0, 0, 0, 0, 0, 0, 0));
+            table.putIfAbsent(awayTeamName, new GroupTableRow(awayTeamName, 0, 0, 0, 0, 0, 0, 0));
 
             if (!match.isPlayed() || match.getHomeScore() == null || match.getAwayScore() == null) {
                 continue;
@@ -1350,6 +1350,11 @@ public class PredictionService {
 
             homeRow.setPlayed(homeRow.getPlayed() + 1);
             awayRow.setPlayed(awayRow.getPlayed() + 1);
+
+            homeRow.setGoalsFor(homeRow.getGoalsFor() + match.getHomeScore());
+            homeRow.setGoalsAgainst(homeRow.getGoalsAgainst() + match.getAwayScore());
+            awayRow.setGoalsFor(awayRow.getGoalsFor() + match.getAwayScore());
+            awayRow.setGoalsAgainst(awayRow.getGoalsAgainst() + match.getHomeScore());
 
             if (match.getHomeScore() > match.getAwayScore()) {
                 homeRow.setWins(homeRow.getWins() + 1);
@@ -1368,7 +1373,18 @@ public class PredictionService {
         }
 
         return table.values().stream()
-                .sorted((a, b) -> Integer.compare(b.getPoints(), a.getPoints()))
+                .sorted((a, b) -> {
+                    int pointsCompare = Integer.compare(b.getPoints(), a.getPoints());
+                    if (pointsCompare != 0) return pointsCompare;
+
+                    int gdCompare = Integer.compare(b.getGoalDifference(), a.getGoalDifference());
+                    if (gdCompare != 0) return gdCompare;
+
+                    int gfCompare = Integer.compare(b.getGoalsFor(), a.getGoalsFor());
+                    if (gfCompare != 0) return gfCompare;
+
+                    return a.getTeamName().compareTo(b.getTeamName());
+                })
                 .toList();
     }
 
