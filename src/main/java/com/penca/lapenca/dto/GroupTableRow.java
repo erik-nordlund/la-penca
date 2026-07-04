@@ -14,4 +14,10 @@ public class GroupTableRow {
     private int draws;
     private int losses;
     private int points;
+    private int goalsFor;
+    private int goalsAgainst;
+
+    public int getGoalDifference() {
+        return goalsFor - goalsAgainst;
+    }
 }
